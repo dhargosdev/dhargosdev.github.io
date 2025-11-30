@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Experimentos aleatorios: moneda y dados</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Librería para las gráficas -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    :root {
+      --color-principal: #1f8f7a;
+      --color-secundario: #f0f9f7;
+      --color-acento: #ffb703;
+      --color-texto: #222;
+      --radius: 12px;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: #f4f6fb;
+      color: var(--color-texto);
+    }
+
+    header {
+      background: linear-gradient(135deg, var(--color-principal), #145e4f);
+      color: white;
+      padding: 1.2rem 1.5rem;
+      text-align: center;
+    }
+
+    header h1 {
+      margin: 0 0 0.3rem;
+      font-size: 1.6rem;
+    }
+
+    header p {
+      margin: 0;
+      font-size: 0.95rem;
+      opacity: 0.95;
+    }
+
+    main {
+      max-width: 1100px;
+      margin: 1rem auto 2rem;
+      padding: 0 1rem;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      flex: 1;
+      min-width: 180px;
+      padding: 0.6rem 0.8rem;
+      border-radius: var(--radius);
+      border: none;
+      cursor: pointer;
+      background: white;
+      color: var(--color-texto);
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.06);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      font-weight: 600;
+      transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.1s ease;
+    }
+
+    .tab-btn span.emoji {
+      font-size: 1.2rem;
+    }
+
+    .tab-btn.active {
+      background: var(--color-principal);
+      color: white;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.18);
+      transform: translateY(-1px);
+    }
+
+    .card {
+      background: white;
+      border-radius: var(--radius);
+      padding: 1rem 1.2rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+      margin-bottom: 1rem;
+    }
+
+    .card h2 {
+      margin-top: 0;
+      font-size: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .card h3 {
+      margin-top: 0;
+      font-size: 1.1rem;
+    }
+
+    .experiment-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.6fr) minmax(0, 1.2fr);
+      gap: 1rem;
+    }
+
+    @media (max-width: 900px) {
+      .experiment-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      align-items: center;
+      margin-bottom: 0.8rem;
+    }
+
+    .controls label {
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .controls input[type="number"] {
+      width: 90px;
+      padding: 0.2rem 0.3rem;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+
+    .controls input[type="range"] {
+      flex: 1;
+    }
+
+    .btn-primary {
+      padding: 0.6rem 1rem;
+      background: var(--color-principal);
+      color: white;
+      border: none;
+      border-radius: 999px;
+      cursor: pointer;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.18);
+      transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.1s ease;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.18);
+      background: #166e5b;
+    }
+
+    .btn-primary:active {
+      transform: translateY(0px);
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.16);
+    }
+
+    .small-info {
+      font-size: 0.85rem;
+      color: #555;
+      margin-top: 0.2rem;
+    }
+
+    canvas {
+      max-width: 100%;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 0.5rem;
+      font-size: 0.9rem;
+    }
+
+    th, td {
+      border: 1px solid #e0e0e0;
+      padding: 0.3rem 0.4rem;
+      text-align: center;
+    }
+
+    th {
+      background: var(--color-secundario);
+    }
+
+    .highlight {
+      font-weight: 700;
+      color: var(--color-principal);
+    }
+
+    .conclusion {
+      background: var(--color-secundario);
+      border-radius: var(--radius);
+      padding: 0.7rem 0.8rem;
+      font-size: 0.9rem;
+      margin-top: 0.4rem;
+      border-left: 4px solid var(--color-acento);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.1rem 0.5rem;
+      border-radius: 999px;
+      background: var(--color-secundario);
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin-left: 0.3rem;
+    }
+  </style>
+</head>
+<body>
+<header>
+  <h1>Laboratorio de probabilidad 🧪</h1>
+  <p>
+    Juega con lanzamientos de moneda y dados, observa las gráficas y descubre la ley de los grandes números.
+  </p>
+</header>
+
+<main>
+  <!-- Pestañas para elegir experimento -->
+  <div class="tabs">
+    <button class="tab-btn active" data-target="moneda">
+      <span class="emoji">🪙</span> Moneda
+    </button>
+    <button class="tab-btn" data-target="dado">
+      <span class="emoji">🎲</span> Dado
+    </button>
+    <button class="tab-btn" data-target="dos-dados">
+      <span class="emoji">🎲🎲</span> Dos dados
+    </button>
+  </div>
+
+  <!-- MONEDA -->
+  <section id="moneda" class="card experiment">
+    <h2>1. Lanzamiento de una moneda <span class="badge">Ley de los grandes números</span></h2>
+    <p>
+      Simulamos una moneda ideal (sin trucar). Cada lanzamiento puede dar <strong>cara</strong> o <strong>cruz</strong>,
+      y la probabilidad teórica de cada uno es del 50&nbsp;%. Al repetir el experimento muchas veces,
+      veremos cómo las <strong>frecuencias relativas</strong> se acercan a 0,5.
+    </p>
+
+    <div class="experiment-layout">
+      <!-- Izquierda: controles + gráfica -->
+      <div>
+        <div class="controls">
+          <label for="nMoneda">N.º lanzamientos:</label>
+          <input type="number" id="nMoneda" min="10" max="5000" step="10" value="2000" />
+          <input type="range" id="nMonedaSlider" min="10" max="5000" step="10" value="2000" />
+        </div>
+        <p class="small-info">
+          Consejo: prueba primero con 20, 50 o 100 lanzamientos… y luego sube a 1000 o más para ver cómo se “estabiliza” la gráfica.
+        </p>
+        <button class="btn-primary" id="btnMoneda">
+          👉 Lanzar la moneda muchas veces
+        </button>
+
+        <div style="margin-top:0.8rem;">
+          <canvas id="chartMoneda" height="180"></canvas>
+        </div>
+      </div>
+
+      <!-- Derecha: tabla + conclusión -->
+      <div>
+        <h3>Resultados</h3>
+        <table id="tablaMoneda">
+          <thead>
+          <tr>
+            <th>Suceso</th>
+            <th>Recuento</th>
+            <th>Frecuencia relativa</th>
+          </tr>
+          </thead>
+          <tbody>
+          <!-- Se rellenará por JS -->
+          </tbody>
+        </table>
+
+        <div id="conclusionMoneda" class="conclusion">
+          Pulsa el botón para comenzar el experimento.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DADO -->
+  <section id="dado" class="card experiment" style="display:none;">
+    <h2>2. Lanzamiento de un dado 🎲</h2>
+    <p>
+      Ahora usamos un dado ideal de seis caras (1, 2, 3, 4, 5 y 6). Cada cara tiene probabilidad teórica
+      <strong>1/6 ≈ 0,1667</strong>. Vamos a comprobar con simulación cómo se reparte la frecuencia de cada resultado.
+    </p>
+
+    <div class="experiment-layout">
+      <div>
+        <div class="controls">
+          <label for="nDado">N.º lanzamientos:</label>
+          <input type="number" id="nDado" min="10" max="5000" step="10" value="2000" />
+          <input type="range" id="nDadoSlider" min="10" max="5000" step="10" value="2000" />
+        </div>
+        <p class="small-info">
+          Observa cómo, al aumentar el número de lanzamientos, las barras se parecen cada vez más entre sí.
+        </p>
+        <button class="btn-primary" id="btnDado">
+          👉 Lanzar el dado muchas veces
+        </button>
+
+        <div style="margin-top:0.8rem;">
+          <canvas id="chartDado" height="190"></canvas>
+        </div>
+      </div>
+
+      <div>
+        <h3>Resultados</h3>
+        <table id="tablaDado">
+          <thead>
+          <tr>
+            <th>Resultado</th>
+            <th>Recuento</th>
+            <th>Frecuencia relativa</th>
+          </tr>
+          </thead>
+          <tbody>
+          </tbody>
+        </table>
+
+        <div id="conclusionDado" class="conclusion">
+          Pulsa el botón para comenzar el experimento.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DOS DADOS -->
+  <section id="dos-dados" class="card experiment" style="display:none;">
+    <h2>3. Lanzamiento de dos dados 🎲🎲</h2>
+    <p>
+      Lanzamos dos dados y sumamos sus resultados. Los posibles valores son del <strong>2</strong> al <strong>12</strong>,
+      pero no todos son igual de probables (por ejemplo, el 7 se puede obtener de muchas formas distintas).
+      La simulación nos permitirá ver la forma característica de la distribución.
+    </p>
+
+    <div class="experiment-layout">
+      <div>
+        <div class="controls">
+          <label for="nDosDados">N.º lanzamientos:</label>
+          <input type="number" id="nDosDados" min="10" max="5000" step="10" value="2000" />
+          <input type="range" id="nDosDadosSlider" min="10" max="5000" step="10" value="2000" />
+        </div>
+        <p class="small-info">
+          ¿Cuál será el resultado más frecuente? Haz tus apuestas antes de simular.
+        </p>
+        <button class="btn-primary" id="btnDosDados">
+          👉 Lanzar los dos dados muchas veces
+        </button>
+
+        <div style="margin-top:0.8rem;">
+          <canvas id="chartDosDados" height="190"></canvas>
+        </div>
+      </div>
+
+      <div>
+        <h3>Resultados</h3>
+        <table id="tablaDosDados">
+          <thead>
+          <tr>
+            <th>Suma</th>
+            <th>Recuento</th>
+            <th>Frecuencia relativa</th>
+          </tr>
+          </thead>
+          <tbody>
+          </tbody>
+        </table>
+
+        <div id="conclusionDosDados" class="conclusion">
+          Pulsa el botón para comenzar el experimento.
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+  // Utilidades básicas
+  function formatNumber(num, decimals = 4) {
+    return num.toFixed(decimals).replace(".", ",");
+  }
+
+  // Gestión de pestañas
+  const tabButtons = document.querySelectorAll(".tab-btn");
+  const experiments = document.querySelectorAll(".experiment");
+
+  tabButtons.forEach(btn => {
+    btn.addEventListener("click", () => {
+      const target = btn.dataset.target;
+      tabButtons.forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      experiments.forEach(sec => {
+        sec.style.display = sec.id === target ? "block" : "none";
+      });
+    });
+  });
+
+  // Referencias a controles y gráficos
+  let chartMoneda = null;
+  let chartDado = null;
+  let chartDosDados = null;
+
+  const nMonedaInput = document.getElementById("nMoneda");
+  const nMonedaSlider = document.getElementById("nMonedaSlider");
+
+  const nDadoInput = document.getElementById("nDado");
+  const nDadoSlider = document.getElementById("nDadoSlider");
+
+  const nDosDadosInput = document.getElementById("nDosDados");
+  const nDosDadosSlider = document.getElementById("nDosDadosSlider");
+
+  // Sincronizar input number <-> slider
+  function linkNumberAndSlider(numberInput, sliderInput) {
+    numberInput.addEventListener("input", () => {
+      const value = Math.min(Math.max(parseInt(numberInput.value || 10), parseInt(sliderInput.min)), parseInt(sliderInput.max));
+      numberInput.value = value;
+      sliderInput.value = value;
+    });
+    sliderInput.addEventListener("input", () => {
+      numberInput.value = sliderInput.value;
+    });
+  }
+
+  linkNumberAndSlider(nMonedaInput, nMonedaSlider);
+  linkNumberAndSlider(nDadoInput, nDadoSlider);
+  linkNumberAndSlider(nDosDadosInput, nDosDadosSlider);
+
+  // 1) MONEDA
+  document.getElementById("btnMoneda").addEventListener("click", () => {
+    const n = parseInt(nMonedaInput.value);
+    const resultados = [];
+    let caras = 0;
+    let cruces = 0;
+    const freqCaras = [];
+    const freqCruces = [];
+    const pasos = [];
+
+    for (let i = 1; i <= n; i++) {
+      // 0 -> cara, 1 -> cruz
+      const r = Math.random() < 0.5 ? "Cara" : "Cruz";
+      resultados.push(r);
+      if (r === "Cara") caras++;
+      else cruces++;
+
+      pasos.push(i);
+      freqCaras.push(caras / i);
+      freqCruces.push(cruces / i);
+    }
+
+    // Tabla
+    const tbody = document.querySelector("#tablaMoneda tbody");
+    tbody.innerHTML = "";
+    const filaCara = document.createElement("tr");
+    filaCara.innerHTML = `
+      <td>Cara</td>
+      <td>${caras}</td>
+      <td>${formatNumber(caras / n)}</td>`;
+    const filaCruz = document.createElement("tr");
+    filaCruz.innerHTML = `
+      <td>Cruz</td>
+      <td>${cruces}</td>
+      <td>${formatNumber(cruces / n)}</td>`;
+    tbody.appendChild(filaCara);
+    tbody.appendChild(filaCruz);
+
+    // Gráfica
+    const ctx = document.getElementById("chartMoneda").getContext("2d");
+    if (chartMoneda) chartMoneda.destroy();
+    chartMoneda = new Chart(ctx, {
+      type: "line",
+      data: {
+        labels: pasos,
+        datasets: [
+          {
+            label: "Frecuencia relativa de Cara",
+            data: freqCaras,
+            borderWidth: 2,
+            fill: false,
+          },
+          {
+            label: "Frecuencia relativa de Cruz",
+            data: freqCruces,
+            borderWidth: 2,
+            borderDash: [4, 3],
+            fill: false,
+          },
+          {
+            label: "Probabilidad teórica (0,5)",
+            data: new Array(pasos.length).fill(0.5),
+            borderWidth: 1,
+            borderDash: [2, 4],
+            pointRadius: 0,
+          }
+        ],
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { position: "bottom" },
+        },
+        scales: {
+          x: {
+            title: { display: true, text: "Número de lanzamientos" },
+            ticks: { maxTicksLimit: 10 }
+          },
+          y: {
+            title: { display: true, text: "Frecuencia relativa" },
+            min: 0,
+            max: 1
+          }
+        }
+      }
+    });
+
+    // Conclusión
+    const pCara = caras / n;
+    const pCruz = cruces / n;
+    const diffCara = Math.abs(pCara - 0.5);
+    const diffCruz = Math.abs(pCruz - 0.5);
+    let comentarioTamaño = "";
+
+    if (n < 100) comentarioTamaño = "Con tan pocos lanzamientos todavía hay bastante variación.";
+    else if (n < 500) comentarioTamaño = "Con este número de lanzamientos ya se empieza a notar cierta estabilidad.";
+    else comentarioTamaño = "Con muchos lanzamientos la gráfica se aplana y las frecuencias se mantienen cerca de 0,5.";
+
+    document.getElementById("conclusionMoneda").innerHTML = `
+      <strong>Conclusión para ${n} lanzamientos:</strong><br>
+      • Frecuencia relativa de cara: <span class="highlight">${formatNumber(pCara)}</span><br>
+      • Frecuencia relativa de cruz: <span class="highlight">${formatNumber(pCruz)}</span><br>
+      La diferencia con la probabilidad teórica (0,5) es de aproximadamente
+      <span class="highlight">${formatNumber(diffCara)}</span> para cara y
+      <span class="highlight">${formatNumber(diffCruz)}</span> para cruz.<br><br>
+      ${comentarioTamaño} Es un ejemplo de la <strong>ley de los grandes números</strong>:
+      al aumentar el número de repeticiones, las frecuencias relativas se acercan a la probabilidad teórica.
+    `;
+  });
+
+  // 2) DADO
+  document.getElementById("btnDado").addEventListener("click", () => {
+    const n = parseInt(nDadoInput.value);
+    const cuentas = [0, 0, 0, 0, 0, 0]; // índices 0..5 => caras 1..6
+
+    for (let i = 0; i < n; i++) {
+      const r = Math.floor(Math.random() * 6); // 0..5
+      cuentas[r]++;
+    }
+
+    const freqs = cuentas.map(c => c / n);
+    const tbody = document.querySelector("#tablaDado tbody");
+    tbody.innerHTML = "";
+
+    let maxDiff = 0;
+    freqs.forEach((f, idx) => {
+      const diff = Math.abs(f - 1 / 6);
+      if (diff > maxDiff) maxDiff = diff;
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${idx + 1}</td>
+        <td>${cuentas[idx]}</td>
+        <td>${formatNumber(f)}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    const ctx = document.getElementById("chartDado").getContext("2d");
+    if (chartDado) chartDado.destroy();
+    chartDado = new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels: ["1", "2", "3", "4", "5", "6"],
+        datasets: [
+          {
+            label: "Frecuencia relativa",
+            data: freqs,
+          },
+          {
+            label: "Probabilidad teórica (1/6)",
+            data: new Array(6).fill(1 / 6),
+            type: "line",
+            borderWidth: 1,
+            pointRadius: 0,
+            borderDash: [3, 4]
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { position: "bottom" },
+        },
+        scales: {
+          x: {
+            title: { display: true, text: "Cara del dado" }
+          },
+          y: {
+            title: { display: true, text: "Frecuencia relativa" },
+            beginAtZero: true,
+            max: 0.35
+          }
+        }
+      }
+    });
+
+    let comentario;
+    if (n < 100) comentario = "Con pocos lanzamientos algunas caras salen claramente más que otras por puro azar.";
+    else if (n < 500) comentario = "Las frecuencias se van acercando entre sí, aunque aún hay pequeñas diferencias.";
+    else comentario = "Las barras tienen alturas parecidas: todas las caras son casi equiprobables, como predice la teoría.";
+
+    document.getElementById("conclusionDado").innerHTML = `
+      <strong>Conclusión para ${n} lanzamientos:</strong><br>
+      • La probabilidad teórica de cada cara es 1/6 ≈ <span class="highlight">0,1667</span>.<br>
+      • La desviación máxima entre las frecuencias obtenidas y 1/6 es de aproximadamente
+        <span class="highlight">${formatNumber(maxDiff)}</span>.<br><br>
+      ${comentario}
+    `;
+  });
+
+  // 3) DOS DADOS
+  document.getElementById("btnDosDados").addEventListener("click", () => {
+    const n = parseInt(nDosDadosInput.value);
+    // sums 2..12 => 11 valores, índice 0..10 => suma = índice + 2
+    const cuentas = new Array(11).fill(0);
+
+    for (let i = 0; i < n; i++) {
+      const d1 = Math.floor(Math.random() * 6) + 1;
+      const d2 = Math.floor(Math.random() * 6) + 1;
+      const suma = d1 + d2;
+      cuentas[suma - 2]++;
+    }
+
+    const freqs = cuentas.map(c => c / n);
+    const labels = [];
+    for (let s = 2; s <= 12; s++) labels.push(String(s));
+
+    const tbody = document.querySelector("#tablaDosDados tbody");
+    tbody.innerHTML = "";
+    let maxFreq = 0;
+    let sumaMasFrecuente = 2;
+    freqs.forEach((f, idx) => {
+      if (f > maxFreq) {
+        maxFreq = f;
+        sumaMasFrecuente = idx + 2;
+      }
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${idx + 2}</td>
+        <td>${cuentas[idx]}</td>
+        <td>${formatNumber(f)}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    // Probabilidades teóricas (número de combinaciones / 36)
+    const combinaciones = [1, 2, 3, 4, 5, 6, 5, 4, 3, 2, 1];
+    const probsTeoricas = combinaciones.map(c => c / 36);
+
+    const ctx = document.getElementById("chartDosDados").getContext("2d");
+    if (chartDosDados) chartDosDados.destroy();
+    chartDosDados = new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels,
+        datasets: [
+          {
+            label: "Frecuencia relativa",
+            data: freqs,
+          },
+          {
+            label: "Probabilidad teórica",
+            data: probsTeoricas,
+            type: "line",
+            borderWidth: 1,
+            pointRadius: 0,
+            borderDash: [3, 4]
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { position: "bottom" },
+        },
+        scales: {
+          x: {
+            title: { display: true, text: "Suma de los dos dados" }
+          },
+          y: {
+            title: { display: true, text: "Frecuencia relativa" },
+            beginAtZero: true,
+            max: 0.25
+          }
+        }
+      }
+    });
+
+    const conclusion = document.getElementById("conclusionDosDados");
+    conclusion.innerHTML = `
+      <strong>Conclusión para ${n} lanzamientos:</strong><br>
+      • El resultado más frecuente ha sido la suma <span class="highlight">${sumaMasFrecuente}</span> (frecuencia aproximada ${formatNumber(maxFreq)}).<br>
+      • La forma de la gráfica se parece a una pequeña “montaña”: los valores centrales (6, 7, 8) aparecen más que los extremos (2, 3, 11, 12).<br><br>
+      Esto ocurre porque hay más <strong>combinaciones posibles</strong> que dan lugar a sumas centrales
+      (por ejemplo, 7 se puede obtener como 1+6, 2+5, 3+4, 4+3, 5+2 o 6+1),
+      mientras que los extremos solo tienen una o dos combinaciones.<br>
+      Es un buen ejemplo de cómo la probabilidad depende del número de formas de obtener cada resultado.
+    `;
+  });
+
+  // Lanzar una primera simulación al cargar la página para que no se vea vacío
+  window.addEventListener("load", () => {
+    document.getElementById("btnMoneda").click();
+  });
+</script>
+</body>
+</html>
