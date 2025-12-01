@@ -1,13 +1,97 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" type="text/css" href="styles.css">
-  <title>MI SITIO WEB</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dhargos</title>
+    <!-- Tailwind CSS (Estilos rápidos desde CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Fuente Inter de Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Configuración base de fuente */
+        body { font-family: 'Inter', sans-serif; }
+        
+        /* Efecto de texto degradado (Cian a Magenta) */
+        .gradient-text {
+            background: linear-gradient(to right, #22d3ee, #e879f9);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        /* Sombra brillante detrás del logo */
+        .logo-shadow {
+            box-shadow: 0 0 40px -10px rgba(34, 211, 238, 0.3), 
+                        0 0 40px -10px rgba(232, 121, 249, 0.3);
+        }
+        
+        /* Animaciones de entrada (fade in + subir) */
+        .fade-in-up {
+            opacity: 0;
+            animation: fadeInUp 0.8s ease-out forwards;
+            transform: translateY(20px);
+        }
+        
+        @keyframes fadeInUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Retrasos para que los elementos aparezcan en cascada */
+        .delay-100 { animation-delay: 0.1s; }
+        .delay-200 { animation-delay: 0.2s; }
+        .delay-300 { animation-delay: 0.3s; }
+    </style>
 </head>
+<body class="bg-slate-950 text-white min-h-screen flex flex-col items-center justify-center relative overflow-hidden px-4 selection:bg-cyan-500/30">
 
-<body>
-  <p>Este es un sitio web de prueba publicado en GitHub con CSS.</p>
+    <!-- Blobs de fondo decorativos (Luces ambientales) -->
+    <div class="absolute top-[-10%] left-[-10%] w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-fuchsia-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+    <!-- Contenedor Principal Centrado -->
+    <main class="max-w-2xl w-full text-center z-10 space-y-8">
+        
+        <!-- LOGO -->
+        <div class="fade-in-up transition-all duration-1000">
+            <div class="relative inline-block group">
+                <!-- Brillo detrás del logo -->
+                <div class="absolute -inset-1 bg-gradient-to-r from-cyan-400 to-fuchsia-500 rounded-full blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
+                <!-- Imagen del Logo -->
+                <img 
+                    src="./images/Logo-IA-color.png" 
+                    alt="Logo Docente" 
+                    class="relative w-32 h-32 md:w-40 md:h-40 rounded-full object-cover border-2 border-slate-800 logo-shadow mx-auto transition-transform duration-500 hover:scale-105"
+                    onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                />
+                <!-- Fallback por si la imagen falla -->
+                <div style="display:none;" class="w-32 h-32 md:w-40 md:h-40 rounded-full bg-slate-800 border-2 border-slate-700 items-center justify-center text-slate-500 mx-auto">
+                    IMG
+                </div>
+            </div>
+        </div>
+
+        <!-- TEXTOS -->
+        <div class="space-y-4">
+            <h1 class="text-4xl md:text-5xl font-bold tracking-tight fade-in-up delay-100">
+                <span class="gradient-text">Dhargos</span> Web
+            </h1>
+            <p class="text-slate-400 text-lg md:text-xl max-w-lg mx-auto leading-relaxed fade-in-up delay-200">
+                Profesor Javier Salido Gómez
+            </p>
+        </div>
+
+    </main>
+
+    <!-- Footer (Año automático) -->
+    <footer class="absolute bottom-6 text-slate-600 text-sm fade-in-up delay-300">
+        <p>© <span id="year"></span> Departamento de Tecnología e Informática. IES Francisco de los Cobos (Úbeda, Jaén)</p>
+    </footer>
+
+    <script>
+        // Script simple para poner el año actual
+        document.getElementById('year').textContent = new Date().getFullYear();
+    </script>
+
 </body>
 </html>
