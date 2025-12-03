@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laboratorio de Regresión Lineal - 1º Bachillerato</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .tab-active { border-bottom: 3px solid #2563EB; color: #2563EB; font-weight: bold; background-color: #EFF6FF; }
+        .tab-inactive { color: #6B7280; }
+        .tab-inactive:hover { background-color: #F8FAFC; }
+        canvas { background-color: #ffffff; border-radius: 8px; cursor: crosshair; }
+        /* Animación suave para tooltips */
+        .tooltip { pointer-events: none; position: absolute; background: rgba(0,0,0,0.8); color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; white-space: nowrap; z-index: 10; display: none; }
+    </style>
+</head>
+<body class="bg-slate-100 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-blue-700 text-white p-4 shadow-md">
+        <div class="container mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl font-bold"><i class="fas fa-chart-line mr-2"></i>Ciencia de Datos y Simulación</h1>
+                <p class="text-blue-200 text-sm">Modelos de Regresión Lineal - 1º Bachillerato</p>
+            </div>
+            <div class="text-right text-xs text-blue-300">
+                Dpto. Tecnología e Informática. IES Francisco de los Cobos
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow container mx-auto p-4 relative">
+        
+        <!-- Tooltip Element -->
+        <div id="tooltip" class="tooltip"></div>
+
+        <!-- Tabs -->
+        <div class="flex border-b border-slate-300 mb-6 bg-white rounded-t-lg shadow-sm">
+            <button id="tab1-btn" onclick="switchTab(1)" class="flex-1 py-4 text-center transition-colors tab-active">
+                <i class="fas fa-ruler-vertical mr-2"></i>1. Datos Antropométricos
+            </button>
+            <button id="tab2-btn" onclick="switchTab(2)" class="flex-1 py-4 text-center transition-colors tab-inactive">
+                <i class="fas fa-graduation-cap mr-2"></i>2. Predicción de Calificaciones
+            </button>
+        </div>
+
+        <!-- View 1: Antropometría -->
+        <div id="view1" class="space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                
+                <!-- Data Panel with Edit -->
+                <div class="bg-white p-4 rounded-lg shadow border border-slate-200 flex flex-col h-[500px]">
+                    <h3 class="font-bold text-lg mb-2 text-slate-700">Dataset (Muestra)</h3>
+                    
+                    <!-- Add Data Form -->
+                    <div class="bg-blue-50 p-3 rounded mb-3 border border-blue-100">
+                        <h4 class="text-xs font-bold text-blue-800 uppercase mb-2">Añadir Dato</h4>
+                        <div class="flex gap-2">
+                            <input type="number" id="add-h" step="0.01" placeholder="Alt (m)" class="w-20 px-2 py-1 text-sm border rounded">
+                            <input type="number" id="add-w" step="0.1" placeholder="Peso (kg)" class="w-20 px-2 py-1 text-sm border rounded">
+                            <button onclick="addPointExp1()" class="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 text-sm"><i class="fas fa-plus"></i></button>
+                        </div>
+                    </div>
+
+                    <div class="overflow-y-auto flex-grow">
+                        <table class="w-full text-sm text-left text-slate-600">
+                            <thead class="text-xs text-slate-700 uppercase bg-slate-100 sticky top-0">
+                                <tr>
+                                    <th class="px-2 py-2">Estatura</th>
+                                    <th class="px-2 py-2">Peso</th>
+                                    <th class="px-2 py-2"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-body-1" class="divide-y divide-slate-100"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Graph Panel -->
+                <div class="bg-white p-4 rounded-lg shadow border border-slate-200 lg:col-span-2 flex flex-col relative">
+                    <h3 class="font-bold text-lg mb-2 text-slate-700">Nube de Puntos y Recta</h3>
+                    <div class="relative w-full flex-grow bg-slate-50 rounded border border-slate-100 flex items-center justify-center h-[420px]">
+                        <canvas id="canvas1" width="800" height="400" class="w-full h-full object-contain"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analysis & Prediction Panel -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Stats -->
+                <div class="bg-blue-50 p-6 rounded-lg border border-blue-200 shadow-sm">
+                    <h3 class="font-bold text-blue-800 mb-4"><i class="fas fa-calculator mr-2"></i>Análisis Estadístico</h3>
+                    <div class="grid grid-cols-2 gap-4 text-sm" id="stats-1"></div>
+                </div>
+
+                <!-- Prediction -->
+                <div class="bg-emerald-50 p-6 rounded-lg border border-emerald-200 shadow-sm">
+                    <h3 class="font-bold text-emerald-800 mb-4"><i class="fas fa-crystal-ball mr-2"></i>Modelo Predictivo</h3>
+                    <div class="flex items-center space-x-4">
+                        <div>
+                            <label class="block text-xs font-bold text-emerald-700 uppercase mb-1">Estatura (m)</label>
+                            <input type="number" id="input-x-1" step="0.01" class="w-24 p-2 border border-emerald-300 rounded outline-none" placeholder="1.85">
+                        </div>
+                        <i class="fas fa-arrow-right text-emerald-400"></i>
+                        <div>
+                            <label class="block text-xs font-bold text-emerald-700 uppercase mb-1">Peso Esperado</label>
+                            <div id="output-y-1" class="text-xl font-bold text-emerald-900">--</div>
+                        </div>
+                    </div>
+                    <div class="mt-4 text-xs text-emerald-600 italic" id="equation-display-1"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- View 2: Calificaciones -->
+        <div id="view2" class="hidden space-y-6">
+            
+            <!-- Selector Area -->
+            <div class="bg-indigo-50 p-4 rounded-lg border border-indigo-200 shadow-sm flex flex-wrap gap-4 items-center justify-between">
+                <div class="flex gap-4 items-center">
+                    <div>
+                        <label class="block text-xs font-bold text-indigo-700 uppercase mb-1">Eje X</label>
+                        <select id="select-x-2" class="p-2 border border-indigo-300 rounded bg-white text-indigo-900">
+                            <option value="mat">Matemáticas</option>
+                            <option value="fis">Física</option>
+                            <option value="fil">Filosofía</option>
+                        </select>
+                    </div>
+                    <i class="fas fa-exchange-alt text-indigo-300 mt-5"></i>
+                    <div>
+                        <label class="block text-xs font-bold text-indigo-700 uppercase mb-1">Eje Y</label>
+                        <select id="select-y-2" class="p-2 border border-indigo-300 rounded bg-white text-indigo-900">
+                            <option value="mat">Matemáticas</option>
+                            <option value="fis" selected>Física</option>
+                            <option value="fil">Filosofía</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Data Panel -->
+                <div class="bg-white p-4 rounded-lg shadow border border-slate-200 flex flex-col h-[500px]">
+                    <h3 class="font-bold text-lg mb-2 text-slate-700">Dataset (Notas)</h3>
+                    
+                    <!-- Add Data Form Exp 2 -->
+                    <div class="bg-indigo-50 p-3 rounded mb-3 border border-indigo-100">
+                        <h4 class="text-xs font-bold text-indigo-800 uppercase mb-2">Añadir Alumno</h4>
+                        <div class="flex gap-1">
+                            <input type="number" id="add-mat" min="0" max="10" placeholder="Mat" class="w-14 px-1 py-1 text-sm border rounded">
+                            <input type="number" id="add-fis" min="0" max="10" placeholder="Fís" class="w-14 px-1 py-1 text-sm border rounded">
+                            <input type="number" id="add-fil" min="0" max="10" placeholder="Fil" class="w-14 px-1 py-1 text-sm border rounded">
+                            <button onclick="addPointExp2()" class="bg-indigo-600 text-white px-2 py-1 rounded hover:bg-indigo-700 text-sm"><i class="fas fa-plus"></i></button>
+                        </div>
+                    </div>
+
+                    <div class="overflow-y-auto flex-grow">
+                        <table class="w-full text-sm text-left text-slate-600">
+                            <thead class="text-xs text-slate-700 uppercase bg-slate-100 sticky top-0">
+                                <tr>
+                                    <th class="px-2 py-2">Mat</th>
+                                    <th class="px-2 py-2">Fís</th>
+                                    <th class="px-2 py-2">Fil</th>
+                                    <th class="px-2 py-2"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-body-2" class="divide-y divide-slate-100"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Graph Panel -->
+                <div class="bg-white p-4 rounded-lg shadow border border-slate-200 lg:col-span-2 flex flex-col relative">
+                    <h3 class="font-bold text-lg mb-2 text-slate-700 w-full">Correlación de Notas</h3>
+                    <div class="relative w-full flex-grow bg-slate-50 rounded border border-slate-100 flex items-center justify-center h-[420px]">
+                        <canvas id="canvas2" width="800" height="400" class="w-full h-full object-contain"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analysis & Prediction Panel -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Stats -->
+                <div class="bg-blue-50 p-6 rounded-lg border border-blue-200 shadow-sm">
+                    <h3 class="font-bold text-blue-800 mb-4"><i class="fas fa-calculator mr-2"></i>Análisis Estadístico</h3>
+                    <div class="grid grid-cols-2 gap-4 text-sm" id="stats-2"></div>
+                </div>
+
+                <!-- Prediction -->
+                <div class="bg-purple-50 p-6 rounded-lg border border-purple-200 shadow-sm">
+                    <h3 class="font-bold text-purple-800 mb-4"><i class="fas fa-crystal-ball mr-2"></i>Predicción de Nota</h3>
+                    <div class="flex items-center space-x-4">
+                        <div>
+                            <label class="block text-xs font-bold text-purple-700 uppercase mb-1" id="label-input-2">Nota X</label>
+                            <input type="number" id="input-x-2" step="0.1" min="0" max="10" class="w-24 p-2 border border-purple-300 rounded outline-none" placeholder="5.0">
+                        </div>
+                        <i class="fas fa-arrow-right text-purple-400"></i>
+                        <div>
+                            <label class="block text-xs font-bold text-purple-700 uppercase mb-1" id="label-output-2">Nota Y</label>
+                            <div id="output-y-2" class="text-xl font-bold text-purple-900">--</div>
+                        </div>
+                    </div>
+                    <div class="mt-4 text-xs text-purple-600 italic" id="equation-display-2"></div>
+                    <div class="mt-2 text-xs text-red-500 font-semibold hidden" id="warning-2">
+                        * Advertencia: La correlación es muy baja (R² < 0.5).
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // --- STATE & DATA ---
+        
+        let dataExp1 = [
+            {x: 1.61, y: 55.0}, {x: 1.75, y: 78.0}, {x: 1.68, y: 63.0}, {x: 1.75, y: 78.0},
+            {x: 1.80, y: 81.0}, {x: 1.83, y: 81.0}, {x: 1.73, y: 70.0}, {x: 1.79, y: 76.0},
+            {x: 1.68, y: 68.0}, {x: 1.73, y: 69.0}, {x: 1.81, y: 78.0}, {x: 1.80, y: 80.0},
+            {x: 1.64, y: 66.0}, {x: 1.83, y: 87.0}, {x: 1.74, y: 72.0}, {x: 1.72, y: 70.0},
+            {x: 1.76, y: 78.0}, {x: 1.79, y: 81.0}, {x: 1.80, y: 82.0}, {x: 1.81, y: 79.0},
+            {x: 1.61, y: 57.0}, {x: 1.87, y: 89.0}
+        ];
+
+        let rawGrades = [
+            {m: 2, f: 1, p: 2}, {m: 3, f: 3, p: 5}, {m: 4, f: 2, p: 7}, {m: 4, f: 4, p: 8},
+            {m: 5, f: 4, p: 5}, {m: 6, f: 4, p: 3}, {m: 6, f: 6, p: 4}, {m: 7, f: 4, p: 6},
+            {m: 7, f: 6, p: 7}, {m: 8, f: 7, p: 5}, {m: 10, f: 9, p: 5}, {m: 10, f: 10, p: 9},
+            {m: 1, f: 1, p: 3}, {m: 3, f: 2, p: 4}, {m: 3, f: 3, p: 6}, {m: 4, f: 3, p: 5},
+            {m: 5, f: 4, p: 4}, {m: 5, f: 5, p: 3}, {m: 6, f: 6, p: 7}, {m: 6, f: 7, p: 5},
+            {m: 8, f: 7, p: 7}, {m: 9, f: 8, p: 10}
+        ];
+
+        let currentModel1 = null;
+        let currentModel2 = null;
+        let pointsOnCanvas1 = []; // Store coordinates for hover
+        let pointsOnCanvas2 = []; 
+
+        // --- MATH ENGINE ---
+        class LinearRegression {
+            constructor(data) {
+                this.data = data; 
+                this.n = data.length;
+                this.calculate();
+            }
+
+            calculate() {
+                if (this.n === 0) {
+                    this.slope = 0; this.intercept = 0; this.r2 = 0; return;
+                }
+                let sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0, sumY2 = 0;
+                this.data.forEach(p => {
+                    sumX += p.x; sumY += p.y;
+                    sumXY += (p.x * p.y); sumX2 += (p.x * p.x); sumY2 += (p.y * p.y);
+                });
+
+                this.meanX = sumX / this.n;
+                this.meanY = sumY / this.n;
+                this.varianceX = (sumX2 / this.n) - (this.meanX * this.meanX);
+                this.varianceY = (sumY2 / this.n) - (this.meanY * this.meanY);
+                this.covariance = (sumXY / this.n) - (this.meanX * this.meanY);
+                this.stdDevX = Math.sqrt(this.varianceX);
+                this.stdDevY = Math.sqrt(this.varianceY);
+
+                if (this.varianceX === 0) { this.slope = 0; } 
+                else { this.slope = this.covariance / this.varianceX; }
+                
+                this.intercept = this.meanY - (this.slope * this.meanX);
+                
+                if (this.stdDevX * this.stdDevY === 0) this.r = 0;
+                else this.r = this.covariance / (this.stdDevX * this.stdDevY);
+                
+                this.r2 = this.r * this.r;
+            }
+
+            predict(x) { return (this.slope * x) + this.intercept; }
+        }
+
+        // --- GRAPHING ENGINE ---
+        function drawGraph(canvasId, regressionModel, labelX, labelY) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            const padding = 60; // More padding for labels
+
+            // Store point coordinates for interactivity
+            const drawnPoints = [];
+
+            // Clear
+            ctx.clearRect(0, 0, width, height);
+
+            if (regressionModel.data.length === 0) return [];
+
+            // Find Min/Max
+            const xs = regressionModel.data.map(p => p.x);
+            const ys = regressionModel.data.map(p => p.y);
+            let minX = Math.min(...xs); let maxX = Math.max(...xs);
+            let minY = Math.min(...ys); let maxY = Math.max(...ys);
+
+            // Add margin (10%)
+            const rangeX = maxX - minX || 1;
+            const rangeY = maxY - minY || 1;
+            minX -= rangeX * 0.1; maxX += rangeX * 0.1;
+            minY -= rangeY * 0.1; maxY += rangeY * 0.1;
+
+            // Mapping functions
+            const mapX = (val) => padding + ((val - minX) / (maxX - minX)) * (width - 2 * padding);
+            const mapY = (val) => height - padding - ((val - minY) / (maxY - minY)) * (height - 2 * padding);
+
+            // GRID & AXES
+            ctx.strokeStyle = '#e2e8f0';
+            ctx.lineWidth = 1;
+            ctx.fillStyle = '#64748b';
+            ctx.font = '10px Arial';
+            ctx.textAlign = 'center';
+
+            // Vertical Grid lines & X Axis Labels
+            const stepsX = 6;
+            for(let i=0; i<=stepsX; i++) {
+                const val = minX + (i * (maxX - minX) / stepsX);
+                const xPos = mapX(val);
+                
+                // Grid line
+                ctx.beginPath();
+                ctx.moveTo(xPos, padding);
+                ctx.lineTo(xPos, height - padding);
+                ctx.stroke();
+
+                // Label
+                ctx.fillText(val.toFixed(2), xPos, height - padding + 15);
+            }
+
+            // Horizontal Grid lines & Y Axis Labels
+            const stepsY = 5;
+            ctx.textAlign = 'right';
+            for(let i=0; i<=stepsY; i++) {
+                const val = minY + (i * (maxY - minY) / stepsY);
+                const yPos = mapY(val);
+                
+                // Grid line
+                ctx.beginPath();
+                ctx.moveTo(padding, yPos);
+                ctx.lineTo(width - padding, yPos);
+                ctx.stroke();
+
+                // Label
+                ctx.fillText(val.toFixed(1), padding - 10, yPos + 3);
+            }
+
+            // Main Axis Lines
+            ctx.strokeStyle = '#94a3b8';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(padding, padding);
+            ctx.lineTo(padding, height - padding);
+            ctx.lineTo(width - padding, height - padding);
+            ctx.stroke();
+
+            // Axis Titles
+            ctx.fillStyle = '#334155';
+            ctx.font = 'bold 12px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(labelX, width / 2, height - 10);
+            ctx.save();
+            ctx.translate(15, height / 2);
+            ctx.rotate(-Math.PI / 2);
+            ctx.fillText(labelY, 0, 0);
+            ctx.restore();
+
+            // REGRESSION LINE
+            const startY = regressionModel.predict(minX);
+            const endY = regressionModel.predict(maxX);
+            ctx.beginPath();
+            ctx.strokeStyle = '#ef4444';
+            ctx.lineWidth = 2;
+            ctx.moveTo(mapX(minX), mapY(startY));
+            ctx.lineTo(mapX(maxX), mapY(endY));
+            ctx.stroke();
+
+            // POINTS
+            regressionModel.data.forEach(p => {
+                const cx = mapX(p.x);
+                const cy = mapY(p.y);
+                
+                ctx.beginPath();
+                ctx.arc(cx, cy, 5, 0, 2 * Math.PI);
+                ctx.fillStyle = 'rgba(59, 130, 246, 0.8)';
+                ctx.fill();
+                ctx.strokeStyle = '#1d4ed8';
+                ctx.stroke();
+
+                drawnPoints.push({cx, cy, xVal: p.x, yVal: p.y});
+            });
+
+            // R2 Label
+            ctx.fillStyle = '#ef4444';
+            ctx.font = 'bold 12px Arial';
+            ctx.textAlign = 'right';
+            const eqText = `R² = ${regressionModel.r2.toFixed(3)}`;
+            ctx.fillText(eqText, width - padding, padding - 10);
+
+            return drawnPoints;
+        }
+
+        // --- INTERACTIVITY (HOVER) ---
+        function setupCanvasHover(canvasId, getPointsFn) {
+            const canvas = document.getElementById(canvasId);
+            const tooltip = document.getElementById('tooltip');
+
+            canvas.addEventListener('mousemove', (e) => {
+                const rect = canvas.getBoundingClientRect();
+                
+                // Escalar coordenadas del ratón al tamaño interno del canvas
+                // Esto corrige problemas si el CSS escala el canvas
+                const scaleX = canvas.width / rect.width;
+                const scaleY = canvas.height / rect.height;
+
+                const mouseX = (e.clientX - rect.left) * scaleX;
+                const mouseY = (e.clientY - rect.top) * scaleY;
+
+                const points = getPointsFn();
+                let found = false;
+
+                for (let p of points) {
+                    const dist = Math.sqrt((mouseX - p.cx)**2 + (mouseY - p.cy)**2);
+                    if (dist < 10) { // Threshold
+                        tooltip.style.left = (e.pageX + 10) + 'px';
+                        tooltip.style.top = (e.pageY - 10) + 'px';
+                        tooltip.style.display = 'block';
+                        tooltip.innerText = `(${p.xVal.toFixed(2)}, ${p.yVal.toFixed(2)})`;
+                        canvas.style.cursor = 'pointer';
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found) {
+                    tooltip.style.display = 'none';
+                    canvas.style.cursor = 'crosshair';
+                }
+            });
+
+            canvas.addEventListener('mouseleave', () => {
+                tooltip.style.display = 'none';
+            });
+        }
+
+        // --- CORE FUNCTIONS ---
+
+        function updateExp1() {
+            // 1. Table
+            const tbody = document.getElementById('table-body-1');
+            tbody.innerHTML = '';
+            dataExp1.forEach((p, index) => {
+                tbody.innerHTML += `
+                    <tr class="bg-white border-b hover:bg-slate-50 text-xs">
+                        <td class="px-2 py-2 font-mono text-blue-600">${p.x.toFixed(2)}</td>
+                        <td class="px-2 py-2 font-mono text-emerald-600">${p.y.toFixed(1)}</td>
+                        <td class="px-2 py-2 text-right">
+                            <button onclick="removePointExp1(${index})" class="text-red-400 hover:text-red-600"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>`;
+            });
+
+            // 2. Stats
+            currentModel1 = new LinearRegression(dataExp1);
+            document.getElementById('stats-1').innerHTML = `
+                <div><span class="text-slate-500 block text-xs">Media X</span> ${currentModel1.meanX.toFixed(2)}</div>
+                <div><span class="text-slate-500 block text-xs">Media Y</span> ${currentModel1.meanY.toFixed(2)}</div>
+                <div><span class="text-slate-500 block text-xs">Covarianza</span> ${currentModel1.covariance.toFixed(2)}</div>
+                <div><span class="text-slate-500 block text-xs">Correlación (R)</span> ${currentModel1.r.toFixed(3)}</div>
+                <div class="col-span-2 bg-blue-100 p-2 rounded text-center"><span class="font-bold text-blue-900">R² = ${(currentModel1.r2 * 100).toFixed(2)}%</span></div>
+            `;
+
+            // 3. Draw
+            pointsOnCanvas1 = drawGraph('canvas1', currentModel1, 'Estatura (m)', 'Peso (kg)');
+
+            // 4. Equation & Trigger Predict
+            const sign = currentModel1.intercept >= 0 ? '+' : '';
+            document.getElementById('equation-display-1').innerHTML = `y = ${currentModel1.slope.toFixed(2)}x ${sign} ${currentModel1.intercept.toFixed(2)}`;
+            
+            // Re-trigger prediction if value exists
+            if(document.getElementById('input-x-1').value) {
+                const val = parseFloat(document.getElementById('input-x-1').value);
+                document.getElementById('output-y-1').innerText = currentModel1.predict(val).toFixed(2) + " kg";
+            }
+        }
+
+        function updateExp2() {
+            const selX = document.getElementById('select-x-2');
+            const selY = document.getElementById('select-y-2');
+            const keyX = selX.value;
+            const keyY = selY.value;
+            const nameMap = { 'mat': 'Matemáticas', 'fis': 'Física', 'fil': 'Filosofía' };
+            
+            // FIX: Map selection values (mat, fis, fil) to data keys (m, f, p)
+            const keyMap = { 'mat': 'm', 'fis': 'f', 'fil': 'p' };
+
+            // 1. Table (Show all 3 cols always for editing context)
+            const tbody = document.getElementById('table-body-2');
+            tbody.innerHTML = '';
+            rawGrades.forEach((row, index) => {
+                // Highlight active columns
+                const classX = keyX === 'mat' ? 'bg-indigo-50 font-bold' : (keyY === 'mat' ? 'bg-purple-50 font-bold' : '');
+                const classF = keyX === 'fis' ? 'bg-indigo-50 font-bold' : (keyY === 'fis' ? 'bg-purple-50 font-bold' : '');
+                const classP = keyX === 'fil' ? 'bg-indigo-50 font-bold' : (keyY === 'fil' ? 'bg-purple-50 font-bold' : '');
+
+                tbody.innerHTML += `
+                    <tr class="bg-white border-b hover:bg-slate-50 text-xs">
+                        <td class="px-2 py-2 ${classX}">${row.m}</td>
+                        <td class="px-2 py-2 ${classF}">${row.f}</td>
+                        <td class="px-2 py-2 ${classP}">${row.p}</td>
+                        <td class="px-2 py-2 text-right">
+                             <button onclick="removePointExp2(${index})" class="text-red-400 hover:text-red-600"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>`;
+            });
+
+            // 2. Prep Data for Regression with Key Map Fix
+            const data2 = rawGrades.map(row => ({ 
+                x: row[keyMap[keyX]], 
+                y: row[keyMap[keyY]] 
+            }));
+
+            // 3. Stats
+            currentModel2 = new LinearRegression(data2);
+            document.getElementById('stats-2').innerHTML = `
+                <div><span class="text-slate-500 block text-xs">Media ${nameMap[keyX]}</span> ${currentModel2.meanX.toFixed(2)}</div>
+                <div><span class="text-slate-500 block text-xs">Media ${nameMap[keyY]}</span> ${currentModel2.meanY.toFixed(2)}</div>
+                <div><span class="text-slate-500 block text-xs">Covarianza</span> ${currentModel2.covariance.toFixed(2)}</div>
+                <div><span class="text-slate-500 block text-xs">Correlación (R)</span> ${currentModel2.r.toFixed(3)}</div>
+                <div class="col-span-2 bg-blue-100 p-2 rounded text-center"><span class="font-bold text-blue-900">R² = ${(currentModel2.r2 * 100).toFixed(2)}%</span></div>
+            `;
+
+            // 4. Draw
+            pointsOnCanvas2 = drawGraph('canvas2', currentModel2, nameMap[keyX], nameMap[keyY]);
+
+            // 5. Interface Text
+            document.getElementById('label-input-2').innerText = `Nota ${nameMap[keyX]}`;
+            document.getElementById('label-output-2').innerText = `Nota ${nameMap[keyY]}`;
+            
+            const sign = currentModel2.intercept >= 0 ? '+' : '';
+            document.getElementById('equation-display-2').innerHTML = `y = ${currentModel2.slope.toFixed(2)}x ${sign} ${currentModel2.intercept.toFixed(2)}`;
+            
+            // Warning
+            const warning = document.getElementById('warning-2');
+            if(currentModel2.r2 < 0.5) warning.classList.remove('hidden');
+            else warning.classList.add('hidden');
+
+            // Trigger Predict
+            if(document.getElementById('input-x-2').value) {
+                 const val = parseFloat(document.getElementById('input-x-2').value);
+                 let pred = currentModel2.predict(val);
+                 if(pred > 10) pred = 10; if(pred < 0) pred = 0;
+                 document.getElementById('output-y-2').innerText = pred.toFixed(2);
+            }
+        }
+
+        // --- DATA EDITING FUNCTIONS ---
+
+        function addPointExp1() {
+            const h = parseFloat(document.getElementById('add-h').value);
+            const w = parseFloat(document.getElementById('add-w').value);
+            if(!isNaN(h) && !isNaN(w)) {
+                dataExp1.push({x: h, y: w});
+                updateExp1();
+                document.getElementById('add-h').value = '';
+                document.getElementById('add-w').value = '';
+            }
+        }
+
+        function removePointExp1(index) {
+            dataExp1.splice(index, 1);
+            updateExp1();
+        }
+
+        function addPointExp2() {
+            const m = parseFloat(document.getElementById('add-mat').value);
+            const f = parseFloat(document.getElementById('add-fis').value);
+            const p = parseFloat(document.getElementById('add-fil').value);
+            
+            if(!isNaN(m) && !isNaN(f) && !isNaN(p)) {
+                rawGrades.push({m: m, f: f, p: p});
+                updateExp2();
+                document.getElementById('add-mat').value = '';
+                document.getElementById('add-fis').value = '';
+                document.getElementById('add-fil').value = '';
+            }
+        }
+
+        function removePointExp2(index) {
+            rawGrades.splice(index, 1);
+            updateExp2();
+        }
+
+
+        // --- INIT & TABS ---
+
+        window.onload = function() {
+            // Setup interactivity
+            setupCanvasHover('canvas1', () => pointsOnCanvas1);
+            setupCanvasHover('canvas2', () => pointsOnCanvas2);
+
+            // Listeners for Exp 1 Prediction
+            document.getElementById('input-x-1').addEventListener('input', (e) => {
+                const val = parseFloat(e.target.value);
+                if(!isNaN(val)) document.getElementById('output-y-1').innerText = currentModel1.predict(val).toFixed(2) + " kg";
+                else document.getElementById('output-y-1').innerText = "--";
+            });
+
+            // Listeners for Exp 2 Selectors & Prediction
+            document.getElementById('select-x-2').addEventListener('change', updateExp2);
+            document.getElementById('select-y-2').addEventListener('change', updateExp2);
+            document.getElementById('input-x-2').addEventListener('input', (e) => {
+                const val = parseFloat(e.target.value);
+                if(!isNaN(val)) {
+                    let pred = currentModel2.predict(val);
+                    if(pred > 10) pred = 10; if(pred < 0) pred = 0;
+                    document.getElementById('output-y-2').innerText = pred.toFixed(2);
+                } else document.getElementById('output-y-2').innerText = "--";
+            });
+
+            // Init
+            updateExp1();
+            // We call updateExp2 here but canvas might be hidden. 
+            // SwitchTab handles the robust redraw.
+            updateExp2();
+        };
+
+        function switchTab(tabId) {
+            document.getElementById('view1').classList.add('hidden');
+            document.getElementById('view2').classList.add('hidden');
+            document.getElementById('tab1-btn').className = 'flex-1 py-4 text-center transition-colors tab-inactive';
+            document.getElementById('tab2-btn').className = 'flex-1 py-4 text-center transition-colors tab-inactive';
+
+            document.getElementById('view' + tabId).classList.remove('hidden');
+            document.getElementById('tab' + tabId + '-btn').className = 'flex-1 py-4 text-center transition-colors tab-active';
+            
+            // FORCE REDRAW when tab becomes visible to ensure correct canvas sizing
+            if(tabId === 1) updateExp1();
+            if(tabId === 2) updateExp2();
+        }
+
+    </script>
+</body>
+</html>
