@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test: Estructuras de Datos (Listas)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Fira+Code:wght@400;500&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #ecfdf5;
+            background-image: radial-gradient(#6ee7b7 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+
+        .code-font {
+            font-family: 'Fira Code', monospace;
+        }
+
+        /* Animaciones */
+        .fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .option-card {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .option-card:hover:not(.disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.1), 0 2px 4px -1px rgba(16, 185, 129, 0.06);
+            border-color: #10b981;
+        }
+
+        .option-card.correct {
+            background-color: #d1fae5 !important;
+            border-color: #059669 !important;
+            color: #064e3b !important;
+        }
+
+        .option-card.incorrect {
+            background-color: #fee2e2 !important;
+            border-color: #dc2626 !important;
+            color: #7f1d1d !important;
+        }
+
+        .disabled {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+    <!-- Quiz Container -->
+    <div class="w-full max-w-3xl bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl border border-emerald-100 overflow-hidden relative min-h-[600px] flex flex-col">
+        
+        <!-- Header -->
+        <div class="bg-slate-900 text-white p-6 flex justify-between items-center border-b-4 border-emerald-500">
+            <div>
+                <h1 class="text-xl font-bold flex items-center gap-2">
+                    <i class="fa-solid fa-laptop-code text-emerald-400"></i>
+                    Quiz: Listas en Python
+                </h1>
+                <p class="text-slate-400 text-xs mt-1">Tema 2 • 2º Bachillerato</p>
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="text-right hidden sm:block">
+                    <div class="text-xs text-slate-400">Puntuación</div>
+                    <div class="font-bold text-emerald-400 text-lg"><span id="score-display">0</span> pts</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="w-full h-2 bg-slate-100">
+            <div id="progress-bar" class="h-full bg-emerald-500 transition-all duration-500 ease-out" style="width: 0%"></div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="p-6 md:p-8 flex-grow flex flex-col justify-center relative">
+            
+            <!-- START SCREEN -->
+            <div id="start-screen" class="text-center fade-in">
+                <div class="w-24 h-24 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6 text-emerald-600 text-4xl shadow-lg shadow-emerald-200/50">
+                    <i class="fa-solid fa-play"></i>
+                </div>
+                <h2 class="text-3xl font-bold text-slate-800 mb-4">¿Listo para el reto?</h2>
+                <p class="text-slate-600 mb-8 text-lg max-w-md mx-auto">Pon a prueba tus conocimientos sobre Listas, índices, bucles y algoritmos básicos.</p>
+                <button onclick="startQuiz()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 px-10 rounded-xl transition-all shadow-lg hover:shadow-emerald-300 transform hover:-translate-y-1">
+                    Comenzar Test
+                </button>
+            </div>
+
+            <!-- QUESTION SCREEN -->
+            <div id="quiz-screen" class="hidden fade-in flex-col h-full">
+                <!-- Question Badge & Text -->
+                <div class="mb-6">
+                    <span class="inline-block bg-slate-100 text-slate-600 text-xs font-bold px-3 py-1 rounded-full mb-3">
+                        Pregunta <span id="current-q-num">1</span> de <span id="total-q-num">10</span>
+                    </span>
+                    <h2 id="question-text" class="text-xl md:text-2xl font-bold text-slate-800 leading-snug">
+                        <!-- Question goes here -->
+                    </h2>
+                </div>
+
+                <!-- Options Grid -->
+                <div id="options-container" class="grid grid-cols-1 gap-3 mb-6">
+                    <!-- Options injected here -->
+                </div>
+
+                <!-- Feedback Area (Hidden initially) -->
+                <div id="feedback-area" class="hidden bg-slate-50 border-l-4 p-4 rounded-r-lg mb-6 transition-all">
+                    <div class="flex items-start gap-3">
+                        <div id="feedback-icon" class="mt-1 text-xl"></div>
+                        <div>
+                            <h4 id="feedback-title" class="font-bold text-sm uppercase tracking-wide mb-1"></h4>
+                            <p id="feedback-text" class="text-slate-600 text-sm"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Next Button -->
+                <div class="mt-auto text-right">
+                    <button id="next-btn" onclick="nextQuestion()" class="hidden bg-slate-800 text-white px-6 py-3 rounded-lg font-bold hover:bg-slate-700 transition-colors flex items-center gap-2 ml-auto">
+                        Siguiente <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- END SCREEN -->
+            <div id="end-screen" class="hidden text-center fade-in py-8">
+                <div id="result-icon-container" class="w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6 text-4xl shadow-xl transition-transform hover:scale-110 duration-300">
+                    <!-- Icon injected -->
+                </div>
+                
+                <h2 class="text-3xl font-bold text-slate-800 mb-2">Test Finalizado</h2>
+                <p id="result-message" class="text-lg text-slate-500 mb-8 font-medium"></p>
+
+                <!-- Stats Grid -->
+                <div class="grid grid-cols-2 gap-4 max-w-sm mx-auto mb-10">
+                    <div class="bg-emerald-50 p-4 rounded-xl border border-emerald-100">
+                        <div class="text-3xl font-bold text-emerald-600" id="final-score">0</div>
+                        <div class="text-xs text-emerald-800 font-semibold uppercase">Aciertos</div>
+                    </div>
+                    <div class="bg-red-50 p-4 rounded-xl border border-red-100">
+                        <div class="text-3xl font-bold text-red-500" id="final-errors">0</div>
+                        <div class="text-xs text-red-800 font-semibold uppercase">Fallos</div>
+                    </div>
+                </div>
+
+                <div class="flex justify-center gap-4">
+                    <button onclick="restartQuiz()" class="bg-emerald-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-emerald-700 shadow-lg hover:shadow-emerald-200 transition-all">
+                        <i class="fa-solid fa-rotate-right mr-2"></i> Repetir Test
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // --- QUIZ DATA ---
+        // Based on the PDF content provided
+        const questions = [
+            {
+                question: "¿Cuál de las siguientes afirmaciones sobre las listas en Python es CORRECTA?",
+                options: [
+                    "Los índices comienzan en 1 y terminan en n.",
+                    "Son estructuras desordenadas de datos.",
+                    "Es una estructura ordenada donde cada elemento tiene una posición (índice).",
+                    "Una vez creada, no se puede modificar su tamaño."
+                ],
+                correct: 2, // Index of correct answer (0-3)
+                feedback: "Una lista es una secuencia ordenada de elementos accesibles mediante un índice que comienza siempre en 0."
+            },
+            {
+                question: "Si tenemos <code>notas = [5, 8, 9]</code>, ¿qué devuelve <code>notas[-1]</code>?",
+                options: [
+                    "5",
+                    "9",
+                    "Error (IndexError)",
+                    "8"
+                ],
+                correct: 1,
+                feedback: "Los índices negativos permiten acceder desde el final. -1 es el último elemento, -2 el penúltimo, etc."
+            },
+            {
+                question: "¿Cuál es la forma correcta de crear una lista con 5 ceros iniciales?",
+                options: [
+                    "<code>lista = [0, 0, 0, 0, 0]</code>",
+                    "<code>lista = [0] * 5</code>",
+                    "<code>lista = []</code>",
+                    "Las opciones A y B son válidas."
+                ],
+                correct: 3,
+                feedback: "Ambas funcionan, aunque <code>[0] * 5</code> es más eficiente y cómoda para listas grandes."
+            },
+            {
+                question: "¿Qué método utilizamos para añadir un elemento AL FINAL de una lista existente?",
+                options: [
+                    "<code>lista.add(dato)</code>",
+                    "<code>lista.append(dato)</code>",
+                    "<code>lista.insert(dato)</code>",
+                    "<code>lista.push(dato)</code>"
+                ],
+                correct: 1,
+                feedback: "El método <code>.append()</code> agrega el elemento al final, aumentando la longitud de la lista en 1."
+            },
+            {
+                question: "Si queremos recorrer una lista y necesitamos saber la POSICIÓN de cada elemento, ¿qué bucle es mejor?",
+                options: [
+                    "<code>for elemento in lista:</code>",
+                    "<code>while lista:</code>",
+                    "<code>for i in range(len(lista)):</code>",
+                    "<code>for i in lista.length():</code>"
+                ],
+                correct: 2,
+                feedback: "Usamos <code>range(len(lista))</code> para generar los índices (0, 1, 2...) y poder acceder a <code>lista[i]</code>."
+            },
+            {
+                question: "¿Qué sucede si intentamos acceder a <code>lista[5]</code> en una lista que tiene 3 elementos?",
+                options: [
+                    "Devuelve <code>None</code>.",
+                    "Devuelve 0.",
+                    "Python añade espacios vacíos hasta llegar al índice 5.",
+                    "Se produce un error de tipo <code>IndexError</code>."
+                ],
+                correct: 3,
+                feedback: "Acceder a un índice que no existe provoca un error fatal en la ejecución (IndexError)."
+            },
+            {
+                question: "Para calcular la MEDIA de una lista de números, ¿qué fórmula aplicamos?",
+                options: [
+                    "<code>media = suma * len(lista)</code>",
+                    "<code>media = maximo - minimo</code>",
+                    "<code>media = suma / len(lista)</code>",
+                    "<code>media = suma / 2</code>"
+                ],
+                correct: 2,
+                feedback: "La media aritmética es la suma total de los elementos dividida entre el número de elementos (len)."
+            },
+            {
+                question: "En el algoritmo para buscar el MÁXIMO, ¿con qué valor inicializamos la variable <code>maximo</code>?",
+                options: [
+                    "Siempre con 0.",
+                    "Con un número muy grande (infinito).",
+                    "Con el primer elemento de la lista (<code>lista[0]</code>).",
+                    "Con -1."
+                ],
+                correct: 2,
+                feedback: "Inicializar con el primer elemento es lo más seguro, ya que funciona incluso si todos los números de la lista son negativos."
+            },
+            {
+                question: "¿Qué condición usaríamos en un <code>while</code> para pedir números hasta que el usuario introduzca un 0 (centinela)?",
+                options: [
+                    "<code>while dato == 0:</code>",
+                    "<code>while dato != 0:</code>",
+                    "<code>if dato != 0:</code>",
+                    "<code>for dato in 0:</code>"
+                ],
+                correct: 1,
+                feedback: "El bucle debe repetirse MIENTRAS el dato sea DISTINTO de 0."
+            },
+            {
+                question: "¿Qué devuelve la función <code>len([10, 20, 30])</code>?",
+                options: [
+                    "3",
+                    "2",
+                    "30",
+                    "[10, 20, 30]"
+                ],
+                correct: 0,
+                feedback: "Fácil, ¿verdad? <code>len()</code> devuelve la longitud (cantidad de elementos), que en este caso es 3."
+            }
+        ];
+
+        // --- APP STATE ---
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let answers = []; // To store user choices if needed for review later
+
+        // --- DOM ELEMENTS ---
+        const screens = {
+            start: document.getElementById('start-screen'),
+            quiz: document.getElementById('quiz-screen'),
+            end: document.getElementById('end-screen')
+        };
+        const els = {
+            questionText: document.getElementById('question-text'),
+            optionsContainer: document.getElementById('options-container'),
+            currentQNum: document.getElementById('current-q-num'),
+            totalQNum: document.getElementById('total-q-num'),
+            progressBar: document.getElementById('progress-bar'),
+            scoreDisplay: document.getElementById('score-display'),
+            feedbackArea: document.getElementById('feedback-area'),
+            feedbackTitle: document.getElementById('feedback-title'),
+            feedbackText: document.getElementById('feedback-text'),
+            feedbackIcon: document.getElementById('feedback-icon'),
+            nextBtn: document.getElementById('next-btn'),
+            finalScore: document.getElementById('final-score'),
+            finalErrors: document.getElementById('final-errors'),
+            resultMessage: document.getElementById('result-message'),
+            resultIconContainer: document.getElementById('result-icon-container')
+        };
+
+        // --- FUNCTIONS ---
+
+        function startQuiz() {
+            screens.start.classList.add('hidden');
+            screens.quiz.classList.remove('hidden');
+            els.totalQNum.textContent = questions.length;
+            currentQuestionIndex = 0;
+            score = 0;
+            answers = [];
+            updateScoreDisplay();
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            const q = questions[currentQuestionIndex];
+            
+            // Reset UI
+            els.questionText.innerHTML = q.question;
+            els.currentQNum.textContent = currentQuestionIndex + 1;
+            els.progressBar.style.width = `${((currentQuestionIndex) / questions.length) * 100}%`;
+            els.feedbackArea.classList.add('hidden');
+            els.nextBtn.classList.add('hidden');
+            els.optionsContainer.innerHTML = '';
+
+            // Generate Options
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = `option-card w-full text-left p-4 rounded-xl border-2 border-slate-200 bg-white text-slate-700 font-medium hover:border-emerald-400 transition-all flex items-center group`;
+                btn.innerHTML = `
+                    <div class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center mr-4 group-hover:bg-emerald-100 group-hover:text-emerald-600 transition-colors font-bold text-sm">
+                        ${String.fromCharCode(65 + idx)}
+                    </div>
+                    <span class="flex-grow">${opt}</span>
+                `;
+                btn.onclick = () => checkAnswer(idx, btn);
+                els.optionsContainer.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(selectedIndex, selectedBtn) {
+            const q = questions[currentQuestionIndex];
+            const isCorrect = selectedIndex === q.correct;
+            const options = els.optionsContainer.children;
+
+            // Disable all buttons
+            Array.from(options).forEach(btn => btn.classList.add('disabled'));
+
+            // Styles for correct/incorrect
+            if (isCorrect) {
+                selectedBtn.classList.add('correct');
+                score++;
+                triggerConfetti();
+                showFeedback(true, "¡Correcto!", q.feedback);
+            } else {
+                selectedBtn.classList.add('incorrect');
+                // Highlight the correct one
+                options[q.correct].classList.add('correct');
+                showFeedback(false, "¡Vaya!", q.feedback);
+            }
+
+            updateScoreDisplay();
+            els.nextBtn.classList.remove('hidden');
+        }
+
+        function showFeedback(isSuccess, title, text) {
+            els.feedbackArea.className = `bg-${isSuccess ? 'emerald' : 'red'}-50 border-l-4 border-${isSuccess ? 'emerald' : 'red'}-500 p-4 rounded-r-lg mb-6 fade-in`;
+            els.feedbackTitle.textContent = title;
+            els.feedbackTitle.className = `font-bold text-sm uppercase tracking-wide mb-1 text-${isSuccess ? 'emerald' : 'red'}-700`;
+            els.feedbackText.textContent = text;
+            els.feedbackText.className = `text-${isSuccess ? 'emerald' : 'red'}-800 text-sm`;
+            
+            els.feedbackIcon.innerHTML = isSuccess ? 
+                '<i class="fa-solid fa-circle-check text-emerald-500"></i>' : 
+                '<i class="fa-solid fa-circle-xmark text-red-500"></i>';
+            
+            els.feedbackArea.classList.remove('hidden');
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questions.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function updateScoreDisplay() {
+            els.scoreDisplay.textContent = score * 10; // 10 points per question
+        }
+
+        function showResults() {
+            screens.quiz.classList.add('hidden');
+            screens.end.classList.remove('hidden');
+            
+            els.finalScore.textContent = score;
+            els.finalErrors.textContent = questions.length - score;
+
+            // Logic for message
+            const percentage = (score / questions.length) * 100;
+            let message = "";
+            let icon = "";
+            let colorClass = "";
+
+            if (percentage === 100) {
+                message = "¡INCREÍBLE! 🎉 ¡Has sacado la máxima nota!";
+                icon = '<i class="fa-solid fa-crown"></i>';
+                colorClass = "bg-emerald-100 text-emerald-600";
+                triggerBigConfetti();
+            } else if (percentage >= 70) {
+                message = "¡Muy buen trabajo! 🚀 Estás listo para el examen.";
+                icon = '<i class="fa-solid fa-star"></i>';
+                colorClass = "bg-blue-100 text-blue-600";
+                triggerConfetti();
+            } else if (percentage >= 50) {
+                message = "Aprobado, pero se puede mejorar. 💪 ¡Repasa los fallos!";
+                icon = '<i class="fa-solid fa-book-open"></i>';
+                colorClass = "bg-yellow-100 text-yellow-600";
+            } else {
+                message = "No te rindas. 🧐 Vuelve a mirar el mapa conceptual.";
+                icon = '<i class="fa-solid fa-screwdriver-wrench"></i>';
+                colorClass = "bg-red-100 text-red-500";
+            }
+
+            els.resultMessage.textContent = message;
+            els.resultIconContainer.innerHTML = icon;
+            els.resultIconContainer.className = `w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6 text-4xl shadow-xl ${colorClass}`;
+        }
+
+        function restartQuiz() {
+            screens.end.classList.add('hidden');
+            screens.start.classList.remove('hidden');
+        }
+
+        // --- EFFECTS ---
+        function triggerConfetti() {
+            confetti({
+                particleCount: 50,
+                spread: 60,
+                origin: { y: 0.7 },
+                colors: ['#10b981', '#34d399']
+            });
+        }
+
+        function triggerBigConfetti() {
+            const end = Date.now() + 2000;
+            (function frame() {
+                confetti({
+                    particleCount: 5,
+                    angle: 60,
+                    spread: 55,
+                    origin: { x: 0 },
+                    colors: ['#10b981', '#fbbf24']
+                });
+                confetti({
+                    particleCount: 5,
+                    angle: 120,
+                    spread: 55,
+                    origin: { x: 1 },
+                    colors: ['#10b981', '#fbbf24']
+                });
+                if (Date.now() < end) {
+                    requestAnimationFrame(frame);
+                }
+            }());
+        }
+
+    </script>
+</body>
+</html>

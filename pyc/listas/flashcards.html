@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flashcards: Listas en Python</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Canvas Confetti para el refuerzo positivo -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Fira+Code:wght@400;500&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0fdf4; /* Verde muy pálido de fondo */
+            background-image: radial-gradient(#86efac 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+
+        .code-font {
+            font-family: 'Fira Code', monospace;
+        }
+
+        /* 3D Flip Animation */
+        .perspective-1000 {
+            perspective: 1000px;
+        }
+
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            cursor: pointer;
+        }
+
+        .card-inner.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            border-radius: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        .card-front {
+            background: white;
+            border: 2px solid #e2e8f0;
+        }
+
+        .card-back {
+            background: #10b981; /* Verde Esmeralda */
+            color: white;
+            transform: rotateY(180deg);
+            border: 2px solid #059669;
+        }
+
+        /* Animación de entrada */
+        .slide-in {
+            animation: slideIn 0.4s ease-out forwards;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Botones de acción */
+        .action-btn {
+            transition: all 0.2s;
+        }
+        .action-btn:hover {
+            transform: scale(1.05);
+        }
+        .action-btn:active {
+            transform: scale(0.95);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-4">
+
+    <!-- Header / Stats -->
+    <div class="w-full max-w-2xl mb-8 flex justify-between items-center bg-white/80 backdrop-blur rounded-xl p-4 shadow-sm border border-emerald-100">
+        <div>
+            <h1 class="text-xl font-bold text-slate-800"><i class="fa-solid fa-layer-group text-emerald-500 mr-2"></i>Repaso Rápido</h1>
+            <p class="text-xs text-slate-500">Listas Python • 2º Bachillerato</p>
+        </div>
+        <div class="text-right">
+            <div class="text-sm font-semibold text-slate-600">Progreso</div>
+            <div class="flex items-center gap-2">
+                <div class="w-32 h-3 bg-slate-200 rounded-full overflow-hidden">
+                    <div id="progress-bar" class="h-full bg-emerald-500 transition-all duration-500" style="width: 0%"></div>
+                </div>
+                <span id="progress-text" class="text-xs font-bold text-emerald-600">0/20</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Card Container -->
+    <div class="perspective-1000 w-full max-w-2xl h-[400px] mb-8 group" id="card-container">
+        <div class="card-inner relative w-full h-full" id="card-inner" onclick="flipCard()">
+            
+            <!-- FRONT -->
+            <div class="card-face card-front p-8">
+                <div class="absolute top-6 left-6 text-emerald-600 font-bold text-sm tracking-wider uppercase opacity-50">
+                    <i class="fa-regular fa-circle-question mr-1"></i> Pregunta
+                </div>
+                <div class="absolute top-6 right-6 text-slate-300">
+                    <i class="fa-solid fa-arrow-rotate-right"></i> Haz clic para ver
+                </div>
+                
+                <div id="card-question" class="text-center">
+                    <!-- Content injected via JS -->
+                </div>
+            </div>
+
+            <!-- BACK -->
+            <div class="card-face card-back p-8 text-center relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-2 bg-black/10"></div>
+                <div class="absolute top-6 left-6 text-emerald-100 font-bold text-sm tracking-wider uppercase opacity-70">
+                    <i class="fa-solid fa-check mr-1"></i> Respuesta
+                </div>
+
+                <div id="card-answer" class="w-full">
+                    <!-- Content injected via JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Controls (Hidden until flipped) -->
+    <div id="controls" class="flex gap-4 opacity-0 pointer-events-none transition-opacity duration-300">
+        <button onclick="handleResponse(false)" class="action-btn bg-white text-red-500 border-2 border-red-100 hover:border-red-500 hover:bg-red-50 px-6 py-3 rounded-xl font-bold shadow-sm flex items-center gap-2">
+            <i class="fa-solid fa-xmark"></i> Repasar
+        </button>
+        <button onclick="handleResponse(true)" class="action-btn bg-emerald-600 text-white border-2 border-emerald-600 hover:bg-emerald-700 px-8 py-3 rounded-xl font-bold shadow-lg shadow-emerald-200 flex items-center gap-2">
+            <i class="fa-solid fa-check"></i> ¡La sabía!
+        </button>
+    </div>
+
+    <!-- Completion Screen (Hidden initially) -->
+    <div id="completion-screen" class="hidden w-full max-w-2xl bg-white rounded-2xl shadow-xl p-8 text-center border-t-8 border-emerald-500">
+        <div class="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6 text-emerald-600 text-4xl">
+            <i class="fa-solid fa-trophy"></i>
+        </div>
+        <h2 class="text-3xl font-bold text-slate-800 mb-2">¡Repaso Completado!</h2>
+        <p class="text-slate-600 mb-6">Has revisado todas las tarjetas.</p>
+        
+        <div class="grid grid-cols-2 gap-4 mb-8">
+            <div class="p-4 bg-emerald-50 rounded-lg">
+                <div class="text-2xl font-bold text-emerald-600" id="final-score">0</div>
+                <div class="text-sm text-emerald-800">Dominadas</div>
+            </div>
+            <div class="p-4 bg-red-50 rounded-lg">
+                <div class="text-2xl font-bold text-red-500" id="final-review">0</div>
+                <div class="text-sm text-red-800">A repasar</div>
+            </div>
+        </div>
+
+        <button onclick="restartDeck()" class="bg-slate-800 text-white px-8 py-3 rounded-xl font-bold hover:bg-slate-700 transition-colors">
+            <i class="fa-solid fa-rotate-right mr-2"></i> Volver a empezar
+        </button>
+    </div>
+
+    <script>
+        // Data derived from the PDF "T2. Estructuras de datos - Listas"
+        // Expanded to 20 cards
+        const flashcardsData = [
+            // --- GRUPO 1: BÁSICOS (Originales) ---
+            {
+                q: "¿Cómo se accede al <strong>último elemento</strong> de cualquier lista?",
+                a: "Usando el índice <strong>-1</strong> o <strong>len(lista) - 1</strong>.",
+                code: "lista[-1]"
+            },
+            {
+                q: "Si quiero crear una lista de 5 ceros, ¿qué código es el más eficiente?",
+                a: "Multiplicar una lista con un cero por 5.",
+                code: "lista = [0] * 5"
+            },
+            {
+                q: "¿Qué método se usa para <strong>añadir</strong> un elemento al final de la lista?",
+                a: "El método <strong>.append()</strong>",
+                code: "lista.append(dato)"
+            },
+            {
+                q: "¿Cuál es el índice del <strong>primer elemento</strong> de una lista?",
+                a: "El índice <strong>0</strong>.",
+                code: "print(lista[0])"
+            },
+            {
+                q: "Para recorrer una lista obteniendo posición y valor, ¿qué estructura usamos?",
+                a: "Un bucle <strong>for</strong> con <strong>range()</strong> y <strong>len()</strong>.",
+                code: "for i in range(len(lista)):"
+            },
+            {
+                q: "¿Qué ocurre si intentas acceder a <code>lista[10]</code> en una lista de 5 elementos?",
+                a: "Se produce un error de tipo <strong>IndexError</strong> (índice fuera de rango).",
+                code: "# Error: list index out of range"
+            },
+            {
+                q: "¿Cómo inicializas las variables <code>minimo</code> y <code>maximo</code> antes de buscar?",
+                a: "Con el <strong>primer elemento</strong> de la lista (nunca con 0).",
+                code: "minimo = lista[0]\nmaximo = lista[0]"
+            },
+            {
+                q: "¿Qué función devuelve el número total de elementos de una lista?",
+                a: "La función <strong>len()</strong>.",
+                code: "n = len(lista)"
+            },
+            {
+                q: "Si <code>lista = [10, 20, 30]</code>, ¿qué hace <code>lista[1] = 50</code>?",
+                a: "Modifica el <strong>segundo</strong> elemento. La lista queda [10, 50, 30].",
+                code: "# Modificación directa"
+            },
+            {
+                q: "¿Cómo se crea una lista vacía?",
+                a: "Con dos corchetes vacíos.",
+                code: "notas = []"
+            },
+            
+            // --- GRUPO 2: NUEVOS (Algoritmos y Conceptos) ---
+            {
+                q: "¿Qué diferencia hay entre <code>for i in range(...)</code> y <code>for n in lista:</code>?",
+                a: "El primero te da la <strong>posición</strong> (índice) y el segundo te da directamente el <strong>valor</strong>.",
+                code: "# Índice vs Elemento"
+            },
+            {
+                q: "¿Con qué valor debemos inicializar una variable <strong>acumuladora</strong> (suma)?",
+                a: "Debe inicializarse siempre a <strong>0</strong>.",
+                code: "suma = 0"
+            },
+            {
+                q: "Para calcular la media, ¿qué dos datos necesitas dividir?",
+                a: "La <strong>suma total</strong> de los elementos entre la <strong>longitud</strong> de la lista.",
+                code: "media = suma / len(lista)"
+            },
+            {
+                q: "En el algoritmo de máximo, ¿por qué iteramos a partir de <code>lista[1:]</code>?",
+                a: "Porque el índice 0 ya lo hemos asignado como máximo provisional.",
+                code: "for n in lista[1:]:"
+            },
+            {
+                q: "¿Cómo incrementas un contador de 'suspensos' dentro de un bucle?",
+                a: "Sumando 1 a la variable actual.",
+                code: "suspensos = suspensos + 1"
+            },
+            {
+                q: "¿Qué condición usamos en el <code>while</code> para leer hasta que el usuario escriba 0?",
+                a: "Que el dato sea diferente del centinela (0).",
+                code: "while dato != 0:"
+            },
+            {
+                q: "Si tienes una lista de 3 elementos, ¿cuál es el índice del último?",
+                a: "El índice 2. Siempre es <strong>n - 1</strong>.",
+                code: "len(lista) - 1"
+            },
+            {
+                q: "¿Es necesario convertir el <code>input()</code> antes de guardarlo en una lista numérica?",
+                a: "Sí, hay que usar <code>int()</code> o <code>float()</code> porque input devuelve texto.",
+                code: "dato = int(input(...))"
+            },
+            {
+                q: "Si buscamos el mínimo, ¿cuándo actualizamos la variable <code>minimo</code>?",
+                a: "Cuando encontramos un número <strong>menor</strong> (<) que el mínimo actual.",
+                code: "if n < minimo: minimo = n"
+            },
+            {
+                q: "¿Qué es una lista en Python?",
+                a: "Una estructura <strong>ordenada</strong> que permite guardar varios datos bajo un mismo nombre.",
+                code: "# Definición básica"
+            }
+        ];
+
+        let currentCardIndex = 0;
+        let score = 0;
+        let reviewCount = 0;
+        let isFlipped = false;
+
+        // DOM Elements
+        const cardInner = document.getElementById('card-inner');
+        const cardQuestion = document.getElementById('card-question');
+        const cardAnswer = document.getElementById('card-answer');
+        const controls = document.getElementById('controls');
+        const progressBar = document.getElementById('progress-bar');
+        const progressText = document.getElementById('progress-text');
+        const completionScreen = document.getElementById('completion-screen');
+        const cardContainer = document.getElementById('card-container');
+
+        function loadCard(index) {
+            const data = flashcardsData[index];
+            
+            // Front Content
+            cardQuestion.innerHTML = `
+                <h3 class="text-xl md:text-2xl font-semibold text-slate-800 mb-6 leading-relaxed px-2">${data.q}</h3>
+                <div class="text-6xl text-emerald-100">
+                    <i class="fa-solid fa-code"></i>
+                </div>
+            `;
+
+            // Back Content
+            cardAnswer.innerHTML = `
+                <p class="text-lg md:text-xl mb-6 font-medium leading-relaxed px-2">${data.a}</p>
+                <div class="bg-black/20 rounded-lg p-4 text-left inline-block w-full max-w-sm">
+                    <pre class="code-font text-sm text-emerald-100 overflow-x-auto whitespace-pre-wrap"><code>${data.code}</code></pre>
+                </div>
+            `;
+        }
+
+        function flipCard() {
+            if (isFlipped) return; 
+            
+            isFlipped = true;
+            cardInner.classList.add('flipped');
+            
+            // Show controls after a slight delay matching the transition
+            setTimeout(() => {
+                controls.classList.remove('opacity-0', 'pointer-events-none');
+            }, 300);
+        }
+
+        function handleResponse(isCorrect) {
+            if (isCorrect) {
+                score++;
+                triggerConfetti();
+            } else {
+                reviewCount++;
+            }
+
+            // Hide controls and flip back
+            controls.classList.add('opacity-0', 'pointer-events-none');
+            
+            // Wait for controls to fade before moving to next
+            setTimeout(() => {
+                nextCard();
+            }, 200);
+        }
+
+        function nextCard() {
+            currentCardIndex++;
+            updateProgress();
+
+            if (currentCardIndex < flashcardsData.length) {
+                // Reset card position 
+                cardInner.style.transition = 'none';
+                cardInner.classList.remove('flipped');
+                isFlipped = false;
+                
+                // Load new content
+                loadCard(currentCardIndex);
+
+                // Restore transition 
+                setTimeout(() => {
+                    cardInner.style.transition = 'transform 0.6s';
+                }, 50);
+
+                // Add slide-in animation 
+                cardContainer.classList.remove('slide-in');
+                void cardContainer.offsetWidth; // trigger reflow
+                cardContainer.classList.add('slide-in');
+
+            } else {
+                showCompletion();
+            }
+        }
+
+        function updateProgress() {
+            const percentage = (currentCardIndex / flashcardsData.length) * 100;
+            progressBar.style.width = `${percentage}%`;
+            progressText.textContent = `${currentCardIndex}/${flashcardsData.length}`;
+        }
+
+        function showCompletion() {
+            cardContainer.classList.add('hidden');
+            controls.classList.add('hidden');
+            completionScreen.classList.remove('hidden');
+            
+            document.getElementById('final-score').textContent = score;
+            document.getElementById('final-review').textContent = reviewCount;
+            
+            if (score === flashcardsData.length) {
+                triggerHugeConfetti();
+            }
+        }
+
+        function restartDeck() {
+            currentCardIndex = 0;
+            score = 0;
+            reviewCount = 0;
+            isFlipped = false;
+            
+            completionScreen.classList.add('hidden');
+            cardContainer.classList.remove('hidden');
+            controls.classList.remove('hidden');
+            cardInner.classList.remove('flipped');
+            
+            updateProgress();
+            loadCard(0);
+        }
+
+        function triggerConfetti() {
+            confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: ['#10b981', '#34d399', '#ffffff']
+            });
+        }
+
+        function triggerHugeConfetti() {
+            var duration = 3 * 1000;
+            var animationEnd = Date.now() + duration;
+            var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+
+            var interval = setInterval(function() {
+                var timeLeft = animationEnd - Date.now();
+
+                if (timeLeft <= 0) {
+                    return clearInterval(interval);
+                }
+
+                var particleCount = 50 * (timeLeft / duration);
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
+            }, 250);
+        }
+
+        function randomInRange(min, max) {
+            return Math.random() * (max - min) + min;
+        }
+
+        // Initialize
+        loadCard(0);
+
+    </script>
+</body>
+</html>

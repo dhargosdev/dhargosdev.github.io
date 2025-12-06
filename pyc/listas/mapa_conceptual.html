@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa Conceptual: Listas en Python</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Fira+Code:wght@400;500&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        .code-font {
+            font-family: 'Fira Code', monospace;
+        }
+
+        /* Efecto cristal */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        /* Animaciones */
+        .node-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .node-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.3); /* Sombra Esmeralda */
+            border-color: #10b981;
+        }
+
+        .modal-enter {
+            animation: modalPop 0.3s ease-out forwards;
+        }
+
+        @keyframes modalPop {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* Scrollbar personalizado */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #10b981;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #059669;
+        }
+    </style>
+</head>
+<body class="min-h-screen text-slate-800">
+
+    <!-- Header -->
+    <header class="bg-slate-900 text-white py-6 shadow-lg border-b-4 border-emerald-500">
+        <div class="container mx-auto px-4 flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-emerald-400">
+                    <i class="fa-solid fa-layer-group mr-2"></i> Estructuras de Datos
+                </h1>
+                <p class="text-slate-400 text-sm mt-1">Tema 2: Listas en Python | 2º Bachillerato</p>
+            </div>
+            <div class="hidden md:block text-right">
+                <p class="text-emerald-500 font-semibold">Departamento de Tecnología e Informática</p>
+                <p class="text-xs text-slate-500">Programación y Computación</p>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8 pb-20">
+        
+        <div class="text-center mb-10">
+            <h2 class="text-3xl font-bold text-slate-800 mb-2">Mapa Conceptual Interactivo</h2>
+            <p class="text-slate-600 max-w-2xl mx-auto">Explora los nodos para repasar los conceptos clave. Haz clic en cada tarjeta para ver la teoría y el código de ejemplo.</p>
+        </div>
+
+        <!-- Concept Grid Layout -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto" id="nodes-container">
+            <!-- Nodes will be injected here by JS -->
+        </div>
+
+    </main>
+
+    <!-- Modal Template -->
+    <div id="modal-overlay" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm hidden opacity-0 transition-opacity duration-300" onclick="closeModal(event)">
+        <div id="modal-content" class="bg-white w-full max-w-2xl mx-4 rounded-xl shadow-2xl overflow-hidden transform transition-all scale-95 opacity-0">
+            <!-- Modal Header -->
+            <div class="bg-slate-50 px-6 py-4 border-b border-slate-200 flex justify-between items-center">
+                <h3 id="modal-title" class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                    <!-- Title injected here -->
+                </h3>
+                <button onclick="forceCloseModal()" class="text-slate-400 hover:text-red-500 transition-colors p-1 rounded-full hover:bg-red-50">
+                    <i class="fa-solid fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <!-- Modal Body -->
+            <div class="p-6 overflow-y-auto max-h-[70vh]">
+                <div class="mb-4">
+                    <h4 class="text-xs font-bold text-emerald-600 uppercase tracking-wider mb-2">Concepto</h4>
+                    <p id="modal-description" class="text-slate-600 leading-relaxed text-lg"></p>
+                </div>
+
+                <div id="code-section" class="mt-6">
+                    <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 flex justify-between">
+                        <span>Ejemplo de Código</span>
+                        <span class="text-[10px] bg-slate-200 px-2 py-0.5 rounded text-slate-600">Python</span>
+                    </h4>
+                    <div class="bg-slate-900 rounded-lg p-4 shadow-inner border border-slate-700 relative group">
+                        <pre class="code-font text-sm text-emerald-300 overflow-x-auto"><code id="modal-code"></code></pre>
+                        <!-- Copy Button -->
+                        <button onclick="copyCode()" class="absolute top-2 right-2 bg-slate-700 hover:bg-slate-600 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                            Copiar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Visual Aid / Extra Tip (Optional) -->
+                <div id="modal-tip" class="mt-6 bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-r text-sm text-yellow-800 hidden">
+                    <p class="font-bold"><i class="fa-regular fa-lightbulb mr-2"></i>Recuerda:</p>
+                    <span id="modal-tip-text"></span>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="bg-slate-50 px-6 py-3 border-t border-slate-200 flex justify-end">
+                <button onclick="forceCloseModal()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium transition-colors shadow-lg shadow-emerald-200">
+                    Entendido
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data Structure extracted from PDF content
+        const concepts = [
+            {
+                id: 1,
+                title: "¿Qué es una lista?",
+                icon: "fa-sitemap",
+                shortDesc: "Estructura ordenada para guardar datos bajo un mismo nombre.",
+                fullDesc: "Una lista es como una caja con compartimentos numerados. Es una estructura ordenada donde cada elemento tiene una posición (índice) y podemos acceder a él fácilmente. La longitud es el número total de elementos (n).",
+                code: `# Estructura visual:
+# Índices:   0     1     2     3
+# Valores: [10]  [20]  [30]  [40]
+
+numeros = [10, 20, 30, 40]`,
+                tip: "Los índices empiezan siempre en 0, no en 1."
+            },
+            {
+                id: 2,
+                title: "Creación de Listas",
+                icon: "fa-plus-square",
+                shortDesc: "Inicialización con valores, vacías o tamaño fijo.",
+                fullDesc: "Podemos crear listas de tres formas principales: con valores ya conocidos, totalmente vacías para rellenar luego, o reservando espacio con un valor por defecto.",
+                code: `# 1. Con valores iniciales
+temperaturas = [15, 18, 21, 17]
+
+# 2. Lista vacía
+notas = []
+
+# 3. Tamaño fijo (ej. 5 ceros)
+votacion = [0] * 5  
+# Resultado: [0, 0, 0, 0, 0]`,
+                tip: "Usar [0]*n es muy útil para inicializar contadores."
+            },
+            {
+                id: 3,
+                title: "Acceso y Modificación",
+                icon: "fa-pen-to-square",
+                shortDesc: "Leer o cambiar valores usando su índice.",
+                fullDesc: "El primer elemento está en la posición 0 y el último en n-1. También podemos usar índices negativos (-1 es el último). Si intentas acceder a una posición que no existe, dará error.",
+                code: `notas = [7.5, 8.2, 6.0]
+
+print(notas[0])  # Imprime 7.5
+print(notas[-1]) # Imprime 6.0 (último)
+
+# Modificar un valor
+notas[1] = 9.0   
+# La lista ahora es: [7.5, 9.0, 6.0]`,
+                tip: "Cuidado con el 'IndexError': no accedas fuera del rango."
+            },
+            {
+                id: 4,
+                title: "Recorrer Listas",
+                icon: "fa-rotate",
+                shortDesc: "Iterar por índice (range) o por elemento.",
+                fullDesc: "Hay dos formas de recorrer una lista. 'Por índice' cuando necesitas saber la posición del dato, y 'Por elemento' cuando solo te interesa el valor.",
+                code: `temperaturas = [15, 18, 21]
+
+# 1. Por índice (necesitas la posición)
+for i in range(len(temperaturas)):
+    print(i, temperaturas[i])
+
+# 2. Por elemento (más directo)
+for t in temperaturas:
+    print(t)`,
+                tip: "Usa 'len(lista)' para saber cuántos elementos hay."
+            },
+            {
+                id: 5,
+                title: "Añadir y Leer",
+                icon: "fa-keyboard",
+                shortDesc: "Método .append() y lectura con centinela.",
+                fullDesc: "Para añadir elementos al final usamos .append(). Para leer datos indefinidos del usuario, solemos usar un bucle while con un valor 'centinela' (condición de parada).",
+                code: `# Añadir al final
+notas = []
+notas.append(8.5) # [8.5]
+
+# Leer hasta escribir 0
+lista = []
+dato = int(input("Número (0 fin): "))
+while dato != 0:
+    lista.append(dato)
+    dato = int(input("Número (0 fin): "))`,
+                tip: "El input siempre debe convertirse a int o float si son números."
+            },
+            {
+                id: 6,
+                title: "Algoritmos: Acumuladores",
+                icon: "fa-calculator",
+                shortDesc: "Suma total, media y conteo.",
+                fullDesc: "Patrones clásicos: un acumulador inicializado a 0 para sumas, y contadores condicionales para filtrar datos.",
+                code: `lista = [5, 7, 8, 4]
+suma = 0
+suspensos = 0
+
+for n in lista:
+    suma = suma + n      # Suma
+    if n < 5:
+        suspensos += 1   # Conteo
+
+media = suma / len(lista)
+print("Media:", media)`,
+                tip: "Inicializa siempre tus acumuladores a 0 antes del bucle."
+            },
+            {
+                id: 7,
+                title: "Algoritmos: Mín y Máx",
+                icon: "fa-arrow-down-up-across-line",
+                shortDesc: "Encontrar extremos en una lista.",
+                fullDesc: "Para buscar el mínimo o máximo, asumimos que el primero es el extremo y recorremos el resto comparando.",
+                code: `notas = [5, 2, 9, 4]
+
+minimo = notas[0] # Suponemos el 1º
+maximo = notas[0]
+
+# Recorremos desde el 2º elemento ([1:])
+for n in notas[1:]:
+    if n < minimo:
+        minimo = n
+    if n > maximo:
+        maximo = n`,
+                tip: "Nunca inicialices min/max a 0 si tus datos pueden ser negativos o muy altos. Usa el primer elemento."
+            }
+        ];
+
+        // Render Nodes
+        const container = document.getElementById('nodes-container');
+        
+        concepts.forEach(concept => {
+            const card = document.createElement('div');
+            card.className = "node-card bg-white p-6 rounded-xl border border-slate-200 shadow-sm cursor-pointer relative overflow-hidden group";
+            card.onclick = () => openModal(concept);
+            
+            card.innerHTML = `
+                <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                    <i class="fa-solid ${concept.icon} text-6xl text-emerald-600"></i>
+                </div>
+                <div class="relative z-10">
+                    <div class="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center mb-4 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                        <i class="fa-solid ${concept.icon} text-xl"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-800 mb-2 group-hover:text-emerald-700 transition-colors">${concept.title}</h3>
+                    <p class="text-sm text-slate-500">${concept.shortDesc}</p>
+                    <div class="mt-4 flex items-center text-emerald-600 text-xs font-semibold opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all">
+                        VER DETALLES <i class="fa-solid fa-arrow-right ml-2"></i>
+                    </div>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+
+        // Modal Logic
+        const modalOverlay = document.getElementById('modal-overlay');
+        const modalContent = document.getElementById('modal-content');
+
+        function openModal(concept) {
+            // Populate content
+            document.getElementById('modal-title').innerHTML = `<i class="fa-solid ${concept.icon} text-emerald-600"></i> ${concept.title}`;
+            document.getElementById('modal-description').textContent = concept.fullDesc;
+            document.getElementById('modal-code').textContent = concept.code;
+
+            // Handle Tip
+            const tipSection = document.getElementById('modal-tip');
+            if (concept.tip) {
+                tipSection.classList.remove('hidden');
+                document.getElementById('modal-tip-text').textContent = concept.tip;
+            } else {
+                tipSection.classList.add('hidden');
+            }
+
+            // Show Modal
+            modalOverlay.classList.remove('hidden');
+            // Small timeout to allow display:block to apply before opacity transition
+            setTimeout(() => {
+                modalOverlay.classList.remove('opacity-0');
+                modalContent.classList.remove('opacity-0', 'scale-95');
+                modalContent.classList.add('modal-enter');
+            }, 10);
+        }
+
+        function closeModal(event) {
+            if (event.target === modalOverlay) {
+                forceCloseModal();
+            }
+        }
+
+        function forceCloseModal() {
+            modalOverlay.classList.add('opacity-0');
+            modalContent.classList.add('opacity-0', 'scale-95');
+            setTimeout(() => {
+                modalOverlay.classList.add('hidden');
+            }, 300);
+        }
+
+        function copyCode() {
+            const codeText = document.getElementById('modal-code').textContent;
+            navigator.clipboard.writeText(codeText);
+            
+            // Simple visual feedback
+            const btn = document.querySelector('button[onclick="copyCode()"]');
+            const originalText = btn.textContent;
+            btn.textContent = "¡Copiado!";
+            btn.classList.add('bg-emerald-600');
+            setTimeout(() => {
+                btn.textContent = originalText;
+                btn.classList.remove('bg-emerald-600');
+            }, 2000);
+        }
+
+        // Close modal on Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !modalOverlay.classList.contains('hidden')) {
+                forceCloseModal();
+            }
+        });
+
+    </script>
+</body>
+</html>
