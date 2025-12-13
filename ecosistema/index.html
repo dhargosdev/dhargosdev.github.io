@@ -1,675 +1,1137 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ecosistema Artificial - Dhargos Lab</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
-        
-        body {
-            font-family: 'JetBrains Mono', monospace;
-            background-color: #1a1b26;
-            color: #a9b1d6;
-        }
-        
-        canvas {
-            image-rendering: pixelated; /* Toque retro para nitidez */
-        }
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Simulador de Ecosistema (50×50)</title>
+  <style>
+    :root{
+      --bg:#0b1220;
+      --panel:#111a2b;
+      --panel2:#0e1727;
+      --text:#e7eefc;
+      --muted:#a9b6d6;
+      --accent:#28d17c;
+      --danger:#ff6b6b;
+      --cell:16px;
+      --gap:1px;
+      --radius:16px;
+      --shadow: 0 14px 40px rgba(0,0,0,.35);
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+    }
 
-        /* Scrollbars customizados */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #1a1b26; }
-        ::-webkit-scrollbar-thumb { background: #414868; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #565f89; }
-        
-        .panel-glass {
-            background: rgba(26, 27, 38, 0.95);
-            border: 1px solid #414868;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
-        }
+    *{ box-sizing:border-box; }
 
-        input[type=range] {
-            accent-color: #7aa2f7;
-        }
-    </style>
+    body{
+      margin:0;
+      font-family: var(--sans);
+      color:var(--text);
+      background: radial-gradient(1200px 600px at 20% 10%, rgba(40,209,124,.18), transparent 60%),
+                  radial-gradient(1200px 600px at 80% 20%, rgba(89,134,255,.16), transparent 60%),
+                  var(--bg);
+      min-height:100vh;
+    }
+
+    header{
+      padding:16px 20px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      border-bottom:1px solid rgba(255,255,255,.06);
+      background: linear-gradient(180deg, rgba(255,255,255,.04), transparent);
+    }
+
+    header .title{
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+    }
+
+    header h1{
+      margin:0;
+      font-size:16px;
+      letter-spacing:.2px;
+      font-weight:750;
+    }
+
+    header .sub{
+      color:var(--muted);
+      font-size:12px;
+    }
+
+    .wrap{
+      display:flex;
+      gap:14px;
+      padding:14px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .worldPanel{
+      flex: 1 1 auto;
+      min-width: 560px;
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+      border:1px solid rgba(255,255,255,.08);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+
+    .worldTop{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:10px 12px;
+      background: rgba(0,0,0,.18);
+      border-bottom:1px solid rgba(255,255,255,.06);
+    }
+
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:7px 10px;
+      border-radius: 999px;
+      background: rgba(40,209,124,.12);
+      border:1px solid rgba(40,209,124,.25);
+      color: #dffbed;
+      font-size:12px;
+      font-family: var(--mono);
+      white-space: nowrap;
+    }
+
+    .gridWrap{
+      padding:10px;
+      background: rgba(0,0,0,.10);
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(50, var(--cell));
+      grid-template-rows: repeat(50, var(--cell));
+      gap: var(--gap);
+      justify-content:center;
+      width: fit-content;
+      margin: 0 auto;
+      padding: 10px;
+      border-radius: 14px;
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.06);
+    }
+
+    .cell{
+      width: var(--cell);
+      height: var(--cell);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size: calc(var(--cell) * 0.85);
+      line-height: 1;
+      user-select:none;
+      border-radius: 4px;
+      background: rgba(10,16,28,.35);
+    }
+
+    .cell[data-t="plant"]{ background: rgba(40,209,124,.10); }
+    .cell[data-t="herb"]{ background: rgba(102,163,255,.10); }
+    .cell[data-t="carn"]{ background: rgba(255,107,107,.10); }
+    .cell[data-t="omni"]{ background: rgba(255,209,102,.10); }
+
+    .side{
+      width: 440px;
+      flex: 0 0 440px;
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+    }
+
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+      border:1px solid rgba(255,255,255,.08);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+
+    .card .hd{
+      padding: 10px 12px;
+      background: rgba(0,0,0,.18);
+      border-bottom:1px solid rgba(255,255,255,.06);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+    }
+
+    .card .hd h2{
+      margin:0;
+      font-size:13px;
+      font-weight:750;
+      letter-spacing:.2px;
+    }
+
+    .card .bd{
+      padding: 12px;
+    }
+
+    .row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:flex-end;
+    }
+
+    .btn{
+      appearance:none;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      padding:9px 10px;
+      border-radius: 12px;
+      font-weight:700;
+      cursor:pointer;
+      transition: transform .05s ease, background .15s ease, border-color .15s ease;
+    }
+
+    .btn:hover{ background: rgba(255,255,255,.09); border-color: rgba(255,255,255,.18); }
+    .btn:active{ transform: translateY(1px); }
+
+    .btn.primary{
+      background: rgba(40,209,124,.14);
+      border-color: rgba(40,209,124,.30);
+    }
+
+    .btn.danger{
+      background: rgba(255,107,107,.12);
+      border-color: rgba(255,107,107,.28);
+    }
+
+    .kv{
+      display:grid;
+      grid-template-columns: 1fr auto;
+      gap: 6px 10px;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 8px;
+    }
+
+    .kv b{ color: var(--text); font-weight: 800; }
+
+    .form{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .field{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      padding: 10px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.06);
+      background: rgba(0,0,0,.12);
+    }
+
+    .field label{
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: .2px;
+    }
+
+    input[type="number"], input[type="range"], select{
+      width:100%;
+      padding: 8px 10px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      outline:none;
+    }
+
+    input[type="range"]{ padding: 10px; }
+
+    .small{
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.25;
+    }
+
+    canvas{
+      display:block;
+      width: 100%;
+      height: 220px;
+      background: rgba(0,0,0,.10);
+      border:1px solid rgba(255,255,255,.06);
+      border-radius: 14px;
+    }
+
+    .legend{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top: 8px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .pill{ padding:6px 10px; border-radius:999px; border:1px solid rgba(255,255,255,.10); background: rgba(255,255,255,.05); }
+
+    .hint{
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 14px;
+      background: rgba(40,209,124,.08);
+      border:1px solid rgba(40,209,124,.22);
+      color: #dffbed;
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    footer{
+      padding: 10px 14px 18px;
+      color: rgba(231,238,252,.65);
+      font-size: 11px;
+      text-align:center;
+    }
+
+    @media (max-width: 1200px){
+      .wrap{ flex-direction:column; }
+      .side{ width: 100%; flex: 1 1 auto; }
+      .worldPanel{ min-width: unset; }
+      .grid{ transform-origin: top center; }
+    }
+  </style>
 </head>
-<body class="h-screen flex flex-col overflow-hidden">
+<body>
+  <header>
+    <div class="title">
+      <h1>🌍 Simulador de ecosistema (50×50)</h1>
+      <div class="sub">Pompones 🍀 · Bacilones 🦠 · Cocos 👻 · Superquecos 🦸🏻 · 1 individuo por celda</div>
+    </div>
+    <div class="badge" id="statusBadge">EPOCH 0 · detenido</div>
+  </header>
 
-    <!-- Header -->
-    <header class="h-14 border-b border-gray-700 flex items-center justify-between px-6 bg-gray-900">
-        <h1 class="text-xl font-bold text-blue-400">⚡ Ecosistema <span class="text-xs text-gray-500">v1.1</span></h1>
-        <div class="flex gap-4 text-sm">
-            <div class="flex items-center gap-2"><span class="text-2xl">🍀</span> <span id="count-pompon">0</span></div>
-            <div class="flex items-center gap-2"><span class="text-2xl">🦠</span> <span id="count-bacilon">0</span></div>
-            <div class="flex items-center gap-2"><span class="text-2xl">👻</span> <span id="count-coco">0</span></div>
-            <div class="flex items-center gap-2"><span class="text-2xl">🦸🏻</span> <span id="count-super">0</span></div>
-            <div class="pl-4 border-l border-gray-700 font-bold text-yellow-500">ÉPOCA: <span id="epoch-display">0</span></div>
+  <div class="wrap">
+    <section class="worldPanel">
+      <div class="worldTop">
+        <div class="badge" id="countsBadge">🍀 0 · 🦠 0 · 👻 0 · 🦸🏻 0</div>
+        <div class="row">
+          <label class="small" style="display:flex;align-items:center;gap:10px;">
+            Tamaño celda
+            <input id="cellSize" type="range" min="12" max="22" value="16" />
+          </label>
         </div>
-    </header>
+      </div>
+      <div class="gridWrap">
+        <div class="grid" id="grid"></div>
+      </div>
+    </section>
 
-    <!-- Main Content -->
-    <main class="flex-1 flex overflow-hidden">
-        
-        <!-- Canvas Area -->
-        <div class="flex-1 bg-black flex items-center justify-center p-4 overflow-auto relative">
-            <canvas id="worldCanvas" width="800" height="800" class="shadow-2xl border border-gray-800 bg-gray-900"></canvas>
-            
-            <!-- Stats Overlay (Bottom Right of Canvas Area) -->
-            <div class="absolute bottom-4 right-4 bg-gray-900/80 p-2 rounded border border-gray-700 pointer-events-none">
-                <canvas id="chartCanvas" width="300" height="100"></canvas>
-            </div>
+    <aside class="side">
+      <section class="card">
+        <div class="hd">
+          <h2>⏱️ Controles</h2>
+          <div class="row">
+            <button class="btn primary" id="btnStart">▶ Iniciar</button>
+            <button class="btn" id="btnStep">⏭️ Paso</button>
+            <button class="btn danger" id="btnReset">↻ Reiniciar</button>
+          </div>
         </div>
-
-        <!-- Controls Sidebar -->
-        <aside class="w-80 panel-glass border-l border-gray-700 flex flex-col overflow-y-auto">
-            <div class="p-4 space-y-6">
-                
-                <!-- Simulation Control -->
-                <div class="space-y-2 pb-4 border-b border-gray-700">
-                    <h2 class="text-sm font-bold text-white uppercase tracking-wider">Control Maestro</h2>
-                    <div class="flex gap-2">
-                        <button id="btn-start" class="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded font-bold transition">▶ Iniciar</button>
-                        <button id="btn-pause" class="flex-1 bg-yellow-600 hover:bg-yellow-700 text-white py-2 px-4 rounded font-bold transition hidden">⏸ Pausa</button>
-                        <button id="btn-reset" class="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded font-bold transition">↺ Reset</button>
-                    </div>
-                    <div class="mt-2">
-                        <label class="text-xs text-gray-400">Velocidad (ms/época): <span id="val-speed">100</span>ms</label>
-                        <input type="range" id="inp-speed" min="10" max="1000" step="10" value="100" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer dir-rtl">
-                    </div>
-                </div>
-
-                <!-- Config Parameters -->
-                <div class="space-y-4">
-                    <h2 class="text-sm font-bold text-white uppercase tracking-wider">Configuración</h2>
-                    
-                    <!-- Energy -->
-                    <div>
-                        <label class="text-xs text-blue-300">Energía Máxima: <span id="val-maxEnergy">20</span></label>
-                        <input type="range" id="inp-maxEnergy" min="10" max="100" value="20" class="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer">
-                    </div>
-                    <div>
-                        <label class="text-xs text-green-300">Tasa Reprod. Pompones: <span id="val-plantRate">5</span>%</label>
-                        <input type="range" id="inp-plantRate" min="1" max="20" value="5" class="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer">
-                    </div>
-                    <div>
-                        <label class="text-xs text-yellow-300">Energía Pompón: <span id="val-plantEnergy">10</span></label>
-                        <input type="range" id="inp-plantEnergy" min="1" max="50" value="10" class="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer">
-                    </div>
-
-                    <!-- Movement Probabilities -->
-                    <div class="pt-2 border-t border-gray-700">
-                        <h3 class="text-xs font-bold text-gray-400 mb-2">Probabilidades Movimiento</h3>
-                        <div class="grid grid-cols-3 gap-2 text-center text-xs">
-                            <div>
-                                <label>Avanzar</label>
-                                <input type="number" id="inp-probFwd" value="60" class="w-full bg-gray-800 border border-gray-600 rounded px-1 py-1 text-center">
-                            </div>
-                            <div>
-                                <label>Giro L/R</label>
-                                <input type="number" id="inp-probTurn" value="20" class="w-full bg-gray-800 border border-gray-600 rounded px-1 py-1 text-center" disabled title="Calculado automáticamente">
-                            </div>
-                        </div>
-                        <p class="text-[10px] text-gray-500 mt-1">* Giro L/R es (100 - Avanzar) / 2</p>
-                    </div>
-
-                    <!-- Initial Population -->
-                    <div class="pt-2 border-t border-gray-700 space-y-2">
-                        <h3 class="text-xs font-bold text-gray-400">Población Inicial (al Reset)</h3>
-                        <div class="grid grid-cols-2 gap-2">
-                            <div>
-                                <label class="text-xs">🍀 Pompones</label>
-                                <input type="number" id="inp-initPompon" value="40" class="w-full bg-gray-800 text-white px-2 py-1 rounded border border-gray-600">
-                            </div>
-                            <div>
-                                <label class="text-xs">🦠 Bacilones</label>
-                                <input type="number" id="inp-initBacilon" value="20" class="w-full bg-gray-800 text-white px-2 py-1 rounded border border-gray-600">
-                            </div>
-                            <div>
-                                <label class="text-xs">👻 Cocos</label>
-                                <input type="number" id="inp-initCoco" value="10" class="w-full bg-gray-800 text-white px-2 py-1 rounded border border-gray-600">
-                            </div>
-                            <div>
-                                <label class="text-xs">🦸🏻 Superquecos</label>
-                                <input type="number" id="inp-initSuper" value="5" class="w-full bg-gray-800 text-white px-2 py-1 rounded border border-gray-600">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Log Console -->
-                <div class="flex-1 min-h-[150px] bg-black border border-gray-700 rounded p-2 font-mono text-[10px] overflow-y-auto text-gray-400" id="console-log">
-                    <div class="text-green-500">> Sistema listo.</div>
-                </div>
+        <div class="bd">
+          <div class="row" style="align-items:center; justify-content:space-between;">
+            <div style="flex:1; min-width: 240px;">
+              <label class="small" for="speed">Velocidad (épocas/seg)</label>
+              <input id="speed" type="range" min="1" max="60" value="12" />
             </div>
-        </aside>
-    </main>
+            <div class="badge" id="speedBadge">12 eps</div>
+          </div>
 
-    <script>
-        /**
-         * CONFIGURACIÓN & ESTADO
-         */
-        const GRID_SIZE = 50;
-        let CELL_SIZE = 16; // Se recalcula al ajustar canvas
-        
-        // Emojis y Tipos
-        const TYPE = {
-            EMPTY: 0,
-            POMPON: 1,  // Planta 🍀
-            BACILON: 2, // Herbívoro 🦠
-            COCO: 3,    // Carnívoro 👻
-            SUPER: 4    // Omnívoro 🦸🏻
-        };
+          <div class="kv" id="stats">
+            <div>Época</div><b id="stEpoch">0</b>
+            <div>Vivos</div><b id="stAlive">0</b>
+            <div>Muertes (agotamiento)</div><b id="stDeaths">0</b>
+            <div>Reproducciones</div><b id="stBirths">0</b>
+            <div>Comidas</div><b id="stEats">0</b>
+          </div>
 
-        const EMOJIS = {
-            [TYPE.POMPON]: '🍀',
-            [TYPE.BACILON]: '🦠',
-            [TYPE.COCO]: '👻',
-            [TYPE.SUPER]: '🦸🏻'
-        };
+          <div class="hint">
+            Reglas clave: para comer, el depredador debe estar <b>hambriento</b> (energía &lt; ½ de su máximo) y la presa debe estar en una celda contigua. Para reproducirse, dos individuos contiguos de la misma especie con energía &gt; ½ del máximo, y una celda libre contigua para la cría.
+          </div>
+        </div>
+      </section>
 
-        // Direcciones: 0:Norte, 1:Este, 2:Sur, 3:Oeste
-        const DIRS = [
-            {x: 0, y: -1}, // N
-            {x: 1, y: 0},  // E
-            {x: 0, y: 1},  // S
-            {x: -1, y: 0}  // W
-        ];
+      <section class="card">
+        <div class="hd">
+          <h2>⚙️ Parámetros</h2>
+          <button class="btn" id="btnApply">Aplicar</button>
+        </div>
+        <div class="bd">
+          <div class="form">
+            <div class="field">
+              <label>🍀 Pompones iniciales</label>
+              <input type="number" id="initPlants" min="0" max="2500" value="40" />
+            </div>
+            <div class="field">
+              <label>🦠 Bacilones iniciales</label>
+              <input type="number" id="initHerb" min="0" max="2500" value="20" />
+            </div>
+            <div class="field">
+              <label>👻 Cocos iniciales</label>
+              <input type="number" id="initCarn" min="0" max="2500" value="10" />
+            </div>
+            <div class="field">
+              <label>🦸🏻 Superquecos iniciales</label>
+              <input type="number" id="initOmni" min="0" max="2500" value="5" />
+            </div>
 
-        let config = {
-            maxEnergy: 20,
-            plantSpawnRate: 0.05, // 5%
-            plantEnergyVal: 10,
-            probForward: 0.6,
-            probTurn: 0.2, // (1 - fwd) / 2
-            speed: 100, // ms
-            initial: {
-                pompon: 40,
-                bacilon: 20,
-                coco: 10,
-                super: 5
-            }
-        };
+            <div class="field">
+              <label>Energía máxima (animales)</label>
+              <input type="number" id="maxEnergy" min="1" max="200" value="20" />
+            </div>
+            <div class="field">
+              <label>Energía inicial (animales)</label>
+              <input type="number" id="startEnergy" min="1" max="200" value="20" />
+            </div>
 
-        let world = []; // Matriz de objetos
-        let epoch = 0;
-        let isRunning = false;
-        let intervalId = null;
-        
-        // Historia para gráfica
-        let historyStats = {
-            pompon: [],
-            bacilon: [],
-            coco: [],
-            super: []
-        };
-        const MAX_HISTORY = 100;
+            <div class="field">
+              <label>🍀 Energía por pompón</label>
+              <input type="number" id="gainPlant" min="1" max="200" value="10" />
+            </div>
+            <div class="field">
+              <label>🦠 Energía por bacilón</label>
+              <input type="number" id="gainHerb" min="1" max="200" value="14" />
+            </div>
 
-        /**
-         * ELEMENTOS DOM
-         */
-        const canvas = document.getElementById('worldCanvas');
-        const ctx = canvas.getContext('2d');
-        const chartCanvas = document.getElementById('chartCanvas');
-        const chartCtx = chartCanvas.getContext('2d');
-        const logEl = document.getElementById('console-log');
+            <div class="field">
+              <label>👻 Energía por coco</label>
+              <input type="number" id="gainCarn" min="1" max="200" value="16" />
+            </div>
+            <div class="field">
+              <label>Metabolismo (−energía/época)</label>
+              <input type="number" id="metabolic" min="0" max="10" value="1" />
+            </div>
 
-        /**
-         * INICIALIZACIÓN
-         */
-        function init() {
-            setupControls();
-            
-            // CRÍTICO: Inicializar datos antes de intentar dibujar
-            resetWorld();
-            
-            // Ajustar tamaño visual del canvas y empezar a escuchar eventos
-            resizeCanvas();
-            window.addEventListener('resize', resizeCanvas);
-            
-            log("Mundo inicializado.");
+            <div class="field" style="grid-column: 1 / -1;">
+              <label>🍀 Tasa de aparición de pompones (por época)</label>
+              <input type="range" id="plantRate" min="0" max="0.2" step="0.005" value="0.03" />
+              <div class="small" id="plantRateLabel">0.030</div>
+            </div>
+
+            <div class="field">
+              <label>Avanzar (prob.)</label>
+              <input type="number" id="pForward" min="0" max="1" step="0.01" value="0.60" />
+            </div>
+            <div class="field">
+              <label>Girar izq. (prob.)</label>
+              <input type="number" id="pLeft" min="0" max="1" step="0.01" value="0.20" />
+            </div>
+
+            <div class="field">
+              <label>Girar dcha. (prob.)</label>
+              <input type="number" id="pRight" min="0" max="1" step="0.01" value="0.20" />
+            </div>
+            <div class="field">
+              <label>Borde del mundo</label>
+              <select id="edges">
+                <option value="wrap" selected>Toroidal (se envuelve)</option>
+                <option value="wall">Pared (se bloquea)</option>
+              </select>
+            </div>
+
+            <div class="field" style="grid-column: 1 / -1;">
+              <label>Límite de nuevos 🍀 por época</label>
+              <input type="number" id="plantCap" min="0" max="200" value="12" />
+              <div class="small">Evita explosiones de población vegetal si subes mucho la tasa.</div>
+            </div>
+          </div>
+
+          <div class="small" style="margin-top:10px;">
+            Nota: la tasa de aparición de 🍀 se aplica como un crecimiento dependiente del espacio libre: cuanto más lleno está el mundo de pompones, menos aparecen espontáneamente.
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="hd">
+          <h2>📈 Evolución de la población</h2>
+          <div class="badge" id="historyBadge">historial: 0</div>
+        </div>
+        <div class="bd">
+          <canvas id="chart" width="420" height="220"></canvas>
+          <div class="legend">
+            <span class="pill">🍀 Pompones</span>
+            <span class="pill">🦠 Bacilones</span>
+            <span class="pill">👻 Cocos</span>
+            <span class="pill">🦸🏻 Superquecos</span>
+          </div>
+        </div>
+      </section>
+    </aside>
+  </div>
+
+  <footer>
+    Hecho con 💚 · Ajusta parámetros y observa cómo cambian las dinámicas: escasez de plantas, depredación, omnivoría y reproducción.
+  </footer>
+
+  <script>
+    // =========================
+    //  Config y utilidades
+    // =========================
+    const W = 50, H = 50, N = W*H;
+
+    const EMOJI = {
+      plant: "🍀",
+      herb: "🦠",
+      carn: "👻",
+      omni: "🦸🏻",
+    };
+
+    const DIRS = [
+      {dx:0, dy:-1}, // 0 up
+      {dx:1, dy:0},  // 1 right
+      {dx:0, dy:1},  // 2 down
+      {dx:-1,dy:0},  // 3 left
+    ];
+
+    const $ = (id) => document.getElementById(id);
+
+    function clamp(v, a, b){ return Math.max(a, Math.min(b, v)); }
+
+    function randInt(n){ return Math.floor(Math.random()*n); }
+
+    function shuffle(arr){
+      for(let i=arr.length-1;i>0;i--){
+        const j = randInt(i+1);
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function idx(x,y){ return y*W + x; }
+
+    function inBounds(x,y){ return x>=0 && x<W && y>=0 && y<H; }
+
+    function movePos(x,y,dir,edges){
+      const {dx,dy} = DIRS[dir];
+      let nx = x + dx;
+      let ny = y + dy;
+
+      if(edges === "wrap"){
+        nx = (nx + W) % W;
+        ny = (ny + H) % H;
+        return {x:nx, y:ny, blocked:false};
+      }
+
+      // wall
+      if(!inBounds(nx,ny)) return {x, y, blocked:true};
+      return {x:nx, y:ny, blocked:false};
+    }
+
+    function neighbors4(x,y,edges){
+      const out=[];
+      for(let d=0; d<4; d++){
+        const p = movePos(x,y,d,edges);
+        // en modo wall, si está bloqueado, el vecino no existe
+        if(edges==="wall" && p.blocked) continue;
+        out.push({x:p.x,y:p.y,dir:d});
+      }
+      return out;
+    }
+
+    // =========================
+    //  Estado del mundo
+    // =========================
+    let config = null;
+    let grid = new Array(N).fill(null); // guarda id de entidad o null
+    let entities = new Map();           // id -> entidad
+    let nextId = 1;
+
+    let running = false;
+    let epoch = 0;
+    let timer = null;
+
+    // métricas
+    let deaths = 0;
+    let births = 0;
+    let eats = 0;
+
+    // historial para gráfica
+    const history = {
+      plant: [], herb: [], carn: [], omni: []
+    };
+    const HISTORY_MAX = 500;
+
+    // celdas DOM
+    const cellEls = [];
+
+    function readConfigFromUI(){
+      const initPlants = parseInt($("initPlants").value,10) || 0;
+      const initHerb   = parseInt($("initHerb").value,10)   || 0;
+      const initCarn   = parseInt($("initCarn").value,10)   || 0;
+      const initOmni   = parseInt($("initOmni").value,10)   || 0;
+
+      const maxEnergy  = Math.max(1, parseInt($("maxEnergy").value,10) || 20);
+      const startEnergy= clamp(parseInt($("startEnergy").value,10) || maxEnergy, 1, 999);
+
+      const gainPlant  = Math.max(1, parseInt($("gainPlant").value,10) || 10);
+      const gainHerb   = Math.max(1, parseInt($("gainHerb").value,10)  || 14);
+      const gainCarn   = Math.max(1, parseInt($("gainCarn").value,10)  || 16);
+      const metabolic  = clamp(parseInt($("metabolic").value,10) || 1, 0, 20);
+
+      const plantRate  = parseFloat($("plantRate").value) || 0;
+      const plantCap   = clamp(parseInt($("plantCap").value,10) || 0, 0, 500);
+
+      // movimiento
+      let pForward = clamp(parseFloat($("pForward").value) || 0.6, 0, 1);
+      let pLeft    = clamp(parseFloat($("pLeft").value)    || 0.2, 0, 1);
+      let pRight   = clamp(parseFloat($("pRight").value)   || 0.2, 0, 1);
+      // normalizamos si no suma 1
+      const s = pForward + pLeft + pRight;
+      if(s <= 0.0001){ pForward=0.6; pLeft=0.2; pRight=0.2; }
+      else { pForward/=s; pLeft/=s; pRight/=s; }
+
+      const edges = $("edges").value;
+
+      return {
+        init: { plant:initPlants, herb:initHerb, carn:initCarn, omni:initOmni },
+        maxEnergy,
+        startEnergy: clamp(startEnergy, 1, maxEnergy),
+        gain: { plant:gainPlant, herb:gainHerb, carn:gainCarn },
+        metabolic,
+        plantRate,
+        plantCap,
+        moveProb: { forward:pForward, left:pLeft, right:pRight },
+        edges,
+      };
+    }
+
+    function resetWorld(newConfig){
+      config = newConfig;
+      grid = new Array(N).fill(null);
+      entities = new Map();
+      nextId = 1;
+      epoch = 0;
+      deaths = 0;
+      births = 0;
+      eats = 0;
+
+      history.plant.length = 0;
+      history.herb.length = 0;
+      history.carn.length = 0;
+      history.omni.length = 0;
+
+      // colocación inicial
+      seedEntities("plant", config.init.plant, null);
+      seedEntities("herb",  config.init.herb,  config.startEnergy);
+      seedEntities("carn",  config.init.carn,  config.startEnergy);
+      seedEntities("omni",  config.init.omni,  config.startEnergy);
+
+      pushHistory();
+      renderAll();
+      drawChart();
+      updateBadges();
+    }
+
+    function randomEmptyCell(maxTries=2000){
+      // intento aleatorio; si el mundo está lleno, devolvemos null
+      for(let t=0;t<maxTries;t++){
+        const i = randInt(N);
+        if(grid[i] === null){
+          return {x: i%W, y: Math.floor(i/W)};
         }
+      }
+      // fallback: barrido lineal si hay hueco
+      for(let i=0;i<N;i++) if(grid[i]===null) return {x:i%W,y:Math.floor(i/W)};
+      return null;
+    }
 
-        function resizeCanvas() {
-            // Hacemos el canvas cuadrado basado en el contenedor
-            const container = canvas.parentElement;
-            const size = Math.min(container.clientWidth, container.clientHeight) - 40;
-            canvas.width = size;
-            canvas.height = size;
-            CELL_SIZE = size / GRID_SIZE;
-            if(!isRunning) drawWorld();
+    function addEntity(type, x, y, energy=null){
+      const i = idx(x,y);
+      if(grid[i] !== null) return null;
+      const id = nextId++;
+      const e = {
+        id,
+        type,
+        x,
+        y,
+        dir: randInt(4),
+        energy,
+        reproduced:false,
+      };
+      entities.set(id, e);
+      grid[i] = id;
+      return e;
+    }
+
+    function removeEntityById(id){
+      const e = entities.get(id);
+      if(!e) return;
+      grid[idx(e.x,e.y)] = null;
+      entities.delete(id);
+    }
+
+    function moveEntityTo(e, nx, ny){
+      const from = idx(e.x,e.y);
+      const to   = idx(nx,ny);
+      if(grid[to] !== null) return false;
+      grid[from] = null;
+      grid[to] = e.id;
+      e.x = nx;
+      e.y = ny;
+      return true;
+    }
+
+    function seedEntities(type, count, energy){
+      for(let k=0;k<count;k++){
+        const p = randomEmptyCell();
+        if(!p) break;
+        addEntity(type, p.x, p.y, (type==="plant"? null : energy));
+      }
+    }
+
+    function countByType(){
+      let c = {plant:0, herb:0, carn:0, omni:0};
+      for(const e of entities.values()) c[e.type]++;
+      return c;
+    }
+
+    function hungry(e){
+      if(e.type === "plant") return false;
+      return e.energy < (config.maxEnergy / 2);
+    }
+
+    // =========================
+    //  Dinámica del ecosistema
+    // =========================
+
+    function spawnPlants(){
+      const counts = countByType();
+      const plants = counts.plant;
+      const maxPlants = N;
+
+      // crecimiento dependiente del espacio libre:
+      // expected = rate * (espacio libre)
+      let expected = config.plantRate * (maxPlants - plants);
+      expected = Math.min(expected, config.plantCap);
+
+      let n = Math.floor(expected);
+      const frac = expected - n;
+      if(Math.random() < frac) n++;
+
+      for(let i=0;i<n;i++){
+        const p = randomEmptyCell(400);
+        if(!p) break;
+        addEntity("plant", p.x, p.y, null);
+      }
+    }
+
+    function chooseTurnDelta(){
+      const r = Math.random();
+      const pF = config.moveProb.forward;
+      const pL = config.moveProb.left;
+      // const pR = config.moveProb.right;
+      if(r < pF) return 0;
+      if(r < pF + pL) return -1;
+      return +1;
+    }
+
+    function tryEat(e){
+      if(e.type === "plant") return false;
+      if(!hungry(e)) return false;
+
+      const neigh = neighbors4(e.x,e.y,config.edges);
+      const preyTypes = (e.type === "herb") ? ["plant"] :
+                        (e.type === "carn") ? ["herb"]  :
+                        (e.type === "omni") ? ["carn","herb","plant"] : [];
+
+      let candidates = [];
+      for(const n of neigh){
+        const id2 = grid[idx(n.x,n.y)];
+        if(id2 === null) continue;
+        const v = entities.get(id2);
+        if(!v) continue;
+        if(preyTypes.includes(v.type)) candidates.push(v);
+      }
+
+      if(candidates.length === 0) return false;
+
+      // Preferencias para omnívoros: primero carn, luego herb, luego plant.
+      if(e.type === "omni"){
+        candidates.sort((a,b)=> preyTypes.indexOf(a.type) - preyTypes.indexOf(b.type));
+        // pero puede haber varios de la misma categoría: elegimos aleatorio dentro del grupo top
+        const bestType = candidates[0].type;
+        const best = candidates.filter(v=>v.type===bestType);
+        candidates = [ best[randInt(best.length)] ];
+      } else {
+        candidates = [ candidates[randInt(candidates.length)] ];
+      }
+
+      const victim = candidates[0];
+      // mover al depredador a la celda de la víctima y consumir
+      const vx=victim.x, vy=victim.y;
+      removeEntityById(victim.id);
+      // la celda queda libre tras quitar a la víctima
+      const moved = moveEntityTo(e, vx, vy);
+      if(!moved){
+        // por seguridad (no debería ocurrir)
+        addEntity(victim.type, vx, vy, victim.energy);
+        return false;
+      }
+
+      const gain = (victim.type === "plant") ? config.gain.plant :
+                   (victim.type === "herb")  ? config.gain.herb  :
+                   (victim.type === "carn")  ? config.gain.carn  : 0;
+
+      e.energy = clamp(e.energy + gain, 0, config.maxEnergy);
+      eats++;
+      return true;
+    }
+
+    function tryMove(e){
+      if(e.type === "plant") return;
+
+      // superquecos solo se mueven si tienen hambre
+      if(e.type === "omni" && !hungry(e)) return;
+
+      // Si tienen hambre, primero intentan comer si hay presa contigua.
+      if(tryEat(e)) return;
+
+      // Movimiento aleatorio con dirección persistente
+      const delta = chooseTurnDelta();
+      e.dir = (e.dir + delta + 4) % 4;
+
+      const p = movePos(e.x, e.y, e.dir, config.edges);
+      if(config.edges==="wall" && p.blocked) return;
+
+      const to = idx(p.x,p.y);
+      if(grid[to] !== null) return;
+
+      moveEntityTo(e, p.x, p.y);
+    }
+
+    function tryReproduction(){
+      // reiniciamos marca
+      for(const e of entities.values()) e.reproduced = false;
+
+      const all = Array.from(entities.values()).filter(e=>e.type!=="plant");
+      shuffle(all);
+
+      for(const e of all){
+        if(e.reproduced) continue;
+        if(e.energy <= (config.maxEnergy/2)) continue;
+
+        // busca pareja contigua
+        const neigh = neighbors4(e.x,e.y,config.edges);
+        const mates = [];
+        for(const n of neigh){
+          const id2 = grid[idx(n.x,n.y)];
+          if(id2 === null) continue;
+          const m = entities.get(id2);
+          if(!m) continue;
+          if(m.type !== e.type) continue;
+          if(m.reproduced) continue;
+          if(m.energy <= (config.maxEnergy/2)) continue;
+          mates.push(m);
         }
+        if(mates.length === 0) continue;
 
-        function resetWorld() {
-            epoch = 0;
-            document.getElementById('epoch-display').innerText = epoch;
-            
-            // Limpiar historia
-            historyStats = { pompon: [], bacilon: [], coco: [], super: [] };
+        const mate = mates[randInt(mates.length)];
 
-            // Crear matriz vacía
-            world = [];
-            for(let y=0; y<GRID_SIZE; y++) {
-                let row = [];
-                for(let x=0; x<GRID_SIZE; x++) {
-                    row.push(null);
-                }
-                world.push(row);
-            }
-
-            // Poblar mundo
-            spawnEntities(TYPE.POMPON, config.initial.pompon);
-            spawnEntities(TYPE.BACILON, config.initial.bacilon);
-            spawnEntities(TYPE.COCO, config.initial.coco);
-            spawnEntities(TYPE.SUPER, config.initial.super);
-
-            updateCounts();
+        // busca celda libre contigua a cualquiera de los progenitores
+        const candidates = [];
+        for(const parent of [e, mate]){
+          for(const n of neighbors4(parent.x,parent.y,config.edges)){
+            if(grid[idx(n.x,n.y)] === null) candidates.push({x:n.x,y:n.y});
+          }
         }
+        if(candidates.length === 0) continue;
 
-        function spawnEntities(type, count) {
-            let placed = 0;
-            let attempts = 0;
-            while(placed < count && attempts < 10000) {
-                const x = Math.floor(Math.random() * GRID_SIZE);
-                const y = Math.floor(Math.random() * GRID_SIZE);
-                
-                if(world[y][x] === null) {
-                    world[y][x] = createEntity(type);
-                    placed++;
-                }
-                attempts++;
-            }
+        const spot = candidates[randInt(candidates.length)];
+
+        // consume energía: 1/4 de la energía máxima
+        const cost = config.maxEnergy / 4;
+        e.energy = clamp(e.energy - cost, 0, config.maxEnergy);
+        mate.energy = clamp(mate.energy - cost, 0, config.maxEnergy);
+
+        addEntity(e.type, spot.x, spot.y, config.maxEnergy/2);
+        e.reproduced = true;
+        mate.reproduced = true;
+        births++;
+      }
+    }
+
+    function applyMetabolismAndDeaths(){
+      const all = Array.from(entities.values()).filter(e=>e.type!=="plant");
+      for(const e of all){
+        e.energy -= config.metabolic;
+        if(e.energy <= 0){
+          removeEntityById(e.id);
+          deaths++;
         }
+      }
+    }
 
-        function createEntity(type) {
-            return {
-                type: type,
-                energy: (type === TYPE.POMPON) ? 0 : config.maxEnergy, // Plantas no usan energía igual
-                maxEnergy: config.maxEnergy,
-                dir: Math.floor(Math.random() * 4), // Dirección aleatoria 0-3
-                moved: false // Flag para no mover 2 veces en la misma época
-            };
+    function tick(){
+      epoch++;
+
+      // 1) crecimiento vegetal
+      spawnPlants();
+
+      // 2) movimientos (y comidas si procede)
+      const movers = Array.from(entities.values()).filter(e=>e.type!=="plant");
+      shuffle(movers);
+      for(const e of movers){
+        // podría haber muerto en esta misma época por otro (depredación)
+        if(!entities.has(e.id)) continue;
+        tryMove(e);
+      }
+
+      // 3) reproducción
+      tryReproduction();
+
+      // 4) metabolismo y muertes
+      applyMetabolismAndDeaths();
+
+      // 5) métricas e interfaz
+      pushHistory();
+      renderAll();
+      if(epoch % 1 === 0) drawChart();
+      updateBadges();
+    }
+
+    // =========================
+    //  Render
+    // =========================
+    function buildGrid(){
+      const gridEl = $("grid");
+      gridEl.innerHTML = "";
+      cellEls.length = 0;
+      for(let i=0;i<N;i++){
+        const c = document.createElement("div");
+        c.className = "cell";
+        c.textContent = "";
+        gridEl.appendChild(c);
+        cellEls.push(c);
+      }
+    }
+
+    function renderAll(){
+      // limpiamos
+      for(let i=0;i<N;i++){
+        const c = cellEls[i];
+        c.textContent = "";
+        c.removeAttribute("data-t");
+      }
+      // pintamos
+      for(const e of entities.values()){
+        const i = idx(e.x,e.y);
+        const c = cellEls[i];
+        c.textContent = EMOJI[e.type];
+        c.setAttribute("data-t", e.type);
+        // tooltip suave
+        if(e.type === "plant"){
+          c.title = "Pompón 🍀";
+        } else {
+          c.title = `${labelType(e.type)} · energía ${Math.round(e.energy)}/${config.maxEnergy}`;
         }
+      }
 
-        /**
-         * LÓGICA DEL SIMULADOR (EL NÚCLEO)
-         */
-        function updateWorld() {
-            epoch++;
-            document.getElementById('epoch-display').innerText = epoch;
+      const counts = countByType();
+      $("countsBadge").textContent = `🍀 ${counts.plant} · 🦠 ${counts.herb} · 👻 ${counts.carn} · 🦸🏻 ${counts.omni}`;
 
-            // 1. Spawneo espontáneo de Pompones
-            handlePlantGrowth();
+      $("stEpoch").textContent = String(epoch);
+      $("stAlive").textContent = String(entities.size);
+      $("stDeaths").textContent = String(deaths);
+      $("stBirths").textContent = String(births);
+      $("stEats").textContent = String(eats);
+    }
 
-            // 2. Reset flags de movimiento
-            for(let y=0; y<GRID_SIZE; y++) {
-                for(let x=0; x<GRID_SIZE; x++) {
-                    if(world[y][x]) world[y][x].moved = false;
-                }
-            }
+    function labelType(t){
+      return t==="herb"?"Bacilón 🦠": t==="carn"?"Coco 👻": t==="omni"?"Superqueco 🦸🏻":"Pompón 🍀";
+    }
 
-            // 3. Procesar habitantes
-            // Iteramos aleatoriamente o linealmente? 
-            // Linealmente puede dar ventaja a los de arriba a la izquierda.
-            // Para simplicidad en HTML/JS puro, lo haremos lineal pero con "doble buffer" lógico usando el flag 'moved'.
-            
-            for(let y=0; y<GRID_SIZE; y++) {
-                for(let x=0; x<GRID_SIZE; x++) {
-                    const entity = world[y][x];
-                    
-                    // Si no hay entidad o es una planta (no se mueven ni gastan energía activa) o ya se movió
-                    if (!entity || entity.type === TYPE.POMPON || entity.moved) continue;
+    function updateBadges(){
+      $("statusBadge").textContent = `EPOCH ${epoch} · ${running?"en marcha":"detenido"}`;
+      const eps = parseInt($("speed").value,10);
+      $("speedBadge").textContent = `${eps} eps`;
+      $("historyBadge").textContent = `historial: ${history.plant.length}`;
+    }
 
-                    // 3.1 Coste Metabólico
-                    entity.energy -= 1;
-                    if (entity.energy <= 0) {
-                        world[y][x] = null; // Muerte por inanición
-                        continue;
-                    }
+    // =========================
+    //  Historial + gráfica
+    // =========================
+    function pushHistory(){
+      const c = countByType();
+      history.plant.push(c.plant);
+      history.herb.push(c.herb);
+      history.carn.push(c.carn);
+      history.omni.push(c.omni);
+      if(history.plant.length > HISTORY_MAX){
+        history.plant.shift();
+        history.herb.shift();
+        history.carn.shift();
+        history.omni.shift();
+      }
+    }
 
-                    // 3.2 Lógica Superqueco: Solo se mueve si tiene hambre
-                    const isHungry = entity.energy < (entity.maxEnergy / 2);
-                    if (entity.type === TYPE.SUPER && !isHungry) {
-                        // Está lleno, no se mueve.
-                        continue; 
-                    }
+    function drawChart(){
+      const canvas = $("chart");
+      const ctx = canvas.getContext("2d");
+      const w = canvas.width;
+      const h = canvas.height;
 
-                    // 3.3 Decidir movimiento
-                    moveEntity(x, y, entity);
-                }
-            }
+      ctx.clearRect(0,0,w,h);
 
-            updateCounts();
-            drawWorld();
-            drawChart();
+      // fondo
+      ctx.fillStyle = "rgba(0,0,0,0.10)";
+      ctx.fillRect(0,0,w,h);
+
+      const series = [
+        {k:"plant", emoji:"🍀"},
+        {k:"herb",  emoji:"🦠"},
+        {k:"carn",  emoji:"👻"},
+        {k:"omni",  emoji:"🦸🏻"},
+      ];
+
+      const L = history.plant.length;
+      if(L < 2) return;
+
+      // rango
+      let maxV = 1;
+      for(const s of series){
+        for(const v of history[s.k]) maxV = Math.max(maxV, v);
+      }
+
+      const pad = 12;
+      const x0 = pad;
+      const y0 = pad;
+      const x1 = w - pad;
+      const y1 = h - pad;
+
+      // rejilla suave
+      ctx.strokeStyle = "rgba(255,255,255,0.08)";
+      ctx.lineWidth = 1;
+      for(let i=0;i<=4;i++){
+        const yy = y0 + (y1-y0) * (i/4);
+        ctx.beginPath();
+        ctx.moveTo(x0, yy);
+        ctx.lineTo(x1, yy);
+        ctx.stroke();
+      }
+
+      // dibujamos sin fijar colores explícitos (dejamos que el navegador use defaults de strokeStyle?),
+      // pero necesitamos distinguirlas: usaremos alpha y dashes, sin especificar colores fuertes.
+      // Aun así, definimos colores suaves neutrales por legibilidad.
+      const styles = {
+        plant: {stroke:"rgba(40,209,124,0.95)", dash:[]},
+        herb:  {stroke:"rgba(102,163,255,0.95)", dash:[6,4]},
+        carn:  {stroke:"rgba(255,107,107,0.95)", dash:[2,4]},
+        omni:  {stroke:"rgba(255,209,102,0.95)", dash:[10,4,2,4]},
+      };
+
+      function plot(key){
+        const arr = history[key];
+        ctx.strokeStyle = styles[key].stroke;
+        ctx.setLineDash(styles[key].dash);
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        for(let i=0;i<L;i++){
+          const x = x0 + (x1-x0) * (i/(L-1));
+          const y = y1 - (y1-y0) * (arr[i]/maxV);
+          if(i===0) ctx.moveTo(x,y);
+          else ctx.lineTo(x,y);
         }
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
 
-        function handlePlantGrowth() {
-            // Probabilidad basada en pompones actuales vs totales posibles para evitar explosión infinita
-            // Pero el enunciado dice "función del número de pompones". 
-            // Haremos algo simple: Plantas actuales * tasa = intentos de spawn.
-            let currentPlants = 0;
-            for(let row of world) for(let cell of row) if(cell && cell.type === TYPE.POMPON) currentPlants++;
+      plot("plant");
+      plot("herb");
+      plot("carn");
+      plot("omni");
 
-            // Intentos de nacimiento basados en la población actual (crecimiento logístico simplificado)
-            let spawnAttempts = Math.ceil(currentPlants * config.plantSpawnRate);
-            // Si hay muy pocos, damos un empujón para que no se extingan rápido
-            if (currentPlants < 5) spawnAttempts = 2; 
+      // etiquetas mínimas
+      ctx.fillStyle = "rgba(231,238,252,0.85)";
+      ctx.font = "11px " + getComputedStyle(document.documentElement).getPropertyValue("--mono");
+      ctx.fillText("0", x0, y1+10);
+      ctx.fillText(String(maxV), x0, y0+10);
+    }
 
-            for(let i=0; i<spawnAttempts; i++) {
-                let rx = Math.floor(Math.random() * GRID_SIZE);
-                let ry = Math.floor(Math.random() * GRID_SIZE);
-                if(world[ry][rx] === null) {
-                    world[ry][rx] = createEntity(TYPE.POMPON);
-                }
-            }
-        }
+    // =========================
+    //  Control de ejecución
+    // =========================
 
-        function moveEntity(x, y, entity) {
-            // Decidir nueva dirección
-            let r = Math.random();
-            let newDir = entity.dir;
+    function start(){
+      if(running) return;
+      running = true;
+      $("btnStart").textContent = "⏸ Pausar";
+      restartTimer();
+      updateBadges();
+    }
 
-            if (r > config.probForward) {
-                // Girar (repartir el resto entre izq y der)
-                if (Math.random() < 0.5) newDir = (entity.dir + 3) % 4; // Izquierda
-                else newDir = (entity.dir + 1) % 4; // Derecha
-            }
-            entity.dir = newDir;
+    function stop(){
+      running = false;
+      $("btnStart").textContent = "▶ Iniciar";
+      if(timer){ clearInterval(timer); timer = null; }
+      updateBadges();
+    }
 
-            // Calcular coordenadas destino
-            let nx = x + DIRS[newDir].x;
-            let ny = y + DIRS[newDir].y;
+    function restartTimer(){
+      if(timer){ clearInterval(timer); timer = null; }
+      if(!running) return;
+      const eps = clamp(parseInt($("speed").value,10) || 12, 1, 200);
+      const interval = 1000 / eps;
+      timer = setInterval(tick, interval);
+    }
 
-            // Verificar límites (Si se sale, choca y se queda quieto)
-            if (nx < 0 || nx >= GRID_SIZE || ny < 0 || ny >= GRID_SIZE) {
-                entity.moved = true;
-                return;
-            }
+    // =========================
+    //  Eventos UI
+    // =========================
+    function wireUI(){
+      $("btnStart").addEventListener("click", ()=>{
+        if(running) stop(); else start();
+      });
 
-            const target = world[ny][nx];
+      $("btnStep").addEventListener("click", ()=>{
+        if(running) return;
+        tick();
+      });
 
-            if (target === null) {
-                // CASO 1: Casilla Libre -> Moverse
-                world[ny][nx] = entity;
-                world[y][x] = null;
-                entity.moved = true;
-            } else if (target.type === entity.type) {
-                // CASO 2: Misma Especie -> Intentar Reproducción
-                // Requisitos: Adyacentes (ya lo son), > 50% energía ambos.
-                if (entity.energy > entity.maxEnergy/2 && target.energy > target.maxEnergy/2) {
-                    tryReproduce(x, y, nx, ny, entity, target);
-                }
-                // No se mueven al reproducirse, solo gastan energía
-                entity.moved = true; 
-            } else {
-                // CASO 3: Otra Especie -> Intentar Comer
-                if (canEat(entity, target)) {
-                    // Comer requiere tener hambre y poder desplazarse
-                    if (entity.energy < entity.maxEnergy / 2) {
-                        eat(x, y, nx, ny, entity, target);
-                    } else {
-                        // No tiene hambre, bloqueado
-                        entity.moved = true;
-                    }
-                } else {
-                    // Bloqueado por depredador o neutral
-                    entity.moved = true;
-                }
-            }
-        }
+      $("btnReset").addEventListener("click", ()=>{
+        stop();
+        resetWorld(readConfigFromUI());
+      });
 
-        function canEat(predator, prey) {
-            if (predator.type === TYPE.BACILON && prey.type === TYPE.POMPON) return true;
-            if (predator.type === TYPE.COCO && prey.type === TYPE.BACILON) return true;
-            if (predator.type === TYPE.SUPER) {
-                return (prey.type === TYPE.POMPON || prey.type === TYPE.BACILON || prey.type === TYPE.COCO);
-            }
-            return false;
-        }
+      $("btnApply").addEventListener("click", ()=>{
+        // aplicar parámetros reiniciando el mundo para evitar inconsistencias
+        stop();
+        resetWorld(readConfigFromUI());
+      });
 
-        function eat(predX, predY, preyX, preyY, predator, prey) {
-            // Ganancia de energía
-            let energyGain = (prey.type === TYPE.POMPON) ? config.plantEnergyVal : prey.energy; // Se come la energía que le queda a la presa o valor fijo si es planta
-            
-            // Limitamos la ganancia para que no sea infinita, maxEnergy
-            predator.energy = Math.min(predator.maxEnergy, predator.energy + energyGain);
-            
-            // Mover depredador a la casilla de la presa
-            world[preyY][preyX] = predator;
-            world[predY][predX] = null;
-            predator.moved = true;
-            
-            // Nota: Log opcional
-            // log(`${EMOJIS[predator.type]} se comió a ${EMOJIS[prey.type]}`);
-        }
+      $("speed").addEventListener("input", ()=>{
+        updateBadges();
+        if(running) restartTimer();
+      });
 
-        function tryReproduce(x1, y1, x2, y2, parent1, parent2) {
-            // Buscar casilla libre contigua a alguno de los padres
-            let freeSpots = [];
-            
-            // Revisar vecinos de p1
-            getNeighbors(x1, y1).forEach(pos => { if(world[pos.y][pos.x] === null) freeSpots.push(pos); });
-            // Revisar vecinos de p2
-            getNeighbors(x2, y2).forEach(pos => { if(world[pos.y][pos.x] === null) freeSpots.push(pos); });
+      $("cellSize").addEventListener("input", (ev)=>{
+        document.documentElement.style.setProperty("--cell", ev.target.value + "px");
+      });
 
-            if (freeSpots.length > 0) {
-                // Coste: 1/4 energía
-                parent1.energy -= parent1.maxEnergy / 4;
-                parent2.energy -= parent2.maxEnergy / 4;
+      $("plantRate").addEventListener("input", ()=>{
+        $("plantRateLabel").textContent = parseFloat($("plantRate").value).toFixed(3);
+      });
+    }
 
-                // Nacer en spot aleatorio de los disponibles
-                let spot = freeSpots[Math.floor(Math.random() * freeSpots.length)];
-                let child = createEntity(parent1.type);
-                child.energy = child.maxEnergy / 2;
-                world[spot.y][spot.x] = child;
-                
-                // log(`Nació un nuevo ${EMOJIS[child.type]}`);
-            }
-        }
-
-        function getNeighbors(x, y) {
-            let n = [];
-            for (let d of DIRS) {
-                let nx = x + d.x;
-                let ny = y + d.y;
-                if(nx >= 0 && nx < GRID_SIZE && ny >= 0 && ny < GRID_SIZE) {
-                    n.push({x: nx, y: ny});
-                }
-            }
-            return n;
-        }
-
-        /**
-         * RENDERIZADO
-         */
-        function drawWorld() {
-            // Safety check: Evitar dibujar si el mundo no está listo (previene error undefined reading '0')
-            if (!world || world.length === 0) return;
-
-            // Fondo grid
-            ctx.fillStyle = '#111';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            // Dibujar rejilla (opcional, puede impactar rendimiento si se dibuja línea por línea)
-            // Lo omitimos para look más limpio estilo "cellular automata".
-
-            ctx.font = `${CELL_SIZE * 0.8}px 'Segoe UI Emoji', sans-serif`;
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-
-            for(let y=0; y<GRID_SIZE; y++) {
-                if (!world[y]) continue; // Doble protección por fila
-                for(let x=0; x<GRID_SIZE; x++) {
-                    const ent = world[y][x];
-                    if (ent) {
-                        const px = x * CELL_SIZE + CELL_SIZE/2;
-                        const py = y * CELL_SIZE + CELL_SIZE/2 + 2; // +2 ajuste visual vertical
-                        ctx.fillText(EMOJIS[ent.type], px, py);
-                    }
-                }
-            }
-        }
-
-        function drawChart() {
-            const w = chartCanvas.width;
-            const h = chartCanvas.height;
-            chartCtx.clearRect(0, 0, w, h);
-            
-            // Fondo semi transparente
-            chartCtx.fillStyle = 'rgba(0,0,0,0.5)';
-            chartCtx.fillRect(0,0,w,h);
-
-            if (historyStats.pompon.length < 2) return;
-
-            const maxPop = GRID_SIZE * GRID_SIZE / 2; // Escala vertical aproximada
-
-            function drawLine(data, color) {
-                chartCtx.beginPath();
-                chartCtx.strokeStyle = color;
-                chartCtx.lineWidth = 2;
-                for(let i=0; i<data.length; i++) {
-                    let x = (i / (MAX_HISTORY-1)) * w;
-                    let y = h - (data[i] / maxPop) * h;
-                    if(i===0) chartCtx.moveTo(x, y);
-                    else chartCtx.lineTo(x, y);
-                }
-                chartCtx.stroke();
-            }
-
-            drawLine(historyStats.pompon, '#4ade80'); // Verde
-            drawLine(historyStats.bacilon, '#f87171'); // Rojo/Rosa (Bacilón es microbio)
-            drawLine(historyStats.coco, '#e2e8f0'); // Blanco (Fantasma)
-            drawLine(historyStats.super, '#facc15'); // Amarillo (Super)
-        }
-
-        function updateCounts() {
-            let counts = { [TYPE.POMPON]:0, [TYPE.BACILON]:0, [TYPE.COCO]:0, [TYPE.SUPER]:0 };
-            
-            for(let row of world) {
-                for(let cell of row) {
-                    if(cell) counts[cell.type]++;
-                }
-            }
-
-            // Actualizar DOM
-            document.getElementById('count-pompon').innerText = counts[TYPE.POMPON];
-            document.getElementById('count-bacilon').innerText = counts[TYPE.BACILON];
-            document.getElementById('count-coco').innerText = counts[TYPE.COCO];
-            document.getElementById('count-super').innerText = counts[TYPE.SUPER];
-
-            // Actualizar Historia
-            historyStats.pompon.push(counts[TYPE.POMPON]);
-            historyStats.bacilon.push(counts[TYPE.BACILON]);
-            historyStats.coco.push(counts[TYPE.COCO]);
-            historyStats.super.push(counts[TYPE.SUPER]);
-
-            if(historyStats.pompon.length > MAX_HISTORY) {
-                historyStats.pompon.shift();
-                historyStats.bacilon.shift();
-                historyStats.coco.shift();
-                historyStats.super.shift();
-            }
-        }
-
-        /**
-         * CONTROLES
-         */
-        function setupControls() {
-            const btnStart = document.getElementById('btn-start');
-            const btnPause = document.getElementById('btn-pause');
-            const btnReset = document.getElementById('btn-reset');
-
-            btnStart.addEventListener('click', () => {
-                if(!isRunning) {
-                    isRunning = true;
-                    btnStart.classList.add('hidden');
-                    btnPause.classList.remove('hidden');
-                    runSimulation();
-                    log("Simulación iniciada.");
-                }
-            });
-
-            btnPause.addEventListener('click', () => {
-                isRunning = false;
-                clearTimeout(intervalId);
-                btnStart.classList.remove('hidden');
-                btnPause.classList.add('hidden');
-                log("Simulación pausada.");
-            });
-
-            btnReset.addEventListener('click', () => {
-                isRunning = false;
-                clearTimeout(intervalId);
-                btnStart.classList.remove('hidden');
-                btnPause.classList.add('hidden');
-                resetWorld();
-                drawWorld();
-                log("Simulación reiniciada.");
-            });
-
-            // Sliders
-            document.getElementById('inp-speed').addEventListener('input', (e) => {
-                config.speed = parseInt(e.target.value);
-                document.getElementById('val-speed').innerText = config.speed;
-            });
-
-            document.getElementById('inp-maxEnergy').addEventListener('input', (e) => {
-                config.maxEnergy = parseInt(e.target.value);
-                document.getElementById('val-maxEnergy').innerText = config.maxEnergy;
-                // Nota: Esto solo afecta a nuevos nacimientos o reset.
-            });
-
-            document.getElementById('inp-plantRate').addEventListener('input', (e) => {
-                config.plantSpawnRate = parseInt(e.target.value) / 100;
-                document.getElementById('val-plantRate').innerText = e.target.value;
-            });
-
-             document.getElementById('inp-plantEnergy').addEventListener('input', (e) => {
-                config.plantEnergyVal = parseInt(e.target.value);
-                document.getElementById('val-plantEnergy').innerText = e.target.value;
-            });
-
-            document.getElementById('inp-probFwd').addEventListener('change', (e) => {
-                let val = parseInt(e.target.value);
-                if (val < 0) val = 0;
-                if (val > 100) val = 100;
-                config.probForward = val / 100;
-                config.probTurn = ((100 - val) / 2) / 100;
-                
-                document.getElementById('inp-probTurn').value = (100 - val) / 2;
-            });
-
-            // Init Populations
-            ['initPompon', 'initBacilon', 'initCoco', 'initSuper'].forEach(id => {
-                document.getElementById('inp-' + id).addEventListener('change', (e) => {
-                    let key = id.replace('init', '').toLowerCase();
-                    config.initial[key] = parseInt(e.target.value);
-                });
-            });
-        }
-
-        function runSimulation() {
-            if (!isRunning) return;
-            
-            updateWorld();
-            
-            intervalId = setTimeout(() => {
-                requestAnimationFrame(runSimulation);
-            }, config.speed);
-        }
-
-        function log(msg) {
-            const div = document.createElement('div');
-            div.innerText = `[${new Date().toLocaleTimeString()}] ${msg}`;
-            logEl.appendChild(div);
-            logEl.scrollTop = logEl.scrollHeight;
-        }
-
-        // Arrancar
-        init();
-
-    </script>
+    // =========================
+    //  Init
+    // =========================
+    buildGrid();
+    wireUI();
+    $("plantRateLabel").textContent = parseFloat($("plantRate").value).toFixed(3);
+    resetWorld(readConfigFromUI());
+  </script>
 </body>
 </html>
