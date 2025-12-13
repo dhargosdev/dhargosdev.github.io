@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ecosistema Artificial - Dhargos Lab</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+        
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background-color: #1a1b26;
+            color: #a9b1d6;
+        }
+        
+        canvas {
+            image-rendering: pixelated; /* Toque retro para nitidez */
+        }
+
+        /* Scrollbars customizados */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #1a1b26; }
+        ::-webkit-scrollbar-thumb { background: #414868; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #565f89; }
+        
+        .panel-glass {
+            background: rgba(26, 27, 38, 0.95);
+            border: 1px solid #414868;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+        }
+
+        input[type=range] {
+            accent-color: #7aa2f7;
+        }
+    </style>
+</head>
+<body class="h-screen flex flex-col overflow-hidden">
+
+    <!-- Header -->
+    <header class="h-14 border-b border-gray-700 flex items-center justify-between px-6 bg-gray-900">
+        <h1 class="text-xl font-bold text-blue-400">⚡ Ecosistema <span class="text-xs text-gray-500">v1.1</span></h1>
+        <div class="flex gap-4 text-sm">
+            <div class="flex items-center gap-2"><span class="text-2xl">🍀</span> <span id="count-pompon">0</span></div>
+            <div class="flex items-center gap-2"><span class="text-2xl">🦠</span> <span id="count-bacilon">0</span></div>
+            <div class="flex items-center gap-2"><span class="text-2xl">👻</span> <span id="count-coco">0</span></div>
+            <div class="flex items-center gap-2"><span class="text-2xl">🦸🏻</span> <span id="count-super">0</span></div>
+            <div class="pl-4 border-l border-gray-700 font-bold text-yellow-500">ÉPOCA: <span id="epoch-display">0</span></div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex overflow-hidden">
+        
+        <!-- Canvas Area -->
+        <div class="flex-1 bg-black flex items-center justify-center p-4 overflow-auto relative">
+            <canvas id="worldCanvas" width="800" height="800" class="shadow-2xl border border-gray-800 bg-gray-900"></canvas>
+            
+            <!-- Stats Overlay (Bottom Right of Canvas Area) -->
+            <div class="absolute bottom-4 right-4 bg-gray-900/80 p-2 rounded border border-gray-700 pointer-events-none">
+                <canvas id="chartCanvas" width="300" height="100"></canvas>
+            </div>
+        </div>
+
+        <!-- Controls Sidebar -->
+        <aside class="w-80 panel-glass border-l border-gray-700 flex flex-col overflow-y-auto">
+            <div class="p-4 space-y-6">
+                
+                <!-- Simulation Control -->
+                <div class="space-y-2 pb-4 border-b border-gray-700">
+                    <h2 class="text-sm font-bold text-white uppercase tracking-wider">Control Maestro</h2>
+                    <div class="flex gap-2">
+                        <button id="btn-start" class="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded font-bold transition">▶ Iniciar</button>
+                        <button id="btn-pause" class="flex-1 bg-yellow-600 hover:bg-yellow-700 text-white py-2 px-4 rounded font-bold transition hidden">⏸ Pausa</button>
+                        <button id="btn-reset" class="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded font-bold transition">↺ Reset</button>
+                    </div>
+                    <div class="mt-2">
+                        <label class="text-xs text-gray-400">Velocidad (ms/época): <span id="val-speed">100</span>ms</label>
+                        <input type="range" id="inp-speed" min="10" max="1000" step="10" value="100" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer dir-rtl">
+                    </div>
+                </div>
+
+                <!-- Config Parameters -->
+                <div class="space-y-4">
+                    <h2 class="text-sm font-bold text-white uppercase tracking-wider">Configuración</h2>
+                    
+                    <!-- Energy -->
+                    <div>
+                        <label class="text-xs text-blue-300">Energía Máxima: <span id="val-maxEnergy">20</span></label>
+                        <input type="range" id="inp-maxEnergy" min="10" max="100" value="20" class="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer">
+                    </div>
+                    <div>
+                        <label class="text-xs text-green-300">Tasa Reprod. Pompones: <span id="val-plantRate">5</span>%</label>
+                        <input type="range" id="inp-plantRate" min="1" max="20" value="5" class="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer">
+                    </div>
+                    <div>
+                        <label class="text-xs text-yellow-300">Energía Pompón: <span id="val-plantEnergy">10</span></label>
+                        <input type="range" id="inp-plantEnergy" min="1" max="50" value="10" class="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer">
+                    </div>
+
+                    <!-- Movement Probabilities -->
+                    <div class="pt-2 border-t border-gray-700">
+                        <h3 class="text-xs font-bold text-gray-400 mb-2">Probabilidades Movimiento</h3>
+                        <div class="grid grid-cols-3 gap-2 text-center text-xs">
+                            <div>
+                                <label>Avanzar</label>
+                                <input type="number" id="inp-probFwd" value="60" class="w-full bg-gray-800 border border-gray-600 rounded px-1 py-1 text-center">
+                            </div>
+                            <div>
+                                <label>Giro L/R</label>
+                                <input type="number" id="inp-probTurn" value="20" class="w-full bg-gray-800 border border-gray-600 rounded px-1 py-1 text-center" disabled title="Calculado automáticamente">
+                            </div>
+                        </div>
+                        <p class="text-[10px] text-gray-500 mt-1">* Giro L/R es (100 - Avanzar) / 2</p>
+                    </div>
+
+                    <!-- Initial Population -->
+                    <div class="pt-2 border-t border-gray-700 space-y-2">
+                        <h3 class="text-xs font-bold text-gray-400">Población Inicial (al Reset)</h3>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="text-xs">🍀 Pompones</label>
+                                <input type="number" id="inp-initPompon" value="40" class="w-full bg-gray-800 text-white px-2 py-1 rounded border border-gray-600">
+                            </div>
+                            <div>
+                                <label class="text-xs">🦠 Bacilones</label>
+                                <input type="number" id="inp-initBacilon" value="20" class="w-full bg-gray-800 text-white px-2 py-1 rounded border border-gray-600">
+                            </div>
+                            <div>
+                                <label class="text-xs">👻 Cocos</label>
+                                <input type="number" id="inp-initCoco" value="10" class="w-full bg-gray-800 text-white px-2 py-1 rounded border border-gray-600">
+                            </div>
+                            <div>
+                                <label class="text-xs">🦸🏻 Superquecos</label>
+                                <input type="number" id="inp-initSuper" value="5" class="w-full bg-gray-800 text-white px-2 py-1 rounded border border-gray-600">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Log Console -->
+                <div class="flex-1 min-h-[150px] bg-black border border-gray-700 rounded p-2 font-mono text-[10px] overflow-y-auto text-gray-400" id="console-log">
+                    <div class="text-green-500">> Sistema listo.</div>
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <script>
+        /**
+         * CONFIGURACIÓN & ESTADO
+         */
+        const GRID_SIZE = 50;
+        let CELL_SIZE = 16; // Se recalcula al ajustar canvas
+        
+        // Emojis y Tipos
+        const TYPE = {
+            EMPTY: 0,
+            POMPON: 1,  // Planta 🍀
+            BACILON: 2, // Herbívoro 🦠
+            COCO: 3,    // Carnívoro 👻
+            SUPER: 4    // Omnívoro 🦸🏻
+        };
+
+        const EMOJIS = {
+            [TYPE.POMPON]: '🍀',
+            [TYPE.BACILON]: '🦠',
+            [TYPE.COCO]: '👻',
+            [TYPE.SUPER]: '🦸🏻'
+        };
+
+        // Direcciones: 0:Norte, 1:Este, 2:Sur, 3:Oeste
+        const DIRS = [
+            {x: 0, y: -1}, // N
+            {x: 1, y: 0},  // E
+            {x: 0, y: 1},  // S
+            {x: -1, y: 0}  // W
+        ];
+
+        let config = {
+            maxEnergy: 20,
+            plantSpawnRate: 0.05, // 5%
+            plantEnergyVal: 10,
+            probForward: 0.6,
+            probTurn: 0.2, // (1 - fwd) / 2
+            speed: 100, // ms
+            initial: {
+                pompon: 40,
+                bacilon: 20,
+                coco: 10,
+                super: 5
+            }
+        };
+
+        let world = []; // Matriz de objetos
+        let epoch = 0;
+        let isRunning = false;
+        let intervalId = null;
+        
+        // Historia para gráfica
+        let historyStats = {
+            pompon: [],
+            bacilon: [],
+            coco: [],
+            super: []
+        };
+        const MAX_HISTORY = 100;
+
+        /**
+         * ELEMENTOS DOM
+         */
+        const canvas = document.getElementById('worldCanvas');
+        const ctx = canvas.getContext('2d');
+        const chartCanvas = document.getElementById('chartCanvas');
+        const chartCtx = chartCanvas.getContext('2d');
+        const logEl = document.getElementById('console-log');
+
+        /**
+         * INICIALIZACIÓN
+         */
+        function init() {
+            setupControls();
+            
+            // CRÍTICO: Inicializar datos antes de intentar dibujar
+            resetWorld();
+            
+            // Ajustar tamaño visual del canvas y empezar a escuchar eventos
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+            
+            log("Mundo inicializado.");
+        }
+
+        function resizeCanvas() {
+            // Hacemos el canvas cuadrado basado en el contenedor
+            const container = canvas.parentElement;
+            const size = Math.min(container.clientWidth, container.clientHeight) - 40;
+            canvas.width = size;
+            canvas.height = size;
+            CELL_SIZE = size / GRID_SIZE;
+            if(!isRunning) drawWorld();
+        }
+
+        function resetWorld() {
+            epoch = 0;
+            document.getElementById('epoch-display').innerText = epoch;
+            
+            // Limpiar historia
+            historyStats = { pompon: [], bacilon: [], coco: [], super: [] };
+
+            // Crear matriz vacía
+            world = [];
+            for(let y=0; y<GRID_SIZE; y++) {
+                let row = [];
+                for(let x=0; x<GRID_SIZE; x++) {
+                    row.push(null);
+                }
+                world.push(row);
+            }
+
+            // Poblar mundo
+            spawnEntities(TYPE.POMPON, config.initial.pompon);
+            spawnEntities(TYPE.BACILON, config.initial.bacilon);
+            spawnEntities(TYPE.COCO, config.initial.coco);
+            spawnEntities(TYPE.SUPER, config.initial.super);
+
+            updateCounts();
+        }
+
+        function spawnEntities(type, count) {
+            let placed = 0;
+            let attempts = 0;
+            while(placed < count && attempts < 10000) {
+                const x = Math.floor(Math.random() * GRID_SIZE);
+                const y = Math.floor(Math.random() * GRID_SIZE);
+                
+                if(world[y][x] === null) {
+                    world[y][x] = createEntity(type);
+                    placed++;
+                }
+                attempts++;
+            }
+        }
+
+        function createEntity(type) {
+            return {
+                type: type,
+                energy: (type === TYPE.POMPON) ? 0 : config.maxEnergy, // Plantas no usan energía igual
+                maxEnergy: config.maxEnergy,
+                dir: Math.floor(Math.random() * 4), // Dirección aleatoria 0-3
+                moved: false // Flag para no mover 2 veces en la misma época
+            };
+        }
+
+        /**
+         * LÓGICA DEL SIMULADOR (EL NÚCLEO)
+         */
+        function updateWorld() {
+            epoch++;
+            document.getElementById('epoch-display').innerText = epoch;
+
+            // 1. Spawneo espontáneo de Pompones
+            handlePlantGrowth();
+
+            // 2. Reset flags de movimiento
+            for(let y=0; y<GRID_SIZE; y++) {
+                for(let x=0; x<GRID_SIZE; x++) {
+                    if(world[y][x]) world[y][x].moved = false;
+                }
+            }
+
+            // 3. Procesar habitantes
+            // Iteramos aleatoriamente o linealmente? 
+            // Linealmente puede dar ventaja a los de arriba a la izquierda.
+            // Para simplicidad en HTML/JS puro, lo haremos lineal pero con "doble buffer" lógico usando el flag 'moved'.
+            
+            for(let y=0; y<GRID_SIZE; y++) {
+                for(let x=0; x<GRID_SIZE; x++) {
+                    const entity = world[y][x];
+                    
+                    // Si no hay entidad o es una planta (no se mueven ni gastan energía activa) o ya se movió
+                    if (!entity || entity.type === TYPE.POMPON || entity.moved) continue;
+
+                    // 3.1 Coste Metabólico
+                    entity.energy -= 1;
+                    if (entity.energy <= 0) {
+                        world[y][x] = null; // Muerte por inanición
+                        continue;
+                    }
+
+                    // 3.2 Lógica Superqueco: Solo se mueve si tiene hambre
+                    const isHungry = entity.energy < (entity.maxEnergy / 2);
+                    if (entity.type === TYPE.SUPER && !isHungry) {
+                        // Está lleno, no se mueve.
+                        continue; 
+                    }
+
+                    // 3.3 Decidir movimiento
+                    moveEntity(x, y, entity);
+                }
+            }
+
+            updateCounts();
+            drawWorld();
+            drawChart();
+        }
+
+        function handlePlantGrowth() {
+            // Probabilidad basada en pompones actuales vs totales posibles para evitar explosión infinita
+            // Pero el enunciado dice "función del número de pompones". 
+            // Haremos algo simple: Plantas actuales * tasa = intentos de spawn.
+            let currentPlants = 0;
+            for(let row of world) for(let cell of row) if(cell && cell.type === TYPE.POMPON) currentPlants++;
+
+            // Intentos de nacimiento basados en la población actual (crecimiento logístico simplificado)
+            let spawnAttempts = Math.ceil(currentPlants * config.plantSpawnRate);
+            // Si hay muy pocos, damos un empujón para que no se extingan rápido
+            if (currentPlants < 5) spawnAttempts = 2; 
+
+            for(let i=0; i<spawnAttempts; i++) {
+                let rx = Math.floor(Math.random() * GRID_SIZE);
+                let ry = Math.floor(Math.random() * GRID_SIZE);
+                if(world[ry][rx] === null) {
+                    world[ry][rx] = createEntity(TYPE.POMPON);
+                }
+            }
+        }
+
+        function moveEntity(x, y, entity) {
+            // Decidir nueva dirección
+            let r = Math.random();
+            let newDir = entity.dir;
+
+            if (r > config.probForward) {
+                // Girar (repartir el resto entre izq y der)
+                if (Math.random() < 0.5) newDir = (entity.dir + 3) % 4; // Izquierda
+                else newDir = (entity.dir + 1) % 4; // Derecha
+            }
+            entity.dir = newDir;
+
+            // Calcular coordenadas destino
+            let nx = x + DIRS[newDir].x;
+            let ny = y + DIRS[newDir].y;
+
+            // Verificar límites (Si se sale, choca y se queda quieto)
+            if (nx < 0 || nx >= GRID_SIZE || ny < 0 || ny >= GRID_SIZE) {
+                entity.moved = true;
+                return;
+            }
+
+            const target = world[ny][nx];
+
+            if (target === null) {
+                // CASO 1: Casilla Libre -> Moverse
+                world[ny][nx] = entity;
+                world[y][x] = null;
+                entity.moved = true;
+            } else if (target.type === entity.type) {
+                // CASO 2: Misma Especie -> Intentar Reproducción
+                // Requisitos: Adyacentes (ya lo son), > 50% energía ambos.
+                if (entity.energy > entity.maxEnergy/2 && target.energy > target.maxEnergy/2) {
+                    tryReproduce(x, y, nx, ny, entity, target);
+                }
+                // No se mueven al reproducirse, solo gastan energía
+                entity.moved = true; 
+            } else {
+                // CASO 3: Otra Especie -> Intentar Comer
+                if (canEat(entity, target)) {
+                    // Comer requiere tener hambre y poder desplazarse
+                    if (entity.energy < entity.maxEnergy / 2) {
+                        eat(x, y, nx, ny, entity, target);
+                    } else {
+                        // No tiene hambre, bloqueado
+                        entity.moved = true;
+                    }
+                } else {
+                    // Bloqueado por depredador o neutral
+                    entity.moved = true;
+                }
+            }
+        }
+
+        function canEat(predator, prey) {
+            if (predator.type === TYPE.BACILON && prey.type === TYPE.POMPON) return true;
+            if (predator.type === TYPE.COCO && prey.type === TYPE.BACILON) return true;
+            if (predator.type === TYPE.SUPER) {
+                return (prey.type === TYPE.POMPON || prey.type === TYPE.BACILON || prey.type === TYPE.COCO);
+            }
+            return false;
+        }
+
+        function eat(predX, predY, preyX, preyY, predator, prey) {
+            // Ganancia de energía
+            let energyGain = (prey.type === TYPE.POMPON) ? config.plantEnergyVal : prey.energy; // Se come la energía que le queda a la presa o valor fijo si es planta
+            
+            // Limitamos la ganancia para que no sea infinita, maxEnergy
+            predator.energy = Math.min(predator.maxEnergy, predator.energy + energyGain);
+            
+            // Mover depredador a la casilla de la presa
+            world[preyY][preyX] = predator;
+            world[predY][predX] = null;
+            predator.moved = true;
+            
+            // Nota: Log opcional
+            // log(`${EMOJIS[predator.type]} se comió a ${EMOJIS[prey.type]}`);
+        }
+
+        function tryReproduce(x1, y1, x2, y2, parent1, parent2) {
+            // Buscar casilla libre contigua a alguno de los padres
+            let freeSpots = [];
+            
+            // Revisar vecinos de p1
+            getNeighbors(x1, y1).forEach(pos => { if(world[pos.y][pos.x] === null) freeSpots.push(pos); });
+            // Revisar vecinos de p2
+            getNeighbors(x2, y2).forEach(pos => { if(world[pos.y][pos.x] === null) freeSpots.push(pos); });
+
+            if (freeSpots.length > 0) {
+                // Coste: 1/4 energía
+                parent1.energy -= parent1.maxEnergy / 4;
+                parent2.energy -= parent2.maxEnergy / 4;
+
+                // Nacer en spot aleatorio de los disponibles
+                let spot = freeSpots[Math.floor(Math.random() * freeSpots.length)];
+                let child = createEntity(parent1.type);
+                child.energy = child.maxEnergy / 2;
+                world[spot.y][spot.x] = child;
+                
+                // log(`Nació un nuevo ${EMOJIS[child.type]}`);
+            }
+        }
+
+        function getNeighbors(x, y) {
+            let n = [];
+            for (let d of DIRS) {
+                let nx = x + d.x;
+                let ny = y + d.y;
+                if(nx >= 0 && nx < GRID_SIZE && ny >= 0 && ny < GRID_SIZE) {
+                    n.push({x: nx, y: ny});
+                }
+            }
+            return n;
+        }
+
+        /**
+         * RENDERIZADO
+         */
+        function drawWorld() {
+            // Safety check: Evitar dibujar si el mundo no está listo (previene error undefined reading '0')
+            if (!world || world.length === 0) return;
+
+            // Fondo grid
+            ctx.fillStyle = '#111';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Dibujar rejilla (opcional, puede impactar rendimiento si se dibuja línea por línea)
+            // Lo omitimos para look más limpio estilo "cellular automata".
+
+            ctx.font = `${CELL_SIZE * 0.8}px 'Segoe UI Emoji', sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            for(let y=0; y<GRID_SIZE; y++) {
+                if (!world[y]) continue; // Doble protección por fila
+                for(let x=0; x<GRID_SIZE; x++) {
+                    const ent = world[y][x];
+                    if (ent) {
+                        const px = x * CELL_SIZE + CELL_SIZE/2;
+                        const py = y * CELL_SIZE + CELL_SIZE/2 + 2; // +2 ajuste visual vertical
+                        ctx.fillText(EMOJIS[ent.type], px, py);
+                    }
+                }
+            }
+        }
+
+        function drawChart() {
+            const w = chartCanvas.width;
+            const h = chartCanvas.height;
+            chartCtx.clearRect(0, 0, w, h);
+            
+            // Fondo semi transparente
+            chartCtx.fillStyle = 'rgba(0,0,0,0.5)';
+            chartCtx.fillRect(0,0,w,h);
+
+            if (historyStats.pompon.length < 2) return;
+
+            const maxPop = GRID_SIZE * GRID_SIZE / 2; // Escala vertical aproximada
+
+            function drawLine(data, color) {
+                chartCtx.beginPath();
+                chartCtx.strokeStyle = color;
+                chartCtx.lineWidth = 2;
+                for(let i=0; i<data.length; i++) {
+                    let x = (i / (MAX_HISTORY-1)) * w;
+                    let y = h - (data[i] / maxPop) * h;
+                    if(i===0) chartCtx.moveTo(x, y);
+                    else chartCtx.lineTo(x, y);
+                }
+                chartCtx.stroke();
+            }
+
+            drawLine(historyStats.pompon, '#4ade80'); // Verde
+            drawLine(historyStats.bacilon, '#f87171'); // Rojo/Rosa (Bacilón es microbio)
+            drawLine(historyStats.coco, '#e2e8f0'); // Blanco (Fantasma)
+            drawLine(historyStats.super, '#facc15'); // Amarillo (Super)
+        }
+
+        function updateCounts() {
+            let counts = { [TYPE.POMPON]:0, [TYPE.BACILON]:0, [TYPE.COCO]:0, [TYPE.SUPER]:0 };
+            
+            for(let row of world) {
+                for(let cell of row) {
+                    if(cell) counts[cell.type]++;
+                }
+            }
+
+            // Actualizar DOM
+            document.getElementById('count-pompon').innerText = counts[TYPE.POMPON];
+            document.getElementById('count-bacilon').innerText = counts[TYPE.BACILON];
+            document.getElementById('count-coco').innerText = counts[TYPE.COCO];
+            document.getElementById('count-super').innerText = counts[TYPE.SUPER];
+
+            // Actualizar Historia
+            historyStats.pompon.push(counts[TYPE.POMPON]);
+            historyStats.bacilon.push(counts[TYPE.BACILON]);
+            historyStats.coco.push(counts[TYPE.COCO]);
+            historyStats.super.push(counts[TYPE.SUPER]);
+
+            if(historyStats.pompon.length > MAX_HISTORY) {
+                historyStats.pompon.shift();
+                historyStats.bacilon.shift();
+                historyStats.coco.shift();
+                historyStats.super.shift();
+            }
+        }
+
+        /**
+         * CONTROLES
+         */
+        function setupControls() {
+            const btnStart = document.getElementById('btn-start');
+            const btnPause = document.getElementById('btn-pause');
+            const btnReset = document.getElementById('btn-reset');
+
+            btnStart.addEventListener('click', () => {
+                if(!isRunning) {
+                    isRunning = true;
+                    btnStart.classList.add('hidden');
+                    btnPause.classList.remove('hidden');
+                    runSimulation();
+                    log("Simulación iniciada.");
+                }
+            });
+
+            btnPause.addEventListener('click', () => {
+                isRunning = false;
+                clearTimeout(intervalId);
+                btnStart.classList.remove('hidden');
+                btnPause.classList.add('hidden');
+                log("Simulación pausada.");
+            });
+
+            btnReset.addEventListener('click', () => {
+                isRunning = false;
+                clearTimeout(intervalId);
+                btnStart.classList.remove('hidden');
+                btnPause.classList.add('hidden');
+                resetWorld();
+                drawWorld();
+                log("Simulación reiniciada.");
+            });
+
+            // Sliders
+            document.getElementById('inp-speed').addEventListener('input', (e) => {
+                config.speed = parseInt(e.target.value);
+                document.getElementById('val-speed').innerText = config.speed;
+            });
+
+            document.getElementById('inp-maxEnergy').addEventListener('input', (e) => {
+                config.maxEnergy = parseInt(e.target.value);
+                document.getElementById('val-maxEnergy').innerText = config.maxEnergy;
+                // Nota: Esto solo afecta a nuevos nacimientos o reset.
+            });
+
+            document.getElementById('inp-plantRate').addEventListener('input', (e) => {
+                config.plantSpawnRate = parseInt(e.target.value) / 100;
+                document.getElementById('val-plantRate').innerText = e.target.value;
+            });
+
+             document.getElementById('inp-plantEnergy').addEventListener('input', (e) => {
+                config.plantEnergyVal = parseInt(e.target.value);
+                document.getElementById('val-plantEnergy').innerText = e.target.value;
+            });
+
+            document.getElementById('inp-probFwd').addEventListener('change', (e) => {
+                let val = parseInt(e.target.value);
+                if (val < 0) val = 0;
+                if (val > 100) val = 100;
+                config.probForward = val / 100;
+                config.probTurn = ((100 - val) / 2) / 100;
+                
+                document.getElementById('inp-probTurn').value = (100 - val) / 2;
+            });
+
+            // Init Populations
+            ['initPompon', 'initBacilon', 'initCoco', 'initSuper'].forEach(id => {
+                document.getElementById('inp-' + id).addEventListener('change', (e) => {
+                    let key = id.replace('init', '').toLowerCase();
+                    config.initial[key] = parseInt(e.target.value);
+                });
+            });
+        }
+
+        function runSimulation() {
+            if (!isRunning) return;
+            
+            updateWorld();
+            
+            intervalId = setTimeout(() => {
+                requestAnimationFrame(runSimulation);
+            }, config.speed);
+        }
+
+        function log(msg) {
+            const div = document.createElement('div');
+            div.innerText = `[${new Date().toLocaleTimeString()}] ${msg}`;
+            logEl.appendChild(div);
+            logEl.scrollTop = logEl.scrollHeight;
+        }
+
+        // Arrancar
+        init();
+
+    </script>
+</body>
+</html>
