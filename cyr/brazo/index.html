@@ -1,953 +1,578 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Simulador DOF — Brazo Robótico 3D (3º ESO)</title>
-  <style>
-    :root{
-      --bg1:#f6fbff;
-      --bg2:#eef6ff;
-      --card: rgba(255,255,255,.72);
-      --card2: rgba(255,255,255,.55);
-      --ink:#0b1220;
-      --muted:#3b4a66;
-      --accent:#2ea4ff;
-      --accent2:#7c5cff;
-      --ok:#18c37e;
-      --warn:#ffb020;
-      --shadow: 0 18px 50px rgba(17,38,82,.14);
-      --radius: 18px;
-      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Helvetica Neue", sans-serif;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador Brazo Robótico - 3º ESO</title>
+    <!-- Tailwind CSS para diseño moderno -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Three.js para gráficos 3D -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- OrbitControls para mover la cámara -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
 
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      font-family:var(--sans);
-      color:var(--ink);
-      background:
-        radial-gradient(1200px 900px at 20% 10%, rgba(46,164,255,.18), transparent 55%),
-        radial-gradient(900px 700px at 80% 20%, rgba(124,92,255,.16), transparent 52%),
-        radial-gradient(800px 700px at 65% 80%, rgba(24,195,126,.10), transparent 55%),
-        linear-gradient(180deg, var(--bg1), var(--bg2));
-      min-height:100vh;
-      overflow-x:hidden;
-    }
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: 'Roboto', sans-serif;
+            background-color: #f0f4f8;
+            color: #334155;
+        }
+        
+        /* Estilo futurista para los títulos */
+        h1, h2, .tech-font {
+            font-family: 'Orbitron', sans-serif;
+        }
 
-    header{
-      padding:28px 20px 14px;
-      max-width:1250px;
-      margin:0 auto;
-      display:flex;
-      gap:16px;
-      align-items:flex-end;
-      justify-content:space-between;
-    }
-    .title{
-      display:flex; gap:14px; align-items:center;
-    }
-    .badge{
-      width:44px; height:44px; border-radius:14px;
-      background: linear-gradient(135deg, rgba(46,164,255,.95), rgba(124,92,255,.95));
-      box-shadow: var(--shadow);
-      position:relative;
-    }
-    .badge:before{
-      content:"";
-      position:absolute; inset:10px;
-      border-radius:10px;
-      border:2px solid rgba(255,255,255,.85);
-      filter: drop-shadow(0 8px 18px rgba(0,0,0,.12));
-    }
-    h1{
-      font-size: clamp(18px, 2.4vw, 26px);
-      margin:0;
-      letter-spacing:.2px;
-    }
-    .subtitle{
-      margin:6px 0 0;
-      color:var(--muted);
-      font-size:14px;
-      max-width:62ch;
-    }
+        /* Panel de cristal esmerilado */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+        }
 
-    .topControls{
-      display:flex; gap:10px; flex-wrap:wrap; align-items:center;
-      justify-content:flex-end;
-    }
+        /* Inputs tipo slider personalizados */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            background: #06b6d4; /* Cyan-500 */
+            cursor: pointer;
+            margin-top: -6px;
+            box-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #cbd5e1;
+            border-radius: 2px;
+        }
 
-    .pill{
-      background: rgba(255,255,255,.7);
-      border: 1px solid rgba(120,140,180,.25);
-      padding:10px 12px;
-      border-radius: 999px;
-      box-shadow: 0 10px 30px rgba(17,38,82,.08);
-      backdrop-filter: blur(10px);
-      display:flex; gap:10px; align-items:center;
-      font-size:13px;
-    }
-    .pill select, .pill button{
-      font-size:13px;
-      border-radius: 999px;
-      border:1px solid rgba(120,140,180,.35);
-      background: rgba(255,255,255,.9);
-      padding:7px 10px;
-      cursor:pointer;
-    }
-    .pill button{
-      background: linear-gradient(135deg, rgba(46,164,255,.18), rgba(124,92,255,.14));
-      border:1px solid rgba(46,164,255,.28);
-    }
-    .pill button:hover{ filter:brightness(1.03) }
-
-    main{
-      max-width:1250px;
-      margin:0 auto;
-      padding: 10px 20px 26px;
-      display:grid;
-      grid-template-columns: 1.6fr 1fr;
-      gap:16px;
-    }
-
-    .panel{
-      background: var(--card);
-      border: 1px solid rgba(120,140,180,.24);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(14px);
-      overflow:hidden;
-    }
-
-    .viewer{
-      position:relative;
-      min-height: 520px;
-    }
-    #canvasWrap{
-      position:absolute; inset:0;
-    }
-    .viewerHeader{
-      position:absolute;
-      left:14px; top:14px;
-      right:14px;
-      display:flex; gap:10px; align-items:center; justify-content:space-between;
-      pointer-events:none;
-    }
-    .hud{
-      pointer-events:none;
-      display:flex; gap:10px; flex-wrap:wrap;
-    }
-    .chip{
-      pointer-events:none;
-      font-family: var(--mono);
-      font-size:12px;
-      padding:8px 10px;
-      border-radius: 999px;
-      background: rgba(255,255,255,.78);
-      border: 1px solid rgba(120,140,180,.22);
-      box-shadow: 0 10px 22px rgba(17,38,82,.09);
-    }
-    .chip strong{ color: var(--accent2) }
-
-    .note{
-      position:absolute;
-      right:14px; bottom:14px;
-      max-width: 380px;
-      background: rgba(255,255,255,.72);
-      border: 1px solid rgba(120,140,180,.22);
-      border-radius: 14px;
-      padding:10px 12px;
-      color: var(--muted);
-      font-size: 13px;
-      box-shadow: 0 16px 36px rgba(17,38,82,.11);
-    }
-
-    .controls{
-      padding:14px;
-    }
-    .controls h2{
-      margin:0 0 8px;
-      font-size:16px;
-    }
-    .controls .hint{
-      color: var(--muted);
-      font-size:13px;
-      margin:0 0 12px;
-    }
-
-    .grid{
-      display:grid;
-      grid-template-columns: 1fr;
-      gap:10px;
-    }
-
-    .sliderRow{
-      background: var(--card2);
-      border:1px solid rgba(120,140,180,.20);
-      border-radius: 14px;
-      padding:10px 10px 9px;
-      display:grid;
-      grid-template-columns: 1fr auto;
-      gap:8px 10px;
-      align-items:center;
-    }
-
-    .labelLine{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-    }
-    .labelLine .name{
-      font-weight:650;
-      font-size:13px;
-      letter-spacing:.2px;
-      display:flex; align-items:center; gap:8px;
-    }
-    .dot{
-      width:10px; height:10px; border-radius:999px;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      box-shadow: 0 6px 14px rgba(46,164,255,.22);
-    }
-    .value{
-      font-family: var(--mono);
-      font-size:12px;
-      color: var(--muted);
-      opacity:.95;
-    }
-
-    input[type="range"]{
-      width:100%;
-      accent-color: var(--accent);
-    }
-
-    .toggle{
-      display:flex; align-items:center; gap:10px;
-      padding:10px;
-      background: rgba(255,255,255,.62);
-      border:1px solid rgba(120,140,180,.22);
-      border-radius: 14px;
-      margin-top:10px;
-    }
-    .toggle input{ transform: scale(1.1); }
-
-    .lesson{
-      padding:14px 14px 16px;
-      border-top: 1px solid rgba(120,140,180,.18);
-    }
-    .lesson h3{
-      margin:0 0 8px;
-      font-size:15px;
-    }
-    .lesson p{
-      margin:0 0 8px;
-      color: var(--muted);
-      font-size:13px;
-      line-height:1.45;
-    }
-    .callout{
-      background: rgba(46,164,255,.10);
-      border: 1px solid rgba(46,164,255,.18);
-      border-radius: 14px;
-      padding:10px 12px;
-      font-size:13px;
-      color: var(--muted);
-      margin-top:10px;
-    }
-    .callout b{ color: var(--ink) }
-
-    .twoCols{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:10px;
-      margin-top:10px;
-    }
-    .mini{
-      background: rgba(255,255,255,.62);
-      border:1px solid rgba(120,140,180,.20);
-      border-radius: 14px;
-      padding:10px 12px;
-      color: var(--muted);
-      font-size:13px;
-    }
-    .mini strong{ color: var(--ink) }
-    .mini .k{
-      display:inline-block;
-      font-family: var(--mono);
-      background: rgba(124,92,255,.10);
-      border:1px solid rgba(124,92,255,.18);
-      padding:2px 6px;
-      border-radius: 999px;
-      margin-right:6px;
-      color: var(--ink);
-    }
-
-    footer{
-      max-width:1250px;
-      margin:0 auto;
-      padding: 0 20px 22px;
-      color: rgba(59,74,102,.85);
-      font-size: 12.5px;
-    }
-    a{ color: var(--accent2); text-decoration:none }
-    a:hover{ text-decoration:underline }
-
-    @media (max-width: 980px){
-      main{ grid-template-columns: 1fr; }
-      .viewer{ min-height: 480px; }
-      .twoCols{ grid-template-columns: 1fr; }
-      header{ align-items:flex-start; flex-direction:column; }
-      .topControls{ justify-content:flex-start; }
-    }
-  </style>
+        /* Animación suave para notificaciones */
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        .notification {
+            animation: slideIn 0.5s ease-out;
+        }
+        
+        #canvas-container {
+            width: 100vw;
+            height: 100vh;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 0;
+        }
+    </style>
 </head>
 <body>
-  <header>
-    <div class="title">
-      <div class="badge" aria-hidden="true"></div>
-      <div>
-        <h1>Simulador de grados de libertad (DOF) — Brazo robótico 3D</h1>
-        <p class="subtitle">
-          Mueve articulaciones, activa/desactiva ejes y descubre cuántos <b>grados de libertad</b> tiene el brazo.
-          Ideal para 3º ESO: <b>prueba → observa → explica</b>.
-        </p>
-      </div>
+
+    <!-- Contenedor 3D -->
+    <div id="canvas-container"></div>
+
+    <!-- UI: Panel de Control -->
+    <div class="absolute top-0 left-0 h-full w-80 p-6 z-10 flex flex-col pointer-events-none">
+        <div class="glass-panel rounded-2xl p-6 pointer-events-auto overflow-y-auto max-h-full shadow-xl border-l-4 border-cyan-500">
+            <h1 class="text-2xl font-bold text-slate-800 mb-1">ROBO-ARM <span class="text-cyan-500">MK3</span></h1>
+            <p class="text-xs text-slate-500 mb-6 uppercase tracking-wider">Simulador Didáctico de Grados de Libertad</p>
+
+            <!-- Sección de Información Didáctica -->
+            <div class="bg-blue-50 border border-blue-100 rounded-lg p-3 mb-6">
+                <h3 class="font-bold text-blue-800 text-sm mb-1 flex items-center">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    Misión
+                </h3>
+                <p class="text-xs text-blue-700">
+                    Mueve las articulaciones para tocar la <strong>Esfera de Energía</strong>. Observa cómo cada eje añade un grado de libertad al movimiento.
+                </p>
+            </div>
+
+            <!-- Controles -->
+            <div class="space-y-5">
+                
+                <!-- Base -->
+                <div>
+                    <label class="flex justify-between text-sm font-medium text-slate-700 mb-1">
+                        <span>Base (Eje Y)</span>
+                        <span id="val-base" class="text-cyan-600 font-mono">0°</span>
+                    </label>
+                    <input type="range" id="slider-base" min="-180" max="180" value="0" step="1">
+                </div>
+
+                <!-- Hombro -->
+                <div>
+                    <label class="flex justify-between text-sm font-medium text-slate-700 mb-1">
+                        <span>Hombro (Eje Z)</span>
+                        <span id="val-shoulder" class="text-cyan-600 font-mono">0°</span>
+                    </label>
+                    <input type="range" id="slider-shoulder" min="-45" max="90" value="0" step="1">
+                </div>
+
+                <!-- Codo -->
+                <div>
+                    <label class="flex justify-between text-sm font-medium text-slate-700 mb-1">
+                        <span>Codo (Eje Z)</span>
+                        <span id="val-elbow" class="text-cyan-600 font-mono">0°</span>
+                    </label>
+                    <input type="range" id="slider-elbow" min="-90" max="90" value="0" step="1">
+                </div>
+
+                <!-- Muñeca Vertical -->
+                <div>
+                    <label class="flex justify-between text-sm font-medium text-slate-700 mb-1">
+                        <span>Muñeca Pitch (Eje Z)</span>
+                        <span id="val-wrist-pitch" class="text-cyan-600 font-mono">0°</span>
+                    </label>
+                    <input type="range" id="slider-wrist-pitch" min="-90" max="90" value="0" step="1">
+                </div>
+
+                 <!-- Muñeca Rotación -->
+                 <div>
+                    <label class="flex justify-between text-sm font-medium text-slate-700 mb-1">
+                        <span>Muñeca Roll (Eje Y)</span>
+                        <span id="val-wrist-roll" class="text-cyan-600 font-mono">0°</span>
+                    </label>
+                    <input type="range" id="slider-wrist-roll" min="-180" max="180" value="0" step="1">
+                </div>
+
+                <!-- Pinza -->
+                <div class="pt-2 border-t border-slate-200">
+                    <label class="flex justify-between text-sm font-medium text-slate-700 mb-1">
+                        <span>Apertura Pinza</span>
+                        <span id="val-claw" class="text-cyan-600 font-mono">50%</span>
+                    </label>
+                    <input type="range" id="slider-claw" min="0" max="100" value="50" step="1">
+                </div>
+            </div>
+
+            <!-- Botón Reset -->
+            <button onclick="resetRobot()" class="mt-8 w-full py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-lg transition-colors text-sm uppercase tracking-wide">
+                Reiniciar Posición
+            </button>
+        </div>
     </div>
 
-    <div class="topControls">
-      <div class="pill">
-        <span style="font-weight:650;">Config DOF</span>
-        <select id="dofPreset" title="Elige una configuración típica de robot">
-          <option value="2">2 DOF (plano: hombro + codo)</option>
-          <option value="3">3 DOF (+ giro de base)</option>
-          <option value="4">4 DOF (+ muñeca pitch)</option>
-          <option value="5">5 DOF (+ muñeca yaw)</option>
-          <option value="6" selected>6 DOF (+ rotación herramienta)</option>
-        </select>
-      </div>
-
-      <div class="pill">
-        <button id="btnReset" type="button">↺ Reset</button>
-        <button id="btnRandom" type="button">🎲 Postura aleatoria</button>
-      </div>
+    <!-- UI: Notificaciones / Estado -->
+    <div class="absolute top-6 right-6 z-10 flex flex-col items-end space-y-4 pointer-events-none">
+        <div class="glass-panel px-6 py-3 rounded-full flex items-center space-x-3 shadow-lg">
+            <div class="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+            <span class="text-sm font-bold text-slate-600">SISTEMA ONLINE</span>
+        </div>
+        
+        <div id="success-msg" class="hidden glass-panel px-6 py-4 rounded-xl border-l-4 border-green-500 shadow-xl notification bg-white/90">
+            <h4 class="text-green-600 font-bold text-lg tech-font">¡OBJETIVO ALCANZADO!</h4>
+            <p class="text-slate-600 text-sm">Has demostrado dominio de los grados de libertad.</p>
+        </div>
     </div>
-  </header>
-
-  <main>
-    <!-- VISOR 3D -->
-    <section class="panel viewer" aria-label="Visor 3D del brazo robótico">
-      <div class="viewerHeader">
-        <div class="hud">
-          <div class="chip">DOF activos: <strong id="dofCount">6</strong></div>
-          <div class="chip">Posición herramienta: <strong id="eePos">—</strong></div>
-          <div class="chip">Orientación: <strong id="eeOri">—</strong></div>
-        </div>
-      </div>
-
-      <div id="canvasWrap"></div>
-
-      <div class="note">
-        💡 <b>Idea clave:</b> un DOF es un “movimiento independiente”.  
-        Si desactivas un eje (por ejemplo, la muñeca), el robot pierde libertad para orientar la herramienta.
-      </div>
-    </section>
-
-    <!-- CONTROLES + DIDÁCTICA -->
-    <section class="panel" aria-label="Controles y explicación didáctica">
-      <div class="controls">
-        <h2>Controles de articulaciones</h2>
-        <p class="hint">Desliza para mover. Activa “Mostrar ejes” para ver el sentido de giro.</p>
-
-        <div class="grid" id="sliders"></div>
-
-        <div class="toggle">
-          <input id="showAxes" type="checkbox" checked />
-          <label for="showAxes"><b>Mostrar ejes</b> (X/Y/Z) y referencia</label>
-        </div>
-
-        <div class="toggle">
-          <input id="showGhost" type="checkbox" checked />
-          <label for="showGhost"><b>Mostrar postura “fantasma”</b> al cambiar DOF (comparación)</label>
-        </div>
-      </div>
-
-      <div class="lesson">
-        <h3>Mini-lección rápida</h3>
-        <p>
-          En robótica educativa solemos separar:
-          <b>posicionar</b> (llegar a un punto del espacio) y <b>orientar</b> (girar la herramienta).
-          Un brazo típico industrial usa <b>6 DOF</b>: 3 para posición + 3 para orientación.
+    
+    <!-- UI: Footer controles de cámara -->
+    <div class="absolute bottom-6 left-0 w-full text-center pointer-events-none">
+        <p class="text-slate-400 text-xs bg-white/80 inline-block px-4 py-1 rounded-full backdrop-blur-sm">
+            🖱️ Click izq: Rotar cámara | 🖱️ Click der: Mover cámara | 🖱️ Rueda: Zoom
         </p>
-
-        <div class="twoCols">
-          <div class="mini">
-            <div><span class="k">DOF</span><strong>¿Qué es?</strong></div>
-            <div style="margin-top:6px">
-              Un movimiento independiente: giro o desplazamiento que puedes cambiar sin “obligar” a otro.
-            </div>
-          </div>
-          <div class="mini">
-            <div><span class="k">Reto</span><strong>Investiga</strong></div>
-            <div style="margin-top:6px">
-              ¿Puedes llegar al mismo punto con diferentes posturas? Eso se llama <b>redundancia</b>.
-            </div>
-          </div>
-        </div>
-
-        <div class="callout" id="didacticText">
-          <b>Actividad sugerida:</b> Selecciona <b>3 DOF</b>. Intenta apuntar la pinza hacia abajo sin mover el punto final.
-          ¿Qué ocurre? Explica por qué faltan DOF.
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <footer>
-    Hecho para uso didáctico. Funciona offline salvo la carga de Three.js por CDN.
-    Si quieres, te lo adapto para que vaya <b>100% offline</b> (incluyendo librería embebida) o para añadir “misiones” evaluables.
-  </footer>
-
-  <!-- Three.js -->
-  <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
-
-  <script>
-    // ============
-    // Utilidades UI
-    // ============
-    const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
-    const deg2rad = d => d * Math.PI / 180;
-    const rad2deg = r => r * 180 / Math.PI;
-    const fmt = n => (Math.round(n * 10) / 10).toFixed(1);
-
-    // ================
-    // Config articulaciones
-    // ================
-    // Estructura: cada "joint" es una rotación en un eje local (aprox didáctica).
-    const joints = [
-      { id:"baseYaw",   name:"Base (Yaw)",       axis:"Y", min:-180, max:180, value:  0, enabled:true,  color:"#2ea4ff", tip:"Giro sobre el eje vertical (como una peonza)." },
-      { id:"shoulder",  name:"Hombro (Pitch)",   axis:"Z", min:-60,  max:120, value: 35, enabled:true,  color:"#7c5cff", tip:"Sube/baja el brazo principal." },
-      { id:"elbow",     name:"Codo (Pitch)",     axis:"Z", min:-10,  max:150, value: 70, enabled:true,  color:"#18c37e", tip:"Dobla el antebrazo." },
-      { id:"wristPitch",name:"Muñeca (Pitch)",   axis:"Z", min:-120, max:120, value: 15, enabled:true,  color:"#ffb020", tip:"Ajusta inclinación de la herramienta." },
-      { id:"wristYaw",  name:"Muñeca (Yaw)",     axis:"Y", min:-180, max:180, value: 20, enabled:true,  color:"#ff6b9b", tip:"Gira lateralmente la herramienta." },
-      { id:"toolRoll",  name:"Herramienta (Roll)",axis:"X",min:-180, max:180, value: 10, enabled:true,  color:"#3bd3ff", tip:"Gira la herramienta sobre su propio eje." }
-    ];
-
-    // Presets típicos (2..6 DOF)
-    // 2 DOF: hombro + codo (plano)
-    // 3 DOF: + baseYaw
-    // 4 DOF: + wristPitch
-    // 5 DOF: + wristYaw
-    // 6 DOF: + toolRoll
-    const presetMap = {
-      2: ["shoulder","elbow"],
-      3: ["baseYaw","shoulder","elbow"],
-      4: ["baseYaw","shoulder","elbow","wristPitch"],
-      5: ["baseYaw","shoulder","elbow","wristPitch","wristYaw"],
-      6: ["baseYaw","shoulder","elbow","wristPitch","wristYaw","toolRoll"]
-    };
-
-    // ==================
-    // Escena Three.js
-    // ==================
-    const wrap = document.getElementById("canvasWrap");
-    const scene = new THREE.Scene();
-    scene.fog = new THREE.Fog(0xf6fbff, 6, 26);
-
-    const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
-    camera.position.set(7.5, 5.2, 8.2);
-    camera.lookAt(0, 2.2, 0);
-
-    const renderer = new THREE.WebGLRenderer({ antialias:true, alpha:true });
-    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-    wrap.appendChild(renderer.domElement);
-
-    // Luces suaves, estilo "lab"
-    const hemi = new THREE.HemisphereLight(0xffffff, 0xbfd8ff, 0.95);
-    scene.add(hemi);
-
-    const key = new THREE.DirectionalLight(0xffffff, 0.9);
-    key.position.set(6, 10, 4);
-    key.castShadow = false;
-    scene.add(key);
-
-    const fill = new THREE.DirectionalLight(0xffffff, 0.35);
-    fill.position.set(-7, 6, -3);
-    scene.add(fill);
-
-    // Rejilla
-    const grid = new THREE.GridHelper(18, 36, 0xbfd0ff, 0xdde9ff);
-    grid.position.y = 0;
-    grid.material.opacity = 0.35;
-    grid.material.transparent = true;
-    scene.add(grid);
-
-    // Base "pedestal"
-    const pedestalMat = new THREE.MeshStandardMaterial({
-      color: 0xffffff,
-      metalness: 0.25,
-      roughness: 0.35
-    });
-    const pedestal = new THREE.Mesh(new THREE.CylinderGeometry(1.1, 1.25, 0.55, 32), pedestalMat);
-    pedestal.position.y = 0.275;
-    scene.add(pedestal);
-
-    const ring = new THREE.Mesh(new THREE.TorusGeometry(0.95, 0.08, 16, 64), new THREE.MeshStandardMaterial({
-      color: 0xbfd8ff,
-      metalness: 0.35,
-      roughness: 0.25,
-      transparent: true,
-      opacity: 0.7
-    }));
-    ring.rotation.x = Math.PI / 2;
-    ring.position.y = 0.56;
-    scene.add(ring);
-
-    // Grupo principal del brazo
-    const armRoot = new THREE.Group();
-    armRoot.position.y = 0.56;
-    scene.add(armRoot);
-
-    // Material "futurista claro"
-    const armMat = new THREE.MeshStandardMaterial({
-      color: 0xffffff,
-      metalness: 0.38,
-      roughness: 0.28
-    });
-    const accentMat = new THREE.MeshStandardMaterial({
-      color: 0xe7f3ff,
-      metalness: 0.22,
-      roughness: 0.18
-    });
-
-    // Función para pieza tipo cápsula
-    function capsule(len, r){
-      const g = new THREE.CapsuleGeometry(r, Math.max(0.01, len - 2*r), 10, 18);
-      const m = new THREE.Mesh(g, armMat);
-      return m;
-    }
-
-    // Jerarquía:
-    // armRoot -> baseYawGroup -> shoulderGroup -> upperArm -> elbowGroup -> foreArm -> wristGroup -> toolGroup -> gripper
-    const baseYawGroup = new THREE.Group();
-    armRoot.add(baseYawGroup);
-
-    // Columna base
-    const column = capsule(1.4, 0.22);
-    column.position.y = 0.7;
-    baseYawGroup.add(column);
-
-    const shoulderGroup = new THREE.Group();
-    shoulderGroup.position.y = 1.35;
-    baseYawGroup.add(shoulderGroup);
-
-    const shoulderHub = new THREE.Mesh(new THREE.SphereGeometry(0.28, 22, 22), accentMat);
-    shoulderGroup.add(shoulderHub);
-
-    const upperArm = capsule(2.1, 0.18);
-    upperArm.position.y = 1.05;
-    upperArm.rotation.x = Math.PI/2; // orientar a lo largo del eje local Y (visual)
-    // Ajuste: giramos para que visualmente apunte "hacia adelante" cuando pitch cambia en Z
-    upperArm.rotation.z = Math.PI/2;
-    shoulderGroup.add(upperArm);
-
-    const elbowGroup = new THREE.Group();
-    elbowGroup.position.y = 2.1;
-    shoulderGroup.add(elbowGroup);
-
-    const elbowHub = new THREE.Mesh(new THREE.SphereGeometry(0.24, 22, 22), accentMat);
-    elbowGroup.add(elbowHub);
-
-    const foreArm = capsule(1.7, 0.16);
-    foreArm.position.y = 0.85;
-    foreArm.rotation.z = Math.PI/2;
-    elbowGroup.add(foreArm);
-
-    const wristGroup = new THREE.Group();
-    wristGroup.position.y = 1.7;
-    elbowGroup.add(wristGroup);
-
-    const wristHub = new THREE.Mesh(new THREE.SphereGeometry(0.20, 20, 20), accentMat);
-    wristGroup.add(wristHub);
-
-    const toolGroup = new THREE.Group();
-    toolGroup.position.y = 0.35;
-    wristGroup.add(toolGroup);
-
-    const toolBody = capsule(0.9, 0.12);
-    toolBody.position.y = 0.45;
-    toolBody.rotation.z = Math.PI/2;
-    toolGroup.add(toolBody);
-
-    // Pinza simple
-    const gripper = new THREE.Group();
-    gripper.position.y = 0.95;
-    toolGroup.add(gripper);
-
-    const fingerGeo = new THREE.BoxGeometry(0.10, 0.35, 0.14);
-    const fingerMat = new THREE.MeshStandardMaterial({
-      color: 0xf2f7ff, metalness: 0.25, roughness: 0.22
-    });
-
-    const leftFinger = new THREE.Mesh(fingerGeo, fingerMat);
-    const rightFinger = new THREE.Mesh(fingerGeo, fingerMat);
-    leftFinger.position.set(0.14, 0.10, 0);
-    rightFinger.position.set(-0.14, 0.10, 0);
-    gripper.add(leftFinger, rightFinger);
-
-    // Ejes
-    const axesRoot = new THREE.AxesHelper(2.4);
-    axesRoot.material.transparent = true;
-    axesRoot.material.opacity = 0.9;
-    scene.add(axesRoot);
-
-    const eeAxes = new THREE.AxesHelper(0.9);
-    toolGroup.add(eeAxes);
-
-    // Fantasma (postura anterior)
-    const ghost = new THREE.Group();
-    scene.add(ghost);
-
-    function cloneAsGhost(originalGroup){
-      ghost.clear();
-      const c = originalGroup.clone(true);
-      // Material "fantasma"
-      c.traverse(obj=>{
-        if(obj.isMesh){
-          obj.material = obj.material.clone();
-          obj.material.transparent = true;
-          obj.material.opacity = 0.18;
-        }
-      });
-      ghost.add(c);
-    }
-
-    // ==================
-    // Controles de cámara (drag sin librerías)
-    // ==================
-    let dragging=false;
-    let lastX=0, lastY=0;
-    let yaw=0.78, pitch=0.42; // ángulos cámara
-    let radius=12.0;
-
-    function updateCamera(){
-      pitch = clamp(pitch, -0.05, 1.25);
-      const x = radius * Math.cos(pitch) * Math.cos(yaw);
-      const z = radius * Math.cos(pitch) * Math.sin(yaw);
-      const y = radius * Math.sin(pitch) + 2.2;
-      camera.position.set(x, y, z);
-      camera.lookAt(0, 2.2, 0);
-    }
-    updateCamera();
-
-    renderer.domElement.addEventListener("pointerdown", (e)=>{
-      dragging=true;
-      lastX=e.clientX; lastY=e.clientY;
-      renderer.domElement.setPointerCapture(e.pointerId);
-    });
-    renderer.domElement.addEventListener("pointermove", (e)=>{
-      if(!dragging) return;
-      const dx = e.clientX - lastX;
-      const dy = e.clientY - lastY;
-      lastX=e.clientX; lastY=e.clientY;
-      yaw -= dx * 0.006;
-      pitch -= dy * 0.006;
-      updateCamera();
-    });
-    renderer.domElement.addEventListener("pointerup", ()=>{
-      dragging=false;
-    });
-    renderer.domElement.addEventListener("wheel", (e)=>{
-      radius = clamp(radius + e.deltaY * 0.01, 7.2, 22);
-      updateCamera();
-    }, {passive:true});
-
-    // ==================
-    // Lógica: aplicar articulaciones
-    // ==================
-    const jointToGroup = {
-      baseYaw: baseYawGroup,
-      shoulder: shoulderGroup,
-      elbow: elbowGroup,
-      wristPitch: wristGroup,
-      wristYaw: wristGroup,
-      toolRoll: toolGroup
-    };
-
-    function applyJoints(){
-      // Reset rotaciones (para no acumular)
-      baseYawGroup.rotation.set(0,0,0);
-      shoulderGroup.rotation.set(0,0,0);
-      elbowGroup.rotation.set(0,0,0);
-      wristGroup.rotation.set(0,0,0);
-      toolGroup.rotation.set(0,0,0);
-
-      // Aplicar en orden:
-      // baseYaw (Y)
-      const jBase = joints.find(j=>j.id==="baseYaw");
-      if(jBase.enabled) baseYawGroup.rotation.y = deg2rad(jBase.value);
-
-      // shoulder (Z)
-      const jSh = joints.find(j=>j.id==="shoulder");
-      if(jSh.enabled) shoulderGroup.rotation.z = deg2rad(jSh.value);
-
-      // elbow (Z)
-      const jEl = joints.find(j=>j.id==="elbow");
-      if(jEl.enabled) elbowGroup.rotation.z = deg2rad(jEl.value);
-
-      // wrist pitch (Z)
-      const jWp = joints.find(j=>j.id==="wristPitch");
-      if(jWp.enabled) wristGroup.rotation.z = deg2rad(jWp.value);
-
-      // wrist yaw (Y) (se suma a la muñeca)
-      const jWy = joints.find(j=>j.id==="wristYaw");
-      if(jWy.enabled) wristGroup.rotation.y = deg2rad(jWy.value);
-
-      // tool roll (X)
-      const jTr = joints.find(j=>j.id==="toolRoll");
-      if(jTr.enabled) toolGroup.rotation.x = deg2rad(jTr.value);
-
-      // Actualizar HUD end effector (posición y orientación aproximadas)
-      toolGroup.updateWorldMatrix(true,true);
-
-      const p = new THREE.Vector3();
-      const q = new THREE.Quaternion();
-      toolGroup.getWorldPosition(p);
-      toolGroup.getWorldQuaternion(q);
-
-      // Convertimos quaternion a euler para leerlo fácil (en grados)
-      const eul = new THREE.Euler().setFromQuaternion(q, "XYZ");
-      document.getElementById("eePos").textContent = `${fmt(p.x)}, ${fmt(p.y)}, ${fmt(p.z)}`;
-      document.getElementById("eeOri").textContent = `X ${fmt(rad2deg(eul.x))}° · Y ${fmt(rad2deg(eul.y))}° · Z ${fmt(rad2deg(eul.z))}°`;
-
-      // DOF activos = articulaciones habilitadas
-      const dof = joints.filter(j=>j.enabled).length;
-      document.getElementById("dofCount").textContent = dof.toString();
-
-      // Mostrar/ocultar ejes
-      const showAxes = document.getElementById("showAxes").checked;
-      axesRoot.visible = showAxes;
-      eeAxes.visible = showAxes;
-
-      // Texto didáctico contextual
-      updateDidacticText(dof);
-    }
-
-    // ==========
-    // UI sliders
-    // ==========
-    const slidersDiv = document.getElementById("sliders");
-
-    function makeSlider(j){
-      const row = document.createElement("div");
-      row.className = "sliderRow";
-      row.dataset.id = j.id;
-
-      const left = document.createElement("div");
-      const labelLine = document.createElement("div");
-      labelLine.className = "labelLine";
-
-      const name = document.createElement("div");
-      name.className = "name";
-      const dot = document.createElement("span");
-      dot.className = "dot";
-      dot.style.background = `linear-gradient(135deg, ${j.color}, rgba(124,92,255,.85))`;
-      name.appendChild(dot);
-      name.appendChild(document.createTextNode(j.name));
-
-      const value = document.createElement("div");
-      value.className = "value";
-      value.id = `val_${j.id}`;
-      value.textContent = `${j.value}°`;
-
-      labelLine.appendChild(name);
-      labelLine.appendChild(value);
-
-      const tip = document.createElement("div");
-      tip.className = "value";
-      tip.style.opacity = 0.85;
-      tip.textContent = `Eje ${j.axis} · ${j.tip}`;
-
-      left.appendChild(labelLine);
-      left.appendChild(tip);
-
-      const right = document.createElement("div");
-      right.style.display="grid";
-      right.style.justifyItems="end";
-      right.style.gap="8px";
-
-      const chk = document.createElement("input");
-      chk.type="checkbox";
-      chk.checked = j.enabled;
-      chk.title = "Activar/Desactivar este DOF";
-
-      const rng = document.createElement("input");
-      rng.type="range";
-      rng.min = j.min;
-      rng.max = j.max;
-      rng.value = j.value;
-      rng.step = 1;
-
-      function syncEnabled(){
-        rng.disabled = !chk.checked;
-        row.style.opacity = chk.checked ? "1" : "0.55";
-        j.enabled = chk.checked;
-        applyJoints();
-      }
-
-      chk.addEventListener("change", syncEnabled);
-      rng.addEventListener("input", ()=>{
-        j.value = parseInt(rng.value, 10);
-        document.getElementById(`val_${j.id}`).textContent = `${j.value}°`;
-        applyJoints();
-      });
-
-      right.appendChild(chk);
-
-      // Range ocupa toda la fila -> lo ponemos debajo (CSS ya lo hace por grid principal)
-      row.appendChild(left);
-      row.appendChild(right);
-
-      // range debajo
-      const rangeWrap = document.createElement("div");
-      rangeWrap.style.gridColumn = "1 / -1";
-      rangeWrap.appendChild(rng);
-      row.appendChild(rangeWrap);
-
-      // init
-      syncEnabled();
-      return row;
-    }
-
-    function renderSliders(){
-      slidersDiv.innerHTML = "";
-      joints.forEach(j=>slidersDiv.appendChild(makeSlider(j)));
-    }
-
-    // =======================
-    // Presets + acciones
-    // =======================
-    const presetSelect = document.getElementById("dofPreset");
-    const btnReset = document.getElementById("btnReset");
-    const btnRandom = document.getElementById("btnRandom");
-
-    function setPreset(dof){
-      const enabledIds = new Set(presetMap[dof] || presetMap[6]);
-
-      // Guardar fantasma si está activado
-      if(document.getElementById("showGhost").checked){
-        cloneAsGhost(scene); // clona toda la escena, pero nos interesa sobre todo el brazo
-        // Mejor: clonar solo el root del brazo y pedestal para comparar
-        ghost.clear();
-        const armClone = armRoot.clone(true);
-        armClone.traverse(obj=>{
-          if(obj.isMesh){
-            obj.material = obj.material.clone();
-            obj.material.transparent = true;
-            obj.material.opacity = 0.18;
-          }
+    </div>
+
+    <script>
+        // Variables Globales Three.js
+        let scene, camera, renderer, controls;
+        
+        // Partes del Robot (Grupos para jerarquía)
+        let robotBase, shoulderJoint, armJoint, elbowJoint, forearmJoint, wristPitchJoint, wristRollJoint, clawBase;
+        let clawLeft, clawRight;
+        let targetObject; // El objeto a tocar
+
+        // Estado del objetivo
+        let objectiveReached = false;
+
+        // Configuración de materiales
+        const materialWhite = new THREE.MeshStandardMaterial({ 
+            color: 0xffffff, 
+            roughness: 0.3, 
+            metalness: 0.1 
         });
-        ghost.add(armClone);
-      }else{
-        ghost.clear();
-      }
+        
+        const materialGrey = new THREE.MeshStandardMaterial({ 
+            color: 0x94a3b8, 
+            roughness: 0.7, 
+            metalness: 0.2 
+        });
 
-      joints.forEach(j=>{
-        j.enabled = enabledIds.has(j.id);
-      });
+        const materialJoint = new THREE.MeshStandardMaterial({ 
+            color: 0x334155, 
+            roughness: 0.5, 
+            metalness: 0.5
+        });
 
-      // Ajustes recomendados por preset
-      if(dof === 2){
-        joints.find(j=>j.id==="baseYaw").value = 0;
-        joints.find(j=>j.id==="wristPitch").value = 0;
-        joints.find(j=>j.id==="wristYaw").value = 0;
-        joints.find(j=>j.id==="toolRoll").value = 0;
-      }
+        const materialGlow = new THREE.MeshStandardMaterial({
+            color: 0x06b6d4,
+            emissive: 0x06b6d4,
+            emissiveIntensity: 0.5
+        });
 
-      renderSliders();
-      applyJoints();
-    }
+        const materialTarget = new THREE.MeshPhongMaterial({
+            color: 0xf59e0b, // Amber
+            emissive: 0xf59e0b,
+            emissiveIntensity: 0.2,
+            shininess: 100,
+            transparent: true,
+            opacity: 0.9
+        });
 
-    function resetPose(){
-      const defaults = { baseYaw:0, shoulder:35, elbow:70, wristPitch:15, wristYaw:20, toolRoll:10 };
-      joints.forEach(j=> j.value = defaults[j.id] ?? 0 );
-      renderSliders();
-      applyJoints();
-    }
+        function init() {
+            // 1. Escena
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0xf0f4f8);
+            scene.fog = new THREE.Fog(0xf0f4f8, 10, 50);
 
-    function randomPose(){
-      joints.forEach(j=>{
-        j.value = Math.round(j.min + Math.random()*(j.max-j.min));
-      });
-      renderSliders();
-      applyJoints();
-    }
+            // 2. Cámara
+            camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(10, 8, 10);
 
-    presetSelect.addEventListener("change", ()=>{
-      setPreset(parseInt(presetSelect.value, 10));
-    });
-    btnReset.addEventListener("click", resetPose);
-    btnRandom.addEventListener("click", randomPose);
+            // 3. Renderizador
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            document.getElementById('canvas-container').appendChild(renderer.domElement);
 
-    document.getElementById("showAxes").addEventListener("change", applyJoints);
-    document.getElementById("showGhost").addEventListener("change", ()=>{
-      // al cambiar, si se desactiva quitamos
-      if(!document.getElementById("showGhost").checked) ghost.clear();
-    });
+            // 4. Luces
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+            scene.add(ambientLight);
 
-    function updateDidacticText(dof){
-      const el = document.getElementById("didacticText");
-      let text = "";
-      if(dof <= 2){
-        text = `<b>Actividad:</b> Con <b>2 DOF</b>, el movimiento es casi “plano”. 
-                ¿Puedes mover la pinza a izquierda/derecha sin girar la base? ¿Por qué no?`;
-      }else if(dof === 3){
-        text = `<b>Actividad:</b> Con <b>3 DOF</b> ya puedes “barrer” el espacio con la base.
-                Intenta mantener el punto final fijo mientras cambias <b>base</b>. ¿Qué articulación compensa?`;
-      }else if(dof === 4){
-        text = `<b>Actividad:</b> Con <b>4 DOF</b> puedes mejorar la <b>orientación</b> un poco.
-                ¿Logras apuntar la pinza hacia abajo en diferentes posiciones? ¿Dónde falla?`;
-      }else if(dof === 5){
-        text = `<b>Actividad:</b> Con <b>5 DOF</b> casi puedes orientar la herramienta, pero puede faltar un giro.
-                Busca una postura donde te “falte” rotación para alinear bien la pinza.`;
-      }else{
-        text = `<b>Actividad:</b> Con <b>6 DOF</b> puedes controlar <b>posición + orientación</b>.
-                Reto: intenta llegar a un punto y luego gira solo la herramienta (<b>roll</b>) sin cambiar la posición.`;
-      }
-      el.innerHTML = text;
-    }
+            const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            dirLight.position.set(5, 10, 7);
+            dirLight.castShadow = true;
+            dirLight.shadow.mapSize.width = 1024;
+            dirLight.shadow.mapSize.height = 1024;
+            scene.add(dirLight);
 
-    // ==================
-    // Resize + render loop
-    // ==================
-    function resize(){
-      const w = wrap.clientWidth;
-      const h = wrap.clientHeight;
-      renderer.setSize(w, h, false);
-      camera.aspect = w / h;
-      camera.updateProjectionMatrix();
-    }
-    window.addEventListener("resize", resize);
+            // Luz de acento azulada (futurista)
+            const spotLight = new THREE.SpotLight(0x06b6d4, 0.5);
+            spotLight.position.set(-5, 5, -5);
+            spotLight.lookAt(0, 0, 0);
+            scene.add(spotLight);
 
-    // Animación sutil (respiración de luz)
-    let t0 = performance.now();
-    function animate(t){
-      const dt = (t - t0) * 0.001;
-      t0 = t;
+            // 5. Suelo (Grid)
+            const gridHelper = new THREE.GridHelper(20, 20, 0xcbd5e1, 0xe2e8f0);
+            scene.add(gridHelper);
+            
+            const planeGeometry = new THREE.PlaneGeometry(20, 20);
+            const planeMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 1, metalness: 0 });
+            const plane = new THREE.Mesh(planeGeometry, planeMaterial);
+            plane.rotation.x = -Math.PI / 2;
+            plane.position.y = -0.01;
+            plane.receiveShadow = true;
+            scene.add(plane);
 
-      ring.rotation.z += dt * 0.3;
-      ring.material.opacity = 0.62 + 0.08 * Math.sin(t*0.0012);
+            // 6. Construir Robot
+            buildRobot();
 
-      renderer.render(scene, camera);
-      requestAnimationFrame(animate);
-    }
+            // 7. Objetivo (Target)
+            createTarget();
 
-    // Init
-    renderSliders();
-    resize();
-    setPreset(6);
-    applyJoints();
-    requestAnimationFrame(animate);
-  </script>
+            // 8. Controles de Cámara
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.maxPolarAngle = Math.PI / 2 - 0.05; // No dejar que baje del suelo
+
+            // Event Listeners
+            window.addEventListener('resize', onWindowResize, false);
+            setupUIListeners();
+
+            // Loop de animación
+            animate();
+        }
+
+        function buildRobot() {
+            // --- GRUPO BASE (Eje Y) ---
+            robotBase = new THREE.Group();
+            scene.add(robotBase);
+
+            // Geometría Base Estática (Pedestal)
+            const pedestalGeo = new THREE.CylinderGeometry(1, 1.2, 0.5, 32);
+            const pedestal = new THREE.Mesh(pedestalGeo, materialGrey);
+            pedestal.position.y = 0.25;
+            pedestal.castShadow = true;
+            pedestal.receiveShadow = true;
+            scene.add(pedestal);
+
+            // Base Rotatoria
+            const rotBaseGeo = new THREE.CylinderGeometry(0.8, 0.8, 0.5, 32);
+            const rotBase = new THREE.Mesh(rotBaseGeo, materialWhite);
+            rotBase.position.y = 0.25; // Relativo al grupo robotBase (que rota)
+            rotBase.castShadow = true;
+            
+            // Junta visual
+            addJointDeco(robotBase, 0.6);
+
+            robotBase.position.y = 0.5; // Encima del pedestal
+            robotBase.add(rotBase);
+
+            // --- HOMBRO (Shoulder) - Eje Z ---
+            // El grupo shoulderJoint rota en Z.
+            shoulderJoint = new THREE.Group();
+            shoulderJoint.position.y = 0.5; // Altura desde la base
+            robotBase.add(shoulderJoint);
+
+            // Mesh del Hombro
+            const shoulderGeo = new THREE.BoxGeometry(1, 1, 1);
+            const shoulderMesh = new THREE.Mesh(shoulderGeo, materialGrey);
+            shoulderMesh.position.y = 0.5;
+            shoulderMesh.castShadow = true;
+            shoulderJoint.add(shoulderMesh);
+            addAxisDeco(shoulderJoint, 0.5, 'z');
+
+            // --- BRAZO (Arm) ---
+            // Conectado al hombro
+            armJoint = new THREE.Group();
+            armJoint.position.y = 1; // Tope del hombro
+            shoulderJoint.add(armJoint);
+
+            const armLength = 2.5;
+            const armGeo = new THREE.BoxGeometry(0.6, armLength, 0.6);
+            const armMesh = new THREE.Mesh(armGeo, materialWhite);
+            // IMPORTANTE: Movemos la geometría para que el pivote esté en la base del brazo, no en el centro
+            armMesh.position.y = armLength / 2; 
+            armMesh.castShadow = true;
+            armJoint.add(armMesh);
+            
+            // Decoración estilo "sci-fi"
+            const armStripe = new THREE.Mesh(new THREE.BoxGeometry(0.65, 0.2, 0.65), materialGlow);
+            armStripe.position.y = armLength / 2;
+            armJoint.add(armStripe);
+
+            // --- CODO (Elbow) - Eje Z ---
+            elbowJoint = new THREE.Group();
+            elbowJoint.position.y = armLength; // Al final del brazo
+            armJoint.add(elbowJoint);
+
+            // Junta Codo Visual
+            const elbowGeo = new THREE.CylinderGeometry(0.5, 0.5, 0.8, 32);
+            const elbowMesh = new THREE.Mesh(elbowGeo, materialJoint);
+            elbowMesh.rotation.x = Math.PI / 2; // Cilindro horizontal
+            elbowMesh.castShadow = true;
+            elbowJoint.add(elbowMesh);
+            addAxisDeco(elbowJoint, 0, 'z');
+
+            // --- ANTEBRAZO (Forearm) ---
+            forearmJoint = new THREE.Group();
+            elbowJoint.add(forearmJoint);
+
+            const forearmLength = 2;
+            const forearmGeo = new THREE.BoxGeometry(0.5, forearmLength, 0.5);
+            const forearmMesh = new THREE.Mesh(forearmGeo, materialWhite);
+            forearmMesh.position.y = forearmLength / 2;
+            forearmMesh.castShadow = true;
+            forearmJoint.add(forearmMesh);
+
+            // --- MUÑECA PITCH (Arriba/Abajo) - Eje Z ---
+            wristPitchJoint = new THREE.Group();
+            wristPitchJoint.position.y = forearmLength;
+            forearmJoint.add(wristPitchJoint);
+
+            const wristGeo = new THREE.SphereGeometry(0.4, 32, 32);
+            const wristMesh = new THREE.Mesh(wristGeo, materialJoint);
+            wristMesh.castShadow = true;
+            wristPitchJoint.add(wristMesh);
+
+            // --- MUÑECA ROLL (Rotación) - Eje Y ---
+            wristRollJoint = new THREE.Group();
+            wristPitchJoint.add(wristRollJoint);
+
+            // Base de la pinza
+            clawBase = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.4, 0.5, 16), materialGrey);
+            clawBase.rotation.z = Math.PI / 2; // Orientar hacia adelante si fuera X, pero mantenemos vertical Y
+            // Ajustamos para que la pinza apunte hacia "adelante" o "arriba" según convenga. 
+            // Vamos a hacer que el brazo apunte al cielo por defecto, así que la pinza sale hacia arriba.
+            clawBase.position.y = 0.4;
+            clawBase.castShadow = true;
+            wristRollJoint.add(clawBase);
+
+            // --- PINZAS (Claw) ---
+            // Izquierda
+            const clawGeo = new THREE.BoxGeometry(0.1, 0.8, 0.2);
+            
+            // Grupo para rotar la pinza izq
+            clawLeft = new THREE.Group();
+            clawLeft.position.y = 0.6; 
+            clawLeft.position.x = -0.15;
+            wristRollJoint.add(clawLeft);
+            
+            const clawLMesh = new THREE.Mesh(clawGeo, materialWhite);
+            clawLMesh.position.y = 0.3; // Pivote en base
+            clawLMesh.rotation.z = 0.2; // Angulo inicial
+            clawLeft.add(clawLMesh);
+
+            // Derecha
+            clawRight = new THREE.Group();
+            clawRight.position.y = 0.6;
+            clawRight.position.x = 0.15;
+            wristRollJoint.add(clawRight);
+
+            const clawRMesh = new THREE.Mesh(clawGeo, materialWhite);
+            clawRMesh.position.y = 0.3;
+            clawRMesh.rotation.z = -0.2;
+            clawRight.add(clawRMesh);
+        }
+
+        function createTarget() {
+            const geometry = new THREE.IcosahedronGeometry(0.5, 0);
+            targetObject = new THREE.Mesh(geometry, materialTarget);
+            
+            // Posición aleatoria alcanzable
+            targetObject.position.set(2, 2.5, 2);
+            
+            targetObject.castShadow = true;
+            scene.add(targetObject);
+
+            // Animación flotante del target
+            targetObject.userData = { offset: Math.random() * 100 };
+        }
+
+        // Helpers visuales para entender los ejes
+        function addJointDeco(parent, radius) {
+            const ring = new THREE.Mesh(
+                new THREE.TorusGeometry(radius, 0.05, 16, 100),
+                materialGlow
+            );
+            ring.rotation.x = Math.PI / 2;
+            parent.add(ring);
+        }
+
+        function addAxisDeco(parent, yPos, axis) {
+            // Pequeño indicador del eje de rotación
+            const length = 1.5;
+            const hex = axis === 'z' ? 0x3b82f6 : 0x06b6d4; // Blue or Cyan
+            const dir = axis === 'z' ? new THREE.Vector3(0, 0, 1) : new THREE.Vector3(0, 1, 0);
+            // Nota: ArrowHelper es simple pero efectivo
+        }
+
+        function setupUIListeners() {
+            // Mapping de inputs a rotaciones
+            // 1. Base (Y)
+            document.getElementById('slider-base').addEventListener('input', (e) => {
+                const deg = parseFloat(e.target.value);
+                document.getElementById('val-base').innerText = deg + '°';
+                robotBase.rotation.y = THREE.MathUtils.degToRad(-deg); // Invertir para sensación natural
+            });
+
+            // 2. Hombro (Z)
+            document.getElementById('slider-shoulder').addEventListener('input', (e) => {
+                const deg = parseFloat(e.target.value);
+                document.getElementById('val-shoulder').innerText = deg + '°';
+                shoulderJoint.rotation.z = THREE.MathUtils.degToRad(deg);
+            });
+
+            // 3. Codo (Z)
+            document.getElementById('slider-elbow').addEventListener('input', (e) => {
+                const deg = parseFloat(e.target.value);
+                document.getElementById('val-elbow').innerText = deg + '°';
+                elbowJoint.rotation.z = THREE.MathUtils.degToRad(deg);
+            });
+
+            // 4. Muñeca Pitch (Z)
+            document.getElementById('slider-wrist-pitch').addEventListener('input', (e) => {
+                const deg = parseFloat(e.target.value);
+                document.getElementById('val-wrist-pitch').innerText = deg + '°';
+                wristPitchJoint.rotation.z = THREE.MathUtils.degToRad(deg);
+            });
+
+            // 5. Muñeca Roll (Y)
+            document.getElementById('slider-wrist-roll').addEventListener('input', (e) => {
+                const deg = parseFloat(e.target.value);
+                document.getElementById('val-wrist-roll').innerText = deg + '°';
+                wristRollJoint.rotation.y = THREE.MathUtils.degToRad(deg);
+            });
+
+            // 6. Pinza (Apertura)
+            document.getElementById('slider-claw').addEventListener('input', (e) => {
+                const val = parseFloat(e.target.value);
+                document.getElementById('val-claw').innerText = val + '%';
+                // Mapear 0-100 a ángulos
+                // 0% abierto = rotación original
+                // 100% cerrado = rotación hacia adentro
+                const angle = THREE.MathUtils.mapLinear(val, 0, 100, 0, 0.4);
+                clawLeft.rotation.z = -angle;
+                clawRight.rotation.z = angle;
+            });
+        }
+
+        function resetRobot() {
+            const sliders = document.querySelectorAll('input[type=range]');
+            sliders.forEach(s => {
+                s.value = s.defaultValue;
+                s.dispatchEvent(new Event('input'));
+            });
+            objectiveReached = false;
+            document.getElementById('success-msg').classList.add('hidden');
+            if(targetObject) targetObject.material.color.setHex(0xf59e0b);
+            
+            // Mover target a otro sitio
+            targetObject.position.set(
+                (Math.random() > 0.5 ? 1 : -1) * (1.5 + Math.random() * 2),
+                1 + Math.random() * 2.5,
+                (Math.random() > 0.5 ? 1 : -1) * (1.5 + Math.random() * 2)
+            );
+        }
+
+        // Lógica simple de colisión / éxito
+        function checkObjective() {
+            if (objectiveReached) return;
+
+            // Obtener posición absoluta de la pinza (usamos clawBase)
+            const clawPos = new THREE.Vector3();
+            clawBase.getWorldPosition(clawPos);
+
+            const distance = clawPos.distanceTo(targetObject.position);
+            
+            // Umbral de distancia para considerar que lo toca
+            if (distance < 0.8) {
+                objectiveReached = true;
+                targetObject.material.color.setHex(0x22c55e); // Green
+                document.getElementById('success-msg').classList.remove('hidden');
+            }
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Animación target (flotar y rotar)
+            if (targetObject) {
+                const time = Date.now() * 0.002;
+                targetObject.rotation.x += 0.01;
+                targetObject.rotation.y += 0.01;
+                targetObject.position.y += Math.sin(time + targetObject.userData.offset) * 0.003;
+            }
+
+            checkObjective();
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        // Iniciar app
+        init();
+
+    </script>
 </body>
 </html>
