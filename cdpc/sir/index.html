@@ -4,131 +4,706 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Simulador Modelo SIR - Actividad Didáctica</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chart.js -->
+    
+    <!-- Chart.js (Librería gráfica robusta) -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Google Fonts: Space Mono for that retro data feel -->
+    
+    <!-- Fuentes (Opcional, con fallbacks seguros) -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
     
     <style>
-        body { font-family: 'Inter', sans-serif; }
-        .data-font { font-family: 'Space Mono', monospace; }
+        /* --- RESET & BASE --- */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            color: #334155; /* Slate 700 */
+            background-color: #f8fafc; /* Slate 50 */
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; /* Evita scroll en el body, lo manejamos en los paneles */
+        }
+
+        /* Tipografía de datos (Retro style) */
+        .data-font { font-family: 'Space Mono', 'Courier New', monospace; }
+
+        /* --- HEADER --- */
+        header {
+            background-color: #0f172a; /* Slate 900 */
+            color: white;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+            flex-shrink: 0;
+        }
+        
+        header h1 { font-size: 1.25rem; font-weight: 700; letter-spacing: 0.05em; }
+        .text-blue { color: #60a5fa; }
+        .text-red { color: #f87171; }
+        .text-green { color: #4ade80; }
+        
+        .header-info { text-align: right; font-size: 0.75rem; color: #94a3b8; }
+        .header-formula { color: #facc15; font-family: monospace; margin-top: 0.25rem; }
+
+        /* --- LAYOUT PRINCIPAL --- */
+        .main-container {
+            display: flex;
+            flex: 1;
+            overflow: hidden; /* Contiene el scroll */
+        }
+
+        /* --- SIDEBAR (CONTROLES) --- */
+        aside {
+            width: 320px;
+            background: white;
+            border-right: 1px solid #e2e8f0;
+            padding: 1.25rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            flex-shrink: 0;
+            box-shadow: 4px 0 6px -1px rgba(0,0,0,0.05);
+            z-index: 5;
+        }
+
+        /* Títulos de sección */
+        h3 {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #94a3b8;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Botones de escenario */
+        .scenario-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+        }
+
+        .btn-scenario {
+            padding: 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background-color: #f1f5f9;
+            color: #334155;
+            border: 1px solid transparent;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s;
+        }
+        .btn-scenario:hover { background-color: #e2e8f0; border-color: #cbd5e1; }
+
+        /* Controles deslizantes */
+        .control-group { margin-bottom: 1rem; }
+        
+        .control-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.25rem;
+        }
+        
+        .label-beta { color: #1d4ed8; font-weight: 600; font-size: 0.875rem; }
+        .label-gamma { color: #15803d; font-weight: 600; font-size: 0.875rem; }
+        .label-init { color: #b91c1c; font-weight: 600; font-size: 0.875rem; }
+        
+        .value-display { font-weight: 700; font-size: 0.875rem; }
+        .help-text { font-size: 0.75rem; color: #64748b; margin-top: 0.25rem; }
+
         input[type=range] {
-            -webkit-appearance: none; 
-            background: transparent; 
-        }
-        input[type=range]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            height: 16px;
-            width: 16px;
-            border-radius: 50%;
-            background: #3b82f6;
-            margin-top: -6px;
-            cursor: pointer;
-        }
-        input[type=range]::-webkit-slider-runnable-track {
             width: 100%;
-            height: 4px;
             cursor: pointer;
-            background: #e5e7eb;
-            border-radius: 2px;
+        }
+
+        /* Panel de Intervención */
+        .intervention-panel {
+            background-color: #fefce8; /* Yellow 50 */
+            border: 1px solid #fef08a;
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+        }
+        
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            color: #854d0e;
+            font-weight: 700;
+            font-size: 0.875rem;
+        }
+
+        .panel-content { margin-top: 0.75rem; display: none; }
+        .panel-content.open { display: block; }
+        
+        .input-row { margin-bottom: 0.75rem; }
+        .input-row label { display: block; font-size: 0.75rem; color: #64748b; margin-bottom: 0.25rem; }
+        .input-row input[type="number"] {
+            width: 100%;
+            padding: 0.25rem 0.5rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 0.25rem;
+            font-family: monospace;
+        }
+        
+        .checkbox-row {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #334155;
+            margin-bottom: 0.5rem;
+        }
+
+        .separator { border-top: 1px solid #fef08a; padding-top: 0.5rem; margin-top: 0.5rem; }
+
+        /* Botón Reset */
+        .btn-reset {
+            width: 100%;
+            padding: 0.5rem;
+            background: white;
+            border: 1px solid #cbd5e1;
+            color: #475569;
+            font-weight: 600;
+            font-size: 0.875rem;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            margin-top: auto; /* Empuja al fondo */
+        }
+        .btn-reset:hover { background-color: #f8fafc; }
+
+        /* --- ZONA PRINCIPAL (VISUALIZACIÓN) --- */
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: #f8fafc;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Tarjetas de métricas */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            padding: 1.5rem;
+            padding-bottom: 0;
+            flex-shrink: 0;
+        }
+
+        .card {
+            background: white;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        }
+
+        .card-title { font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; }
+        .card-value { font-size: 1.5rem; font-weight: 700; color: #1e293b; margin: 0.25rem 0; }
+        .card-sub { font-size: 0.65rem; color: #94a3b8; }
+
+        .text-purple { color: #9333ea; }
+        .text-danger { color: #dc2626; }
+        .text-warning { color: #d97706; }
+        .text-success { color: #16a34a; }
+
+        /* Contenedor del Gráfico */
+        .chart-wrapper {
+            flex: 1;
+            padding: 1.5rem;
+            min-height: 0; /* Crucial para que flexbox no rompa el canvas */
+            position: relative;
+        }
+
+        .chart-box {
+            background: white;
+            border-radius: 0.75rem;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            height: 100%;
+            padding: 1rem;
+            position: relative;
+        }
+
+        /* --- RESPONSIVE --- */
+        @media (max-width: 768px) {
+            .main-container { flex-direction: column; overflow-y: auto; }
+            aside { width: 100%; border-right: none; border-bottom: 1px solid #e2e8f0; overflow-y: visible; }
+            main { overflow: visible; height: auto; }
+            .metrics-grid { grid-template-columns: 1fr 1fr; }
+            .chart-wrapper { height: 400px; } /* Altura fija en móvil */
+            .header-info { display: none; }
         }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 h-screen flex flex-col overflow-hidden">
+<body>
 
     <!-- Header -->
-    <header class="bg-slate-900 text-white p-4 shadow-md flex justify-between items-center shrink-0 z-10">
+    <header>
         <div>
-            <h1 class="text-xl font-bold tracking-wide">MODELO <span class="text-blue-400">S</span><span class="text-red-500">I</span><span class="text-green-500">R</span></h1>
-            <p class="text-xs text-slate-400">Simulación interactiva de epidemias</p>
+            <h1>MODELO <span class="text-blue">S</span><span class="text-red">I</span><span class="text-green">R</span></h1>
+            <p style="font-size: 0.75rem; opacity: 0.8;">Simulación Interactiva</p>
         </div>
-        <div class="text-right hidden sm:block">
-            <div class="text-xs text-slate-400">Basado en Actividad 3</div>
-            <div class="text-xs font-mono text-yellow-400">N = S + I + R</div>
+        <div class="header-info">
+            <div>Actividad 3: Epidemias</div>
+            <div class="header-formula">N = S + I + R</div>
         </div>
     </header>
 
     <!-- Main Content -->
-    <div class="flex-1 flex flex-col lg:flex-row overflow-hidden">
+    <div class="main-container">
         
         <!-- Controls Sidebar -->
-        <aside class="w-full lg:w-80 bg-white border-r border-slate-200 p-5 overflow-y-auto shrink-0 shadow-lg z-10 flex flex-col gap-6">
-            
+        <aside>
             <!-- Scenarios -->
-            <div class="space-y-2">
-                <h3 class="text-xs font-bold uppercase text-slate-400 tracking-wider">Escenarios del PDF</h3>
-                <div class="grid grid-cols-2 gap-2">
-                    <button onclick="loadScenario('base')" class="px-3 py-2 text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 rounded transition text-left">1. Base (Sin freno)</button>
-                    <button onclick="loadScenario('flatten')" class="px-3 py-2 text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 rounded transition text-left">2. Aplanar Curva</button>
-                    <button onclick="loadScenario('lockdown')" class="px-3 py-2 text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 rounded transition text-left">3. Confinamiento (Día 7)</button>
-                    <button onclick="loadScenario('secondWave')" class="px-3 py-2 text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 rounded transition text-left">4. Segunda Ola</button>
+            <div>
+                <h3>Escenarios del PDF</h3>
+                <div class="scenario-grid">
+                    <button onclick="loadScenario('base')" class="btn-scenario">1. Base (Sin freno)</button>
+                    <button onclick="loadScenario('flatten')" class="btn-scenario">2. Aplanar Curva</button>
+                    <button onclick="loadScenario('lockdown')" class="btn-scenario">3. Confinamiento (Día 7)</button>
+                    <button onclick="loadScenario('secondWave')" class="btn-scenario">4. Segunda Ola</button>
                 </div>
             </div>
 
-            <hr class="border-slate-100">
+            <hr style="border: 0; border-top: 1px solid #e2e8f0;">
 
             <!-- Parameters -->
-            <div class="space-y-6">
-                <h3 class="text-xs font-bold uppercase text-slate-400 tracking-wider">Parámetros Iniciales</h3>
+            <div>
+                <h3>Parámetros Iniciales</h3>
                 
                 <!-- Beta Control -->
-                <div>
-                    <div class="flex justify-between mb-1">
-                        <label class="text-sm font-semibold text-blue-700">Tasa de Contagio (β)</label>
-                        <span id="betaVal" class="data-font text-sm font-bold">0.0005</span>
+                <div class="control-group">
+                    <div class="control-header">
+                        <label class="label-beta">Tasa de Contagio (β)</label>
+                        <span id="betaVal" class="value-display data-font">0.0005</span>
                     </div>
-                    <input type="range" id="betaSlider" min="0.0001" max="0.0030" step="0.0001" value="0.0005" class="w-full" oninput="updateParams()">
-                    <p class="text-xs text-slate-500 mt-1">Probabilidad de transmisión por contacto.</p>
+                    <input type="range" id="betaSlider" min="0.0001" max="0.0030" step="0.0001" value="0.0005" oninput="updateParams()">
+                    <p class="help-text">Probabilidad de transmisión.</p>
                 </div>
 
                 <!-- Gamma Control -->
-                <div>
-                    <div class="flex justify-between mb-1">
-                        <label class="text-sm font-semibold text-green-700">Tasa Recuperación (γ)</label>
-                        <span id="gammaVal" class="data-font text-sm font-bold">0.2</span>
+                <div class="control-group">
+                    <div class="control-header">
+                        <label class="label-gamma">Tasa Recuperación (γ)</label>
+                        <span id="gammaVal" class="value-display data-font">0.2</span>
                     </div>
-                    <input type="range" id="gammaSlider" min="0.05" max="0.5" step="0.01" value="0.2" class="w-full" oninput="updateParams()">
-                    <p class="text-xs text-slate-500 mt-1">1/γ = Días siendo infeccioso (<span id="daysInfectious">5</span> días).</p>
+                    <input type="range" id="gammaSlider" min="0.05" max="0.5" step="0.01" value="0.2" oninput="updateParams()">
+                    <p class="help-text">1/γ = Días infeccioso (<span id="daysInfectious">5</span> días).</p>
                 </div>
 
                 <!-- Initial Infected -->
-                <div>
-                     <div class="flex justify-between mb-1">
-                        <label class="text-sm font-semibold text-red-700">Infectados Iniciales (I₀)</label>
-                        <span id="initIVal" class="data-font text-sm font-bold">1</span>
+                <div class="control-group">
+                     <div class="control-header">
+                        <label class="label-init">Infectados Iniciales (I₀)</label>
+                        <span id="initIVal" class="value-display data-font">1</span>
                     </div>
-                    <input type="range" id="initISlider" min="1" max="100" step="1" value="1" class="w-full" oninput="updateParams()">
+                    <input type="range" id="initISlider" min="1" max="100" step="1" value="1" oninput="updateParams()">
                 </div>
             </div>
 
             <!-- Interventions Section -->
-            <div class="bg-yellow-50 border border-yellow-200 rounded p-3 text-sm">
-                <div class="flex items-center justify-between cursor-pointer" onclick="toggleInterventionPanel()">
-                    <h3 class="font-bold text-yellow-800">🛠️ Intervención (Confinamiento)</h3>
+            <div class="intervention-panel">
+                <div class="panel-header" onclick="toggleInterventionPanel()">
+                    <span>🛠️ Intervención (Confinamiento)</span>
                     <span id="interventionToggle">▼</span>
                 </div>
-                <div id="interventionControls" class="mt-3 space-y-3 hidden">
-                    <div class="flex items-center gap-2">
-                        <input type="checkbox" id="enableIntervention" onchange="updateParams()" class="w-4 h-4 text-blue-600 rounded">
-                        <label for="enableIntervention" class="font-medium text-slate-700">Activar medida</label>
+                <div id="interventionControls" class="panel-content">
+                    <div class="checkbox-row">
+                        <input type="checkbox" id="enableIntervention" onchange="updateParams()">
+                        <label for="enableIntervention">Activar medida</label>
                     </div>
-                    <div>
-                        <label class="block text-xs text-slate-500">Día de inicio</label>
-                        <input type="number" id="intDay" value="7" class="w-full border rounded px-2 py-1 text-sm data-font" oninput="updateParams()">
+                    <div class="input-row">
+                        <label>Día de inicio</label>
+                        <input type="number" id="intDay" value="7" class="data-font" oninput="updateParams()">
                     </div>
-                    <div>
-                        <label class="block text-xs text-slate-500">Nuevo β (Beta reducido)</label>
-                        <input type="number" id="intBeta" value="0.0002" step="0.0001" class="w-full border rounded px-2 py-1 text-sm data-font" oninput="updateParams()">
+                    <div class="input-row">
+                        <label>Nuevo β (Beta reducido)</label>
+                        <input type="number" id="intBeta" value="0.0002" step="0.0001" class="data-font" oninput="updateParams()">
                     </div>
-                    <div class="pt-2 border-t border-yellow-200">
-                         <div class="flex items-center gap-2">
-                            <input type="checkbox" id="enableDeescalation" onchange="updateParams()" class="w-4 h-4 text-blue-600 rounded">
-                            <label for="enableDeescalation" class="font-medium text-slate-700">Desescalada (2ª Ola)</label>
+                    
+                    <div class="separator">
+                         <div class="checkbox-row">
+                            <input type="checkbox" id="enableDeescalation" onchange="updateParams()">
+                            <label for="enableDeescalation">Desescalada (2ª Ola)</label>
                         </div>
-                         <div id="deescalationControls" class="mt-2 hidden">
-                            <label class="block text-xs text-slate-500">Día fin confinamiento</label>
-                            <input type="number" id="deesDay" value="45" class="w-full border rounded px-2 py-1 text-sm data-font" oninput="updateParams()">
-                            <label class="block text-xs text-slate-500 mt-1">β al salir</label>
-                            <input type="number" id="deesBeta" value="0.0008" step="
+                         <div id="deescalationControls" style="display: none;">
+                            <div class="input-row">
+                                <label>Día fin confinamiento</label>
+                                <input type="number" id="deesDay" value="45" class="data-font" oninput="updateParams()">
+                            </div>
+                            <div class="input-row">
+                                <label>β al salir</label>
+                                <input type="number" id="deesBeta" value="0.0008" step="0.0001" class="data-font" oninput="updateParams()">
+                            </div>
+                         </div>
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="resetSimulation()" class="btn-reset">Reiniciar Todo</button>
+        </aside>
+
+        <!-- Visualization Area -->
+        <main>
+            
+            <!-- Key Metrics Cards -->
+            <div class="metrics-grid">
+                <div class="card">
+                    <div class="card-title">Población (N)</div>
+                    <div class="card-value data-font">1000</div>
+                    <div class="card-sub">Total individuos</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">R₀ (Básico)</div>
+                    <div id="r0Display" class="card-value text-purple data-font">-</div>
+                    <div class="card-sub">Contagios por infectado</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Pico Infectados</div>
+                    <div id="peakDisplay" class="card-value text-danger data-font">-</div>
+                    <div id="peakDayDisplay" class="card-sub">Día -</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Total Afectados</div>
+                    <div id="totalInfectedDisplay" class="card-value data-font">-</div>
+                    <div class="card-sub">% de la población</div>
+                </div>
+            </div>
+
+            <!-- Chart Container -->
+            <div class="chart-wrapper">
+                <div class="chart-box">
+                    <canvas id="sirChart"></canvas>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Logic Script -->
+    <script>
+        // Use 'var' for global variables to prevent "Identifier has already been declared" errors on re-run or older browsers
+        var N = 1000;
+        var DAYS = 120; // Simulation duration
+
+        // Initial State
+        var chartInstance = null;
+
+        // Elements
+        var betaSlider = document.getElementById('betaSlider');
+        var gammaSlider = document.getElementById('gammaSlider');
+        var initISlider = document.getElementById('initISlider');
+        
+        var betaVal = document.getElementById('betaVal');
+        var gammaVal = document.getElementById('gammaVal');
+        var initIVal = document.getElementById('initIVal');
+        var daysInfectious = document.getElementById('daysInfectious');
+
+        var interventionToggleEl = document.getElementById('enableIntervention');
+        var deescalationToggleEl = document.getElementById('enableDeescalation');
+        var intDayInput = document.getElementById('intDay');
+        var intBetaInput = document.getElementById('intBeta');
+        var deesDayInput = document.getElementById('deesDay');
+        var deesBetaInput = document.getElementById('deesBeta');
+
+        // Logic to simulate SIR based on the PDF's discrete math
+        function simulate(beta, gamma, initialInfected) {
+            var S = N - initialInfected;
+            var I = initialInfected;
+            var R = 0;
+
+            var sData = [S];
+            var iData = [I];
+            var rData = [R];
+            var labels = [0];
+
+            // Intervention logic
+            var useIntervention = interventionToggleEl.checked;
+            var useDeescalation = deescalationToggleEl.checked;
+            var interventionDay = parseInt(intDayInput.value) || 0;
+            var interventionBeta = parseFloat(intBetaInput.value) || 0;
+            var deescalationDay = parseInt(deesDayInput.value) || 0;
+            var deescalationBeta = parseFloat(deesBetaInput.value) || 0;
+
+            for (var day = 1; day <= DAYS; day++) {
+                
+                // Determine current Beta
+                var currentBeta = beta;
+                
+                if (useIntervention && day >= interventionDay) {
+                    currentBeta = interventionBeta; // Apply lockdown beta
+                }
+
+                if (useIntervention && useDeescalation && day >= deescalationDay) {
+                    currentBeta = deescalationBeta; // Release lockdown
+                }
+
+                // Core SIR Logic (Discrete steps as per PDF)
+                // New Infections = Beta * S * I
+                // New Recoveries = Gamma * I
+                
+                var newInfected = currentBeta * S * I;
+                var newRecovered = gamma * I;
+
+                // Clamp values to avoid impossible negatives or overflows due to discrete steps
+                if (newInfected > S) newInfected = S;
+                if (newRecovered > I) newRecovered = I;
+
+                S = S - newInfected;
+                I = I + newInfected - newRecovered;
+                R = R + newRecovered;
+
+                // Safety clamp
+                if (I < 0) I = 0;
+                if (S < 0) S = 0;
+                if (R > N) R = N;
+
+                sData.push(Math.round(S));
+                iData.push(Math.round(I));
+                rData.push(Math.round(R));
+                labels.push(day);
+            }
+
+            return { labels: labels, sData: sData, iData: iData, rData: rData };
+        }
+
+        function calculateMetrics(beta, gamma, iData) {
+            // R0 calculation
+            var r0 = (beta / gamma) * N; 
+            
+            // Peak
+            var maxI = 0;
+            var peakDay = 0;
+            iData.forEach(function(val, idx) {
+                if (val > maxI) {
+                    maxI = val;
+                    peakDay = idx;
+                }
+            });
+
+            return {
+                r0: r0.toFixed(2),
+                peak: Math.round(maxI),
+                peakDay: peakDay
+            };
+        }
+
+        function updateChart() {
+            // 1. Get Values
+            var beta = parseFloat(betaSlider.value);
+            var gamma = parseFloat(gammaSlider.value);
+            var initI = parseInt(initISlider.value);
+
+            // 2. Update Text Displays
+            betaVal.innerText = beta.toFixed(4);
+            gammaVal.innerText = gamma.toFixed(2);
+            initIVal.innerText = initI;
+            daysInfectious.innerText = (1/gamma).toFixed(1);
+
+            // 3. UI logic for deescalation visibility
+            var deesDiv = document.getElementById('deescalationControls');
+            if(deescalationToggleEl.checked) {
+                deesDiv.style.display = 'block';
+            } else {
+                deesDiv.style.display = 'none';
+            }
+
+            // 4. Run Simulation
+            var data = simulate(beta, gamma, initI);
+
+            // 5. Update Metrics
+            var metrics = calculateMetrics(beta, gamma, data.iData);
+            var r0El = document.getElementById('r0Display');
+            
+            r0El.innerText = metrics.r0;
+            document.getElementById('peakDisplay').innerText = metrics.peak;
+            document.getElementById('peakDayDisplay').innerText = "Día " + metrics.peakDay;
+            
+            var finalS = data.sData[data.sData.length - 1];
+            var totalInfected = N - finalS;
+            var percentage = ((totalInfected / N) * 100).toFixed(1);
+            document.getElementById('totalInfectedDisplay').innerText = percentage + "%";
+
+            // Color code R0
+            r0El.className = "card-value data-font"; // Reset
+            if (metrics.r0 < 1) r0El.classList.add("text-success");
+            else if (metrics.r0 < 2.5) r0El.classList.add("text-warning");
+            else r0El.classList.add("text-danger");
+
+            // 6. Draw/Update Chart
+            var ctx = document.getElementById('sirChart').getContext('2d');
+
+            if (chartInstance) {
+                chartInstance.data.labels = data.labels;
+                chartInstance.data.datasets[0].data = data.sData;
+                chartInstance.data.datasets[1].data = data.iData;
+                chartInstance.data.datasets[2].data = data.rData;
+                chartInstance.update();
+            } else {
+                // Check if there is an existing chart to destroy (common issue)
+                var existingChart = Chart.getChart("sirChart");
+                if (existingChart) {
+                    existingChart.destroy();
+                }
+
+                chartInstance = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: data.labels,
+                        datasets: [
+                            {
+                                label: 'Susceptibles (Sanos)',
+                                data: data.sData,
+                                borderColor: '#3b82f6', // Blue-500
+                                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                                tension: 0.4,
+                                pointRadius: 0,
+                                fill: true
+                            },
+                            {
+                                label: 'Infectados (Activos)',
+                                data: data.iData,
+                                borderColor: '#ef4444', // Red-500
+                                backgroundColor: 'rgba(239, 68, 68, 0.2)',
+                                tension: 0.4,
+                                pointRadius: 0,
+                                fill: true
+                            },
+                            {
+                                label: 'Recuperados (R)',
+                                data: data.rData,
+                                borderColor: '#10b981', // Emerald-500
+                                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                                tension: 0.4,
+                                pointRadius: 0,
+                                fill: true
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: {
+                            mode: 'index',
+                            intersect: false,
+                        },
+                        plugins: {
+                            tooltip: {
+                                callbacks: {
+                                    title: function(context) { return 'Día ' + context[0].label; }
+                                }
+                            },
+                            legend: {
+                                position: 'top',
+                            }
+                        },
+                        scales: {
+                            x: {
+                                title: { display: true, text: 'Días transcurridos' },
+                                grid: { display: false }
+                            },
+                            y: {
+                                title: { display: true, text: 'Población' },
+                                min: 0,
+                                max: 1000
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        function updateParams() {
+            updateChart();
+        }
+
+        function toggleInterventionPanel() {
+            var panel = document.getElementById('interventionControls');
+            var arrow = document.getElementById('interventionToggle');
+            if (panel.classList.contains('open')) {
+                panel.classList.remove('open');
+                arrow.innerText = '▼';
+            } else {
+                panel.classList.add('open');
+                arrow.innerText = '▲';
+            }
+        }
+
+        function resetSimulation() {
+            betaSlider.value = 0.0005;
+            gammaSlider.value = 0.2;
+            initISlider.value = 1;
+            
+            interventionToggleEl.checked = false;
+            deescalationToggleEl.checked = false;
+            
+            document.getElementById('interventionControls').classList.remove('open');
+            document.getElementById('interventionToggle').innerText = '▼';
+            
+            updateParams();
+        }
+
+        function loadScenario(type) {
+            resetSimulation();
+            
+            switch(type) {
+                case 'base':
+                    betaSlider.value = 0.0013;
+                    gammaSlider.value = 0.5;
+                    break;
+                case 'flatten':
+                    betaSlider.value = 0.0008;
+                    gammaSlider.value = 0.5;
+                    break;
+                case 'lockdown':
+                    betaSlider.value = 0.0013;
+                    gammaSlider.value = 0.5;
+                    
+                    var panel = document.getElementById('interventionControls');
+                    panel.classList.add('open');
+                    document.getElementById('interventionToggle').innerText = '▲';
+                    
+                    interventionToggleEl.checked = true;
+                    intDayInput.value = 7;
+                    intBetaInput.value = 0.0005;
+                    break;
+                case 'secondWave':
+                    betaSlider.value = 0.0013;
+                    gammaSlider.value = 0.5;
+                    
+                    var panel = document.getElementById('interventionControls');
+                    panel.classList.add('open');
+                    document.getElementById('interventionToggle').innerText = '▲';
+                    
+                    interventionToggleEl.checked = true;
+                    intDayInput.value = 7;
+                    intBetaInput.value = 0.0005;
+                    
+                    deescalationToggleEl.checked = true;
+                    deesDayInput.value = 45;
+                    deesBetaInput.value = 0.0013;
+                    break;
+            }
+            updateParams();
+        }
+
+        window.addEventListener('load', function() {
+            updateChart();
+        });
+
+    </script>
+</body>
+</html>
