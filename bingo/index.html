@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bingo 90 - Javier Salido (2025)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-gradient: radial-gradient(circle at center, #1e1b4b, #020617);
+            --panel-bg: rgba(255, 255, 255, 0.05);
+            --text-main: white;
+            --cell-inactive: rgba(255, 255, 255, 0.1);
+            --cell-text: rgba(255, 255, 255, 0.4);
+        }
+
+        .light-mode {
+            --bg-gradient: radial-gradient(circle at center, #f8fafc, #e2e8f0);
+            --panel-bg: rgba(255, 255, 255, 0.8);
+            --text-main: #1e293b;
+            --cell-inactive: #cbd5e1;
+            --cell-text: #64748b;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            color: var(--text-main);
+            transition: background 0.5s ease, color 0.5s ease;
+            overflow-x: hidden;
+        }
+
+        .bingo-grid {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 8px;
+        }
+
+        .number-cell {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--panel-bg);
+            border: 1px solid var(--cell-inactive);
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            font-size: 1.25rem;
+            color: var(--cell-text);
+        }
+
+        .number-cell.active {
+            background: linear-gradient(135deg, #fbbf24, #d97706);
+            color: #1e1b4b;
+            box-shadow: 0 0 15px rgba(251, 191, 36, 0.6), inset 0 0 10px rgba(255, 255, 255, 0.5);
+            transform: scale(1.05);
+            border-color: #fef3c7;
+        }
+
+        .current-ball {
+            background: radial-gradient(circle at 30% 30%, #ffffff, #e2e8f0 20%, #94a3b8 100%);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset -5px -5px 15px rgba(0,0,0,0.2);
+            position: relative;
+            transition: transform 0.2s ease;
+        }
+
+        .recent-ball {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            background: #334155;
+            color: white;
+            border: 2px solid #475569;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(20px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .glow-button { transition: all 0.3s ease; }
+        .glow-button:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(1.1); }
+
+        .modal-overlay {
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(4px);
+        }
+
+        /* Animación de bombo girando */
+        .shuffling {
+            animation: shuffleAnim 0.1s infinite;
+        }
+        @keyframes shuffleAnim {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+            100% { transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-7xl mx-auto flex flex-col lg:flex-row gap-8">
+        
+        <!-- Panel Izquierdo -->
+        <div class="flex-1 bg-white/5 dark:bg-black/20 p-6 rounded-3xl border border-white/10 shadow-2xl backdrop-blur-sm">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold flex items-center gap-2 text-amber-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg>
+                    PANEL BINGO
+                </h2>
+                <div class="flex gap-2">
+                    <button id="toggle-fullscreen" class="p-2 rounded-lg bg-white/10 hover:bg-white/20" title="Pantalla Completa">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+                    </button>
+                    <button id="toggle-theme" class="p-2 rounded-lg bg-white/10 hover:bg-white/20" title="Cambiar Tema">
+                        <svg id="theme-icon" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707"/></svg>
+                    </button>
+                </div>
+            </div>
+            <div id="bingo-grid" class="bingo-grid"></div>
+        </div>
+
+        <!-- Panel Derecho -->
+        <div class="w-full lg:w-96 flex flex-col gap-6">
+            
+            <div class="bg-white/5 p-8 rounded-3xl border border-white/10 flex flex-col items-center shadow-2xl relative overflow-hidden">
+                <div class="absolute top-0 right-0 p-4">
+                    <button id="toggle-voice" class="text-white/40 hover:text-amber-500 transition-colors">
+                        <svg id="voice-icon" xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+                    </button>
+                </div>
+                <span class="text-xs font-bold uppercase tracking-widest text-amber-500 mb-4">Última Bola</span>
+                <div id="current-ball-display" class="current-ball w-48 h-48 rounded-full flex items-center justify-center text-7xl font-extrabold text-slate-900">
+                    --
+                </div>
+                <div class="mt-8 flex flex-col gap-2 w-full text-center">
+                    <span class="text-xs text-white/40 uppercase tracking-widest font-bold">Anteriores</span>
+                    <div id="recent-balls" class="flex justify-center gap-4 h-16">
+                        <div class="recent-ball opacity-20"></div>
+                        <div class="recent-ball opacity-20"></div>
+                        <div class="recent-ball opacity-20"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white/5 p-6 rounded-3xl border border-white/10 flex flex-col gap-6 shadow-2xl">
+                <div class="flex flex-col gap-2">
+                    <div class="flex justify-between text-xs font-bold uppercase tracking-widest text-white/60">
+                        <span>Velocidad Sorteo</span>
+                        <span id="speed-label">3.0s</span>
+                    </div>
+                    <input type="range" id="speed-slider" min="1" max="10" step="0.5" value="3" class="w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer">
+                </div>
+
+                <div class="grid grid-cols-1 gap-3">
+                    <button id="main-btn" class="glow-button bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold py-4 rounded-xl flex items-center justify-center gap-2 text-lg">
+                        <svg id="play-icon" xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                        <span id="main-btn-text">COMENZAR</span>
+                    </button>
+                    <button id="reset-btn" class="glow-button bg-rose-500/20 hover:bg-rose-500/40 text-rose-500 font-bold py-3 rounded-xl border border-rose-500/30">
+                        REINICIAR
+                    </button>
+                </div>
+            </div>
+
+            <div class="text-center text-white/40 text-sm">
+                Bolas extraídas: <span id="stats-count" class="text-amber-500 font-bold">0</span> / 90
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Reiniciar -->
+    <div id="reset-modal" class="modal-overlay fixed inset-0 z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+        <div class="bg-slate-900 text-white p-8 rounded-3xl max-w-sm w-full mx-4 shadow-2xl text-center">
+            <h3 class="text-xl font-bold mb-4">¿Nueva partida?</h3>
+            <p class="text-white/60 mb-6">Se borrará todo el progreso actual.</p>
+            <div class="flex gap-3">
+                <button id="cancel-reset" class="flex-1 py-3 rounded-xl bg-white/10 hover:bg-white/20 font-bold">No</button>
+                <button id="confirm-reset" class="flex-1 py-3 rounded-xl bg-rose-500 hover:bg-rose-400 font-bold">Sí, reiniciar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let balls = Array.from({length: 90}, (_, i) => i + 1);
+        let calledBalls = [];
+        let isPlaying = false;
+        let gameInterval = null;
+        let voiceEnabled = false;
+        let speed = 3000;
+        let isDark = true;
+
+        const grid = document.getElementById('bingo-grid');
+        const mainBtn = document.getElementById('main-btn');
+        const mainBtnText = document.getElementById('main-btn-text');
+        const playIcon = document.getElementById('play-icon');
+        const speedSlider = document.getElementById('speed-slider');
+        const speedLabel = document.getElementById('speed-label');
+        const currentBallDisplay = document.getElementById('current-ball-display');
+        const recentBallsContainer = document.getElementById('recent-balls');
+        const statsCount = document.getElementById('stats-count');
+        const toggleVoiceBtn = document.getElementById('toggle-voice');
+        const voiceIcon = document.getElementById('voice-icon');
+        const themeBtn = document.getElementById('toggle-theme');
+        const resetModal = document.getElementById('reset-modal');
+
+        function initGrid() {
+            grid.innerHTML = '';
+            for (let i = 1; i <= 90; i++) {
+                const cell = document.createElement('div');
+                cell.id = `cell-${i}`;
+                cell.className = 'number-cell';
+                cell.textContent = i;
+                grid.appendChild(cell);
+            }
+        }
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        function drawBall() {
+            if (balls.length === 0) {
+                stopGame();
+                mainBtnText.textContent = "FIN DE PARTIDA";
+                mainBtn.disabled = true;
+                return;
+            }
+
+            // Efecto Bombo (0.8 segundos de shuffling)
+            currentBallDisplay.classList.add('shuffling');
+            let shuffleCount = 0;
+            const shuffleInt = setInterval(() => {
+                currentBallDisplay.textContent = Math.floor(Math.random() * 90) + 1;
+                shuffleCount++;
+                if(shuffleCount > 8) {
+                    clearInterval(shuffleInt);
+                    finalizeBall();
+                }
+            }, 80);
+        }
+
+        function finalizeBall() {
+            currentBallDisplay.classList.remove('shuffling');
+            const ball = balls.pop();
+            calledBalls.push(ball);
+            
+            currentBallDisplay.textContent = ball;
+            document.getElementById(`cell-${ball}`).classList.add('active');
+            
+            updateRecentBalls();
+            statsCount.textContent = calledBalls.length;
+            if (voiceEnabled) speak(ball);
+        }
+
+        function updateRecentBalls() {
+            recentBallsContainer.innerHTML = '';
+            const recent = calledBalls.slice(-4, -1).reverse();
+            for(let i = 0; i < 3; i++) {
+                const b = document.createElement('div');
+                b.className = `recent-ball ${recent[i] ? '' : 'opacity-20'}`;
+                b.textContent = recent[i] || '';
+                recentBallsContainer.appendChild(b);
+            }
+        }
+
+        function speak(n) {
+            const u = new SpeechSynthesisUtterance(n.toString());
+            u.lang = 'es-ES';
+            window.speechSynthesis.speak(u);
+        }
+
+        function startGame() {
+            if (calledBalls.length === 0) shuffle(balls);
+            isPlaying = true;
+            mainBtnText.textContent = "PAUSAR";
+            playIcon.innerHTML = '<rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect>';
+            drawBall();
+            gameInterval = setInterval(drawBall, speed);
+        }
+
+        function stopGame() {
+            isPlaying = false;
+            mainBtnText.textContent = "CONTINUAR";
+            playIcon.innerHTML = '<path d="M8 5v14l11-7z"/>';
+            clearInterval(gameInterval);
+        }
+
+        // Eventos
+        mainBtn.addEventListener('click', () => isPlaying ? stopGame() : startGame());
+
+        speedSlider.addEventListener('input', (e) => {
+            speed = e.target.value * 1000;
+            speedLabel.textContent = `${parseFloat(e.target.value).toFixed(1)}s`;
+            if (isPlaying) { stopGame(); startGame(); }
+        });
+
+        themeBtn.addEventListener('click', () => {
+            isDark = !isDark;
+            document.body.classList.toggle('light-mode');
+            document.getElementById('theme-icon').innerHTML = isDark ? 
+                '<path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707"/>' : 
+                '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>';
+        });
+
+        document.getElementById('toggle-fullscreen').addEventListener('click', () => {
+            if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+            else document.exitFullscreen();
+        });
+
+        document.getElementById('reset-btn').addEventListener('click', () => {
+            stopGame();
+            resetModal.classList.remove('hidden');
+            setTimeout(() => resetModal.classList.add('opacity-100'), 10);
+        });
+
+        document.getElementById('cancel-reset').addEventListener('click', () => {
+            resetModal.classList.remove('opacity-100');
+            setTimeout(() => resetModal.classList.add('hidden'), 300);
+        });
+
+        document.getElementById('confirm-reset').addEventListener('click', () => location.reload());
+
+        toggleVoiceBtn.addEventListener('click', () => {
+            voiceEnabled = !voiceEnabled;
+            voiceIcon.style.color = voiceEnabled ? '#fbbf24' : 'rgba(255,255,255,0.4)';
+        });
+
+        window.onload = initGrid;
+        window.addEventListener('keydown', (e) => { if(e.code === 'Space') mainBtn.click(); });
+    </script>
+</body>
+</html>
