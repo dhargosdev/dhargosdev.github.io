@@ -138,11 +138,13 @@
                     </button>
                 </div>
                 <span class="text-xs font-bold uppercase tracking-widest text-amber-500 mb-4">Última Bola</span>
-                <div id="current-ball-display" class="current-ball w-48 h-48 rounded-full flex items-center justify-center text-7xl font-extrabold text-slate-900">
+                <!-- Aumentado de text-7xl a text-8xl -->
+                <div id="current-ball-display" class="current-ball w-48 h-48 rounded-full flex items-center justify-center text-8xl font-extrabold text-slate-900">
                     --
                 </div>
                 <div class="mt-8 flex flex-col gap-2 w-full text-center">
-                    <span class="text-xs text-white/40 uppercase tracking-widest font-bold">Anteriores</span>
+                    <!-- Ajustado para usar color dinámico en modo claro -->
+                    <span class="text-xs opacity-60 uppercase tracking-widest font-bold text-[var(--text-main)]">Anteriores</span>
                     <div id="recent-balls" class="flex justify-center gap-4 h-16">
                         <div class="recent-ball opacity-20"></div>
                         <div class="recent-ball opacity-20"></div>
@@ -153,7 +155,7 @@
 
             <div class="bg-white/5 p-6 rounded-3xl border border-white/10 flex flex-col gap-6 shadow-2xl">
                 <div class="flex flex-col gap-2">
-                    <div class="flex justify-between text-xs font-bold uppercase tracking-widest text-white/60">
+                    <div class="flex justify-between text-xs font-bold uppercase tracking-widest opacity-80 text-[var(--text-main)]">
                         <span>Velocidad Sorteo</span>
                         <span id="speed-label">3.0s</span>
                     </div>
@@ -171,7 +173,8 @@
                 </div>
             </div>
 
-            <div class="text-center text-white/40 text-sm">
+            <!-- Ajustado para usar color dinámico en modo claro -->
+            <div class="text-center opacity-60 text-sm text-[var(--text-main)]">
                 Bolas extraídas: <span id="stats-count" class="text-amber-500 font-bold">0</span> / 90
             </div>
         </div>
