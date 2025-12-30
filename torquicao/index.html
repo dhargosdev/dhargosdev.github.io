@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Torquicao - ¡Pásate a la Beatitud!</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --torquiyellow: #FFCC00;
+            --torquipurple: #660066;
+            --torquired: #CC0000;
+            --couponyellow: #FFF9C4;
+        }
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #f4f4f4;
+            scroll-behavior: smooth;
+        }
+        h1, h2, h3, .font-comic {
+            font-family: 'Bangers', cursive;
+            letter-spacing: 2px;
+        }
+        .bg-torqui-yellow { background-color: var(--torquiyellow); }
+        .bg-torqui-purple { background-color: var(--torquipurple); }
+        .text-torqui-purple { color: var(--torquipurple); }
+        .border-torqui-red { border-color: var(--torquired); }
+        
+        .hero-gradient {
+            background: linear-gradient(135deg, var(--torquiyellow) 0%, #ffeb3b 100%);
+        }
+        
+        .comic-border {
+            border: 4px solid black;
+            box-shadow: 8px 8px 0px black;
+        }
+        
+        .coupon {
+            background-color: var(--couponyellow);
+            background-image: radial-gradient(circle at 10px 10px, transparent 10px, var(--couponyellow) 11px);
+            background-repeat: repeat-y;
+            background-size: 20px 20px;
+            border-left: 4px dashed var(--torquired);
+        }
+
+        .floating-torquemin {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .btn-burn {
+            transition: all 0.3s;
+            background-color: var(--torquired);
+            color: white;
+            border: 3px solid black;
+        }
+        .btn-burn:hover {
+            transform: scale(1.05) rotate(-2deg);
+            box-shadow: 0 0 20px rgba(204, 0, 0, 0.5);
+        }
+
+        /* Estilos para el Quiz */
+        .quiz-option {
+            transition: all 0.2s;
+            border: 2px solid black;
+        }
+        .quiz-option:hover {
+            background-color: var(--torquiyellow);
+            transform: translateX(10px);
+        }
+        .quiz-option.selected {
+            background-color: var(--torquipurple);
+            color: white;
+        }
+    </style>
+</head>
+<body class="overflow-x-hidden">
+
+    <!-- Navegación -->
+    <nav class="bg-black text-white p-4 sticky top-0 z-50">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="text-3xl font-comic text-torqui-yellow">TORQUICAO</div>
+            <ul class="hidden md:flex space-x-6 font-comic text-xl">
+                <li><a href="#inicio" class="hover:text-torqui-yellow">Inicio</a></li>
+                <li><a href="#historia" class="hover:text-torqui-yellow">Historia</a></li>
+                <li><a href="#anuncio" class="hover:text-torqui-yellow">El Show</a></li>
+                <li><a href="#concurso" class="hover:text-torqui-yellow">Concurso</a></li>
+                <li><a href="#quiz" class="hover:text-torqui-yellow">Test Hereje</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Banner Principal -->
+    <header class="bg-torqui-yellow border-b-4 border-black py-6">
+        <div class="container mx-auto text-center">
+            <center><img src="./images/logo.png" width="70%"></center>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="inicio" class="hero-gradient py-20 px-6 border-b-4 border-black">
+        <div class="container mx-auto flex flex-col md:flex-row items-center">
+            <div class="md:w-1/2 space-y-6 text-center md:text-left">
+                <h2 class="text-6xl md:text-8xl text-black font-comic">¡PURIFICA TU DESAYUNO!</h2>
+                <p class="text-xl font-bold text-torqui-purple italic">"Menos litronas y más Torquicao. El único con Cloruro Acetil Oxidado."</p>
+                <div class="pt-4">
+                    <a href="#quiz" class="btn-burn text-2xl px-8 py-4 rounded-full font-comic inline-block">¿ERES UN HEREJE?</a>
+                </div>
+            </div>
+            <div class="md:w-1/2 flex justify-center mt-12 md:mt-0 relative">
+                <div class="w-80 h-96 bg-gray-300 rounded-3xl comic-border flex items-center justify-center text-center p-4 floating-torquemin">
+                    <!-- Imagen del bote incluida con fallback -->
+                    <img src="./images/bote.png" alt="Bote de Torquicao" class="w-full h-full object-contain p-4" onerror="this.parentElement.innerHTML='<span class=\'text-gray-400 font-bold p-4 text-center\'>[Imagen del Bote no encontrada]</span>'">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Historia y Secciones -->
+    <section id="historia" class="py-16 bg-white">
+        <div class="container mx-auto px-6 grid md:grid-cols-2 gap-12">
+            <div class="space-y-6">
+                <h2 class="text-4xl text-torqui-purple underline decoration-torqui-yellow font-comic">LA INQUISICIÓN DEL SABOR</h2>
+                <p class="text-lg text-gray-700 leading-relaxed">
+                    Todo comenzó en las mazmorras más profundas de la repostería, donde el <strong>Gran Inquisidor Torquemada</strong> se dio cuenta de que el mundo sufría una tortura peor que el potro: los grumos en la leche. Purificamos el grano de cacao con el fuego de la justicia.
+                </p>
+                
+            </div>
+            <div class="bg-torqui-purple text-white p-8 rounded-3xl comic-border">
+                <h3 class="text-3xl mb-4 font-comic">RANKING DE PECADORES</h3>
+                <ul class="space-y-4">
+                    <li class="flex items-center space-x-3">
+                        <span class="bg-red-600 p-2 rounded text-xl">🔥</span>
+                        <span><strong>Nivel Infiernillo:</strong> Usar cacao de marca blanca.</span>
+                    </li>
+                    <li class="flex items-center space-x-3">
+                        <span class="bg-red-600 p-2 rounded text-xl">🔥</span>
+                        <span><strong>Nivel Purga:</strong> No dejar grumos en el fondo.</span>
+                    </li>
+                    <li class="flex items-center space-x-3">
+                        <span class="bg-red-600 p-2 rounded text-xl">🔥</span>
+                        <span><strong>Nivel Excomunión:</strong> Desayunar té verde o muesli.</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Galería -->
+    <section class="py-12 bg-gray-100 border-y-4 border-black">
+        <div class="container mx-auto px-6">
+            <h2 class="text-4xl text-center mb-10 font-comic">RELIQUIAS VISUALES</h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="aspect-square bg-gray-300 comic-border flex items-center justify-center text-xs p-2"><img src="./images/bote.png"></div>
+                <div class="aspect-square bg-gray-300 comic-border flex items-center justify-center text-xs p-2"><img src="./images/torquemin.png"></div>
+                <div class="aspect-square bg-gray-300 comic-border flex items-center justify-center text-xs p-2"><img src="./images/torquemada.png"></div>
+                <div class="aspect-square bg-gray-300 comic-border flex items-center justify-center text-xs p-2"><img src="./images/mp.png"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sección de Vídeo -->
+    <section id="anuncio" class="py-16 bg-black text-white">
+        <div class="container mx-auto px-6 text-center">
+            <h2 class="text-4xl mb-8 text-torqui-yellow font-comic">EL PROGRAMA: SALVADOS POR TORQUEMADA</h2>
+            <div class="max-w-4xl mx-auto aspect-video bg-gray-900 rounded-2xl flex items-center justify-center border-4 border-white shadow-2xl overflow-hidden">
+                <div class="text-center p-8">
+                    <iframe width="560" height="315" src="https://www.youtube.com/embed/5Iax-2njhLE?si=cgL3k6-p0hPPKK4F" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                    
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- El Concurso -->
+    <section id="concurso" class="py-16 hero-gradient overflow-hidden">
+        <div class="container mx-auto px-6">
+            <div class="bg-white p-8 md:p-12 rounded-3xl comic-border relative">
+                <div class="flex flex-col md:flex-row gap-12 items-center">
+                    <div class="md:w-1/2 space-y-6">
+                        <h2 class="text-4xl text-torqui-purple font-comic">CONCURSO: SALVADOS POR TORQUEMADA</h2>
+                        <p class="font-bold">¿Quieres ganar una peregrinación? ¡Confiesa tus pecados desayuniles!</p>
+                        <div class="space-y-4">
+                            <textarea id="confesion" class="w-full p-4 border-2 border-black rounded-xl h-32 focus:ring-2 focus:ring-torqui-purple outline-none" placeholder="Confieso que el otro día mojé una galleta de arroz..."></textarea>
+                            <button onclick="confesar()" class="btn-burn w-full py-3 rounded-xl font-comic text-2xl uppercase">ENVIAR AL SANTO OFICIO</button>
+                        </div>
+                        <div id="feedback" class="hidden p-4 bg-green-100 border-2 border-green-600 rounded-xl text-green-800 font-bold">
+                            Tu confesión ha sido recibida. El tribunal de Torquemín decidirá tu destino.
+                        </div>
+                    </div>
+                    <div class="md:w-1/2">
+                        <div class="coupon p-8 border-4 border-black rounded-lg shadow-xl text-center transform rotate-2">
+                            <h3 class="text-2xl font-comic text-torqui-red mb-2 underline">CUPÓN DE PURIFICACIÓN</h3>
+                            <p class="text-sm mb-4">Recorta y envía al Apdo. 33-33-33 (Vaticano)</p>
+                            <div class="bg-white p-4 border-2 border-dashed border-gray-400 my-4 shadow-inner">
+                                <span class="text-4xl font-comic tracking-widest text-black">BENDITO SEAS</span>
+                            </div>
+                            <p class="text-xs italic">Válido para canjear por un Torquibaticao para agredir herejes.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sección Quiz -->
+    <section id="quiz" class="py-16 bg-white border-t-4 border-black">
+        <div class="container mx-auto px-6 max-w-3xl">
+            <div class="text-center mb-10">
+                <h2 class="text-5xl font-comic text-torqui-purple mb-4 italic">¿ERES UN HEREJE DEL DESAYUNO?</h2>
+                <p class="text-gray-600 font-bold">Responde a las 10 preguntas del Santo Oficio y descubre tu destino.</p>
+            </div>
+            
+            <div id="quiz-container" class="bg-gray-100 p-8 rounded-3xl comic-border">
+                <!-- El contenido del quiz se genera por JS -->
+                <div id="quiz-content">
+                    <div id="question-text" class="text-2xl font-bold mb-6">Cargando preguntas de fe...</div>
+                    <div id="options-container" class="space-y-3"></div>
+                </div>
+                
+                <div id="quiz-result" class="hidden text-center space-y-6">
+                    <h3 id="result-title" class="text-5xl font-comic"></h3>
+                    <p id="result-text" class="text-xl italic"></p>
+                    <button onclick="resetQuiz()" class="btn-burn px-8 py-3 rounded-xl font-comic text-xl">REINTENTAR PENITENCIA</button>
+                </div>
+                
+                <div class="mt-8 flex justify-between items-center border-t-2 border-gray-300 pt-4">
+                    <span id="quiz-progress" class="font-bold text-torqui-purple">Pregunta 1 de 10</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-black text-gray-500 py-12 text-center">
+        <div class="container mx-auto px-6">
+            <p class="font-comic text-2xl text-white mb-4 italic">TORQUICAO</p>
+            <p>© 1492-2025 Santo Oficio del Cacao. Todos los derechos reservados.</p>
+            <p class="mt-4 text-xs max-w-xl mx-auto">Ingredientes: Cloruro Acetil Oxidado, ácido de batería, yemas de Santa Teresa, peperoni y aceite BP. No apto para personas con alma pura o amantes del té verde.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Lógica de Confesión
+        function confesar() {
+            const texto = document.getElementById('confesion').value;
+            if(texto.trim() === "") {
+                alert("¿Acaso no tienes pecados? ¡Miente si es necesario!");
+                return;
+            }
+            document.getElementById('feedback').classList.remove('hidden');
+            document.getElementById('confesion').value = "";
+        }
+
+        // Datos del Quiz
+        const questions = [
+            { q: "¿A qué temperatura bebes la leche?", a: ["Hirviendo como el azufre", "Fría como un infiel", "Templadita", "Del tiempo"], c: 0 },
+            { q: "¿Qué haces con los grumos del fondo?", a: ["Los venero como reliquias", "Los intento disolver", "Tiro la leche", "Se los doy al gato"], c: 0 },
+            { q: "Monseñor aconseja a los jóvenes...", a: ["Beber más Torquicao", "Ir a la biblioteca", "Hacer deporte", "Dormir 8 horas"], c: 0 },
+            { q: "¿Qué significa el -CAO de la marca?", a: ["Cloruro Acetil Oxidado", "Cacao de los Andes", "Calcio Orgánico", "Caramelo de Olivo"], c: 0 },
+            { q: "¿Qué obtienes por 100 credibollos más?", a: ["El Torquibaticao", "Una túnica de gala", "Un póster de Torquemín", "Una cuchara de oro"], c: 0 },
+            { q: "¿Con qué se marida el Torquicao?", a: ["Con un plato de gambas", "Con churros", "Con pan y aceite", "Con galletas María"], c: 0 },
+            { q: "¿Cómo se elabora en el convento?", a: ["Temp. ambiente favorable", "A 1000 grados", "Bajo cero", "En horno de leña"], c: 0 },
+            { q: "¿Cuál NO es un ingrediente real?", a: ["Extracto de vainilla", "Ácido para baterías", "Aceite para motores BP", "Peperoni"], c: 0 },
+            { q: "¿Qué debes enviar para concursar?", a: ["Partida de bautismo", "Un selfie", "Etiqueta de la competencia", "Carta de tu profesor"], c: 0 },
+            { q: "Si desayunas té verde, eres un...", a: ["Hereje excomulgado", "Santo del día", "Pecador leve", "Inquisidor en prácticas"], c: 0 }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+
+        function loadQuestion() {
+            const quizContent = document.getElementById('quiz-content');
+            const quizResult = document.getElementById('quiz-result');
+            const qText = document.getElementById('question-text');
+            const optCont = document.getElementById('options-container');
+            const progress = document.getElementById('quiz-progress');
+
+            quizContent.classList.remove('hidden');
+            quizResult.classList.add('hidden');
+
+            const q = questions[currentQuestion];
+            qText.innerText = q.q;
+            optCont.innerHTML = "";
+            progress.innerText = `Pregunta ${currentQuestion + 1} de 10`;
+
+            q.a.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = "quiz-option w-full p-4 text-left rounded-xl font-bold bg-white";
+                btn.innerText = opt;
+                btn.onclick = () => handleAnswer(index);
+                optCont.appendChild(btn);
+            });
+        }
+
+        function handleAnswer(index) {
+            if (index === questions[currentQuestion].c) {
+                score++;
+            }
+            currentQuestion++;
+            if (currentQuestion < questions.length) {
+                loadQuestion();
+            } else {
+                showResult();
+            }
+        }
+
+        function showResult() {
+            document.getElementById('quiz-content').classList.add('hidden');
+            const resultDiv = document.getElementById('quiz-result');
+            const title = document.getElementById('result-title');
+            const text = document.getElementById('result-text');
+            resultDiv.classList.remove('hidden');
+
+            if (score >= 8) {
+                title.innerText = "¡SANTO DE LA BEATITUD!";
+                title.className = "text-5xl font-comic text-green-600";
+                text.innerText = `Has sacado un ${score}/10. Torquemada está orgulloso. ¡Tómate unas gambas!`;
+            } else if (score >= 5) {
+                title.innerText = "PECADOR EN POTENCIA";
+                title.className = "text-5xl font-comic text-yellow-600";
+                text.innerText = `Has sacado un ${score}/10. Necesitas un poco de Torquibaticao para corregir ese espíritu.`;
+            } else {
+                title.innerText = "¡HEREJE EXCOMULGADO!";
+                title.className = "text-5xl font-comic text-red-600";
+                text.innerText = `Has sacado un ${score}/10. ¡A la hoguera de los desayunos tristes! Confiesa tus pecados inmediatamente.`;
+            }
+        }
+
+        function resetQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            loadQuestion();
+        }
+
+        // Iniciar quiz al cargar
+        window.onload = loadQuestion;
+    </script>
+</body>
+</html>
