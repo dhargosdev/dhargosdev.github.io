@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador: El Viaje del Paquete de Datos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Outfit', sans-serif; background-color: #f8fafc; overflow-x: hidden; }
+        .code-font { font-family: 'Fira Code', monospace; }
+        
+        /* Animaciones */
+        @keyframes flow {
+            0% { transform: translate(0, 0) scale(1); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translate(var(--tw-translate-x), var(--tw-translate-y)) scale(1); opacity: 0; }
+        }
+
+        .packet {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: #6366f1;
+            border-radius: 4px;
+            z-index: 10;
+            display: none;
+        }
+
+        .packet.moving {
+            display: block;
+            animation: flow 1.5s linear infinite;
+        }
+
+        .node {
+            transition: all 0.3s ease;
+        }
+        .node.active {
+            transform: scale(1.1);
+            filter: drop-shadow(0 0 15px rgba(99, 102, 241, 0.6));
+            border-color: #6366f1;
+        }
+
+        /* Estilo de la consola */
+        #console-log::-webkit-scrollbar { width: 4px; }
+        #console-log::-webkit-scrollbar-thumb { background: #475569; border-radius: 10px; }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-8">
+
+    <div class="max-w-6xl mx-auto">
+        <!-- Encabezado -->
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-extrabold text-slate-800">🌐 El Viaje de un <span class="text-indigo-600">Paquete</span></h1>
+            <p class="text-slate-500 mt-2">Haz clic en "Siguiente Paso" para ver cómo funciona Internet por dentro.</p>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- Columna Izquierda: Esquema Visual -->
+            <div class="lg:col-span-2 bg-white rounded-3xl shadow-xl p-6 relative min-h-[500px] border border-slate-100">
+                
+                <!-- SVG de Conexiones (Capa de fondo) -->
+                <svg class="absolute inset-0 w-full h-full pointer-events-none" id="connections-layer">
+                    <line id="line-client-dns" x1="150" y1="350" x2="150" y2="150" stroke="#e2e8f0" stroke-width="3" stroke-dasharray="8" />
+                    <line id="line-client-router" x1="150" y1="350" x2="400" y2="350" stroke="#e2e8f0" stroke-width="3" stroke-dasharray="8" />
+                    <line id="line-router-server" x1="400" y1="350" x2="650" y2="350" stroke="#e2e8f0" stroke-width="3" stroke-dasharray="8" />
+                </svg>
+
+                <!-- Paquete Animado -->
+                <div id="data-packet" class="packet"></div>
+
+                <!-- Nodos -->
+                <div class="relative w-full h-full flex flex-wrap justify-around items-center">
+                    
+                    <!-- Servidor DNS -->
+                    <div id="node-dns" class="node absolute top-10 left-[50px] md:left-[100px] flex flex-col items-center bg-white p-4 rounded-2xl border-2 border-slate-100 w-32">
+                        <span class="text-4xl mb-2">📁</span>
+                        <span class="font-bold text-sm">Servidor DNS</span>
+                        <span class="text-[10px] text-slate-400">Traductor de Nombres</span>
+                    </div>
+
+                    <!-- Cliente (Tu PC) -->
+                    <div id="node-client" class="node active absolute bottom-10 left-[50px] md:left-[100px] flex flex-col items-center bg-white p-4 rounded-2xl border-2 border-indigo-500 w-32">
+                        <span class="text-4xl mb-2">💻</span>
+                        <span class="font-bold text-sm">Tu Ordenador</span>
+                        <span class="text-[10px] text-indigo-400">Navegador Web</span>
+                    </div>
+
+                    <!-- Router -->
+                    <div id="node-router" class="node absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center bg-white p-4 rounded-2xl border-2 border-slate-100 w-32">
+                        <span class="text-4xl mb-2">📟</span>
+                        <span class="font-bold text-sm">Router</span>
+                        <span class="text-[10px] text-slate-400">Salto Intermedio</span>
+                    </div>
+
+                    <!-- Servidor Web -->
+                    <div id="node-server" class="node absolute bottom-10 right-[50px] md:right-[100px] flex flex-col items-center bg-white p-4 rounded-2xl border-2 border-slate-100 w-32">
+                        <span class="text-4xl mb-2">🏢</span>
+                        <span class="font-bold text-sm">Servidor Web</span>
+                        <span class="text-[10px] text-slate-400">Hosting del Sitio</span>
+                    </div>
+
+                </div>
+
+                <!-- Overlay de Descripción del paso -->
+                <div id="step-info" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3/4 bg-white/95 backdrop-blur shadow-2xl p-6 rounded-2xl border border-indigo-100 text-center z-20">
+                    <h3 id="step-title" class="text-xl font-bold text-indigo-600 mb-2">Paso 1: Petición</h3>
+                    <p id="step-desc" class="text-slate-600">Escribes una dirección web como <span class="font-bold italic">www.museoreinasofia.es</span> en tu navegador.</p>
+                </div>
+            </div>
+
+            <!-- Columna Derecha: Controles y Logs -->
+            <div class="flex flex-col gap-6">
+                <!-- Controles -->
+                <div class="bg-white rounded-3xl shadow-xl p-6 border border-slate-100">
+                    <button id="btn-next" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2">
+                        Siguiente Paso <span id="btn-icon">🚀</span>
+                    </button>
+                    <button id="btn-reset" class="w-full mt-3 text-slate-400 hover:text-indigo-600 font-semibold py-2 transition-all">
+                        Reiniciar simulación
+                    </button>
+                </div>
+
+                <!-- Consola Técnica -->
+                <div class="bg-slate-900 rounded-3xl shadow-xl p-6 border border-slate-800 flex-1 flex flex-col">
+                    <div class="flex items-center gap-2 mb-4">
+                        <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                        <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                        <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                        <span class="text-slate-500 text-xs ml-2 code-font">terminal — TCP/IP Monitor</span>
+                    </div>
+                    <div id="console-log" class="text-green-400 text-xs md:text-sm code-font overflow-y-auto max-h-[250px] leading-relaxed">
+                        <p class="text-slate-500 italic mb-2">// Esperando inicio de sesión...</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        const steps = [
+            {
+                title: "1. Petición del Usuario",
+                desc: "Has introducido la URL. Tu navegador necesita saber a qué servidor ir, pero no entiende de nombres, solo de números (IP).",
+                log: "> GET / HTTP/1.1\n> Host: www.museoreinasofia.es\n> Buscando dirección IP...",
+                activeNode: "node-client"
+            },
+            {
+                title: "2. Consulta DNS",
+                desc: "Tu ordenador envía un paquete al Servidor DNS preguntando: '¿Cuál es la IP de esta web?'",
+                log: "> Enviando consulta DNS al 8.8.8.8...\n> Request: A www.museoreinasofia.es",
+                activeNode: "node-dns",
+                animation: "client-to-dns"
+            },
+            {
+                title: "3. Respuesta DNS",
+                desc: "El DNS responde: 'La IP es 154.58.18.91'. Ahora tu ordenador sabe exactamente hacia dónde dirigirse.",
+                log: "> DNS Response: 154.58.18.91 found.\n> Almacenando en cache local...",
+                activeNode: "node-dns",
+                animation: "dns-to-client"
+            },
+            {
+                title: "4. Estableciendo TCP",
+                desc: "Se inicia el protocolo TCP (Control de Transmisión). Se divide la petición en paquetes más pequeños para que viajen mejor.",
+                log: "> Iniciando Three-way Handshake...\n> [SYN] enviando secuencia inicial...",
+                activeNode: "node-client"
+            },
+            {
+                title: "5. Viaje por el Router",
+                desc: "Los paquetes salen de tu casa. El Router decide el camino más rápido a través de la red global.",
+                log: "> Paquete saltando al nodo intermedio (Gateway).\n> Protocolo IP: Encaminando paquetes...",
+                activeNode: "node-router",
+                animation: "client-to-router"
+            },
+            {
+                title: "6. Llegada al Servidor",
+                desc: "Los paquetes llegan al Servidor Web (Hosting). El servidor empieza a leer lo que has pedido.",
+                log: "> Conexión establecida.\n> Servidor procesando solicitud HTTP GET...",
+                activeNode: "node-server",
+                animation: "router-to-server"
+            },
+            {
+                title: "7. Respuesta del Servidor",
+                desc: "El servidor envía de vuelta el archivo HTML, las imágenes y el estilo de la página.",
+                log: "> HTTP/1.1 200 OK\n> Content-Type: text/html\n> Enviando datos...",
+                activeNode: "node-server",
+                animation: "server-to-client"
+            },
+            {
+                title: "8. Renderizado Final",
+                desc: "Tu navegador recibe todos los paquetes, los ordena (TCP) y monta la página web completa. ¡Éxito!",
+                log: "> Paquetes recibidos y ordenados.\n> Document Object Model (DOM) cargado.\n> Renderizado completado. 🎉",
+                activeNode: "node-client"
+            }
+        ];
+
+        let currentStep = 0;
+        const btnNext = document.getElementById('btn-next');
+        const btnReset = document.getElementById('btn-reset');
+        const consoleLog = document.getElementById('console-log');
+        const stepTitle = document.getElementById('step-title');
+        const stepDesc = document.getElementById('step-desc');
+        const packet = document.getElementById('data-packet');
+
+        function addLog(text) {
+            const p = document.createElement('p');
+            p.className = "mb-1";
+            p.innerHTML = text.replace(/\n/g, '<br>');
+            consoleLog.appendChild(p);
+            consoleLog.scrollTop = consoleLog.scrollHeight;
+        }
+
+        function updateNodes(activeId) {
+            document.querySelectorAll('.node').forEach(node => {
+                node.classList.remove('active', 'border-indigo-500');
+                node.classList.add('border-slate-100');
+            });
+            const active = document.getElementById(activeId);
+            active.classList.add('active', 'border-indigo-500');
+            active.classList.remove('border-slate-100');
+        }
+
+        function animatePacket(type) {
+            packet.style.display = 'block';
+            packet.classList.remove('moving');
+            void packet.offsetWidth; // Trigger reflow
+
+            const rectClient = document.getElementById('node-client').getBoundingClientRect();
+            const rectDns = document.getElementById('node-dns').getBoundingClientRect();
+            const rectRouter = document.getElementById('node-router').getBoundingClientRect();
+            const rectServer = document.getElementById('node-server').getBoundingClientRect();
+            const container = document.querySelector('.lg\\:col-span-2').getBoundingClientRect();
+
+            let fromX, fromY, toX, toY;
+
+            const getPos = (rect) => ({
+                x: rect.left - container.left + rect.width / 2,
+                y: rect.top - container.top + rect.height / 2
+            });
+
+            switch(type) {
+                case 'client-to-dns':
+                    const pC = getPos(rectClient); const pD = getPos(rectDns);
+                    fromX = pC.x; fromY = pC.y; toX = 0; toY = pD.y - pC.y;
+                    break;
+                case 'dns-to-client':
+                    const pD2 = getPos(rectDns); const pC2 = getPos(rectClient);
+                    fromX = pD2.x; fromY = pD2.y; toX = 0; toY = pC2.y - pD2.y;
+                    break;
+                case 'client-to-router':
+                    const pC3 = getPos(rectClient); const pR = getPos(rectRouter);
+                    fromX = pC3.x; fromY = pC3.y; toX = pR.x - pC3.x; toY = 0;
+                    break;
+                case 'router-to-server':
+                    const pR2 = getPos(rectRouter); const pS = getPos(rectServer);
+                    fromX = pR2.x; fromY = pR2.y; toX = pS.x - pR2.x; toY = 0;
+                    break;
+                case 'server-to-client':
+                    const pS2 = getPos(rectServer); const pC4 = getPos(rectClient);
+                    fromX = pS2.x; fromY = pS2.y; toX = pC4.x - pS2.x; toY = 0;
+                    break;
+            }
+
+            packet.style.left = `${fromX}px`;
+            packet.style.top = `${fromY}px`;
+            packet.style.setProperty('--tw-translate-x', `${toX}px`);
+            packet.style.setProperty('--tw-translate-y', `${toY}px`);
+            packet.classList.add('moving');
+        }
+
+        btnNext.addEventListener('click', () => {
+            if (currentStep >= steps.length - 1) return;
+
+            currentStep++;
+            const step = steps[currentStep];
+
+            // UI Updates
+            stepTitle.textContent = step.title;
+            stepDesc.innerHTML = step.desc;
+            updateNodes(step.activeNode);
+            addLog(step.log);
+
+            if (step.animation) {
+                animatePacket(step.animation);
+            } else {
+                packet.style.display = 'none';
+            }
+
+            if (currentStep === steps.length - 1) {
+                btnNext.innerHTML = "¡Web Cargada! 🏁";
+                btnNext.classList.replace('bg-indigo-600', 'bg-green-600');
+            }
+        });
+
+        btnReset.addEventListener('click', () => {
+            currentStep = 0;
+            consoleLog.innerHTML = '<p class="text-slate-500 italic mb-2">// Esperando inicio de sesión...</p>';
+            stepTitle.textContent = steps[0].title;
+            stepDesc.innerHTML = steps[0].desc;
+            updateNodes(steps[0].activeNode);
+            packet.style.display = 'none';
+            btnNext.innerHTML = 'Siguiente Paso 🚀';
+            btnNext.classList.replace('bg-green-600', 'bg-indigo-600');
+            addLog(steps[0].log);
+        });
+
+        // Init
+        addLog(steps[0].log);
+    </script>
+</body>
+</html>
