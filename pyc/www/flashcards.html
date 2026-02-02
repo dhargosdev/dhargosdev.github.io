@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flashcards: La WWW y su funcionamiento</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .perspective-1000 {
+            perspective: 1000px;
+        }
+        .flip-card-inner {
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            cursor: pointer;
+        }
+        .flip-card-flipped {
+            transform: rotateY(180deg);
+        }
+        .flip-card-front, .flip-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+        .flip-card-back {
+            transform: rotateY(180deg);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-4">
+
+    <!-- Header -->
+    <div class="text-center mb-8">
+        <h1 class="text-3xl md:text-4xl font-extrabold text-indigo-600 mb-2">🚀 Repaso: La WWW</h1>
+        <p class="text-gray-600">Haz clic en la tarjeta para ver la respuesta</p>
+    </div>
+
+    <!-- Contenedor Principal -->
+    <div class="w-full max-w-xl">
+        <!-- Barra de Progreso -->
+        <div class="flex items-center justify-between mb-4 px-2">
+            <span id="progress-text" class="text-sm font-bold text-indigo-500 uppercase tracking-widest">Tarjeta 1 de 25</span>
+            <div class="w-2/3 bg-gray-200 rounded-full h-2.5 ml-4">
+                <div id="progress-bar" class="bg-indigo-500 h-2.5 rounded-full transition-all duration-300" style="width: 4%"></div>
+            </div>
+        </div>
+
+        <!-- Tarjeta -->
+        <div id="card-container" class="perspective-1000 w-full h-80 md:h-96 mb-8">
+            <div id="card-inner" class="flip-card-inner w-full h-full relative">
+                <!-- Anverso (Pregunta) -->
+                <div class="flip-card-front bg-white border-4 border-indigo-400">
+                    <div class="text-center">
+                        <span class="block text-indigo-400 text-5xl mb-4 font-bold">?</span>
+                        <h2 id="card-question" class="text-xl md:text-2xl font-bold text-gray-800">Cargando pregunta...</h2>
+                    </div>
+                </div>
+                <!-- Reverso (Respuesta) -->
+                <div class="flip-card-back bg-indigo-600 border-4 border-white text-white">
+                    <div class="text-center">
+                        <span class="block text-indigo-200 text-4xl mb-4">💡</span>
+                        <p id="card-answer" class="text-lg md:text-xl leading-relaxed">Cargando respuesta...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Controles -->
+        <div class="flex justify-between items-center space-x-4">
+            <button id="prev-btn" class="flex-1 bg-white hover:bg-gray-100 text-indigo-600 border-2 border-indigo-600 py-3 rounded-xl font-bold transition-all disabled:opacity-30 disabled:cursor-not-allowed">
+                ⬅️ Anterior
+            </button>
+            <button id="next-btn" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl font-bold shadow-lg transition-all">
+                Siguiente ➡️
+            </button>
+        </div>
+
+        <!-- Feedback Visual -->
+        <div class="mt-8 text-center">
+            <p id="hint" class="text-sm text-gray-400 italic">Tip: Usa las flechas de tu teclado para navegar rápidamente.</p>
+        </div>
+    </div>
+
+    <script>
+        const cards = [
+            { q: "¿Qué es Internet?", a: "Es una red mundial de dispositivos, descentralizada, que permite la conexión mediante una serie de protocolos de comunicación." },
+            { q: "Navegación en páginas web (WWW)", a: "Sistema de documentos o archivos enlazados que se pueden visualizar por medio de un navegador." },
+            { q: "¿Qué permite el protocolo FTP?", a: "La transferencia de archivos muy grandes de forma rápida entre equipos." },
+            { q: "¿Qué es el IoT (Internet de las cosas)?", a: "Objetos cotidianos (neveras, coches) conectados a Internet y entre sí en tiempo real." },
+            { q: "Big Data", a: "Gestión y análisis de enormes volúmenes de datos para procesar información masiva." },
+            { q: "¿Qué es el HTML?", a: "Hypertext Markup Language. Lenguaje de marcas de hipertexto utilizado para escribir páginas web." },
+            { q: "¿Qué es un hipervínculo?", a: "Enlace que permite abrir otras páginas o documentos al hacer clic sobre él." },
+            { q: "¿Qué función tiene el Navegador?", a: "Programa capaz de leer e interpretar el lenguaje HTML para visualizar páginas web (Ej: Chrome, Firefox)." },
+            { q: "¿Dónde se almacenan las páginas web?", a: "En los servidores, que son equipos potentes conectados siempre a Internet." },
+            { q: "Diferencia entre HTTP y HTTPS", a: "HTTP es el protocolo de transferencia; HTTPS añade una capa de cifrado SSL para una conexión segura." },
+            { q: "¿Qué es una URL?", a: "Uniform Resource Locator. Es la dirección concreta que escribimos para acceder a una página web." },
+            { q: "Partes de la URL: '.es' o '.com'", a: "Es el dominio o extensión, que indica el propósito o la ubicación geográfica (España en el caso de .es)." },
+            { q: "¿Qué es la Dirección IP?", a: "Código numérico que identifica a cada ordenador o grupo de ordenadores de forma única en la red." },
+            { q: "¿Qué hace el DNS (Domain Name System)?", a: "Asocia la dirección IP (números) con el nombre de dominio (texto) para que sea fácil de recordar." },
+            { q: "Protocolo TCP", a: "Transmission Control Protocol. Se encarga del control de transmisión dividiendo la información en paquetes." },
+            { q: "¿Qué es un Router?", a: "Equipo que pone en contacto las redes, analizando y distribuyendo paquetes de datos de la forma más eficiente." },
+            { q: "¿Qué es el SEO?", a: "Search Engine Optimization. Técnicas para que una web aparezca en los primeros lugares de los buscadores." },
+            { q: "Diferencia entre Sitio Web y Página Web", a: "El sitio es el conjunto de documentos (todo el portal), la página es cada documento individual." },
+            { q: "Home Page", a: "Es la página inicial o principal a la que se accede cuando ponemos la dirección de un sitio web." },
+            { q: "¿Qué significa que la organización es hipertextual?", a: "Que al hacer clic en una palabra se amplía la información accediendo a otra página relacionada." },
+            { q: "Editores WYSIWYG", a: "What You See Is What You Get. Permiten diseñar webs de forma visual sin escribir código directamente (Ej: Adobe Dreamweaver)." },
+            { q: "Páginas Estáticas", a: "Aquellas que no cambian, muestran siempre el mismo contenido cada vez que se cargan." },
+            { q: "Páginas Dinámicas", a: "El servidor las interpreta en cada caso, cambiando el contenido según la petición del usuario (Ej: Amazon, buscadores)." },
+            { q: "¿Qué lenguajes se usan en páginas dinámicas?", a: "ASP.NET, Java, PHP o JavaScript." },
+            { q: "¿Qué es el Hosting (Alojamiento)?", a: "Espacio en un servidor de Internet donde se guarda el sitio web para que sea accesible a todo el mundo." }
+        ];
+
+        let currentIndex = 0;
+        const cardInner = document.getElementById('card-inner');
+        const questionEl = document.getElementById('card-question');
+        const answerEl = document.getElementById('card-answer');
+        const progressText = document.getElementById('progress-text');
+        const progressBar = document.getElementById('progress-bar');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+
+        function updateCard() {
+            // Reset flip state
+            cardInner.classList.remove('flip-card-flipped');
+            
+            // Wait for flip back animation before changing text
+            setTimeout(() => {
+                questionEl.textContent = cards[currentIndex].q;
+                answerEl.textContent = cards[currentIndex].a;
+                
+                // Update progress
+                progressText.textContent = `Tarjeta ${currentIndex + 1} de ${cards.length}`;
+                progressBar.style.width = `${((currentIndex + 1) / cards.length) * 100}%`;
+                
+                // Buttons state
+                prevBtn.disabled = currentIndex === 0;
+                nextBtn.textContent = currentIndex === cards.length - 1 ? "¡Terminar! 🎉" : "Siguiente ➡️";
+            }, 150);
+        }
+
+        // Event Listeners
+        cardInner.addEventListener('click', () => {
+            cardInner.classList.toggle('flip-card-flipped');
+        });
+
+        nextBtn.addEventListener('click', () => {
+            if (currentIndex < cards.length - 1) {
+                currentIndex++;
+                updateCard();
+            } else {
+                // Celebration
+                alert("¡Excelente trabajo! Has repasado todos los conceptos del tema. 🏆");
+                currentIndex = 0;
+                updateCard();
+            }
+        });
+
+        prevBtn.addEventListener('click', () => {
+            if (currentIndex > 0) {
+                currentIndex--;
+                updateCard();
+            }
+        });
+
+        // Keyboard Navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === "ArrowRight") nextBtn.click();
+            if (e.key === "ArrowLeft") prevBtn.click();
+            if (e.key === " " || e.key === "Enter") cardInner.click();
+        });
+
+        // Init
+        updateCard();
+    </script>
+</body>
+</html>
