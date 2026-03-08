@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flashcards: Seguridad en Internet - 4º ESO</title>
+    <!-- Tailwind CSS para los estilos -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            /* Fondo con degradado animado */
+            background: linear-gradient(-45deg, #4f46e5, #ec4899, #8b5cf6, #3b82f6);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Estilos para el efecto 3D de las tarjetas */
+        .perspective-1000 {
+            perspective: 1000px;
+        }
+
+        .transform-style-3d {
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+        }
+
+        .backface-hidden {
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+
+        .rotate-y-180 {
+            transform: rotateY(180deg);
+        }
+
+        /* Evitar selección de texto al hacer clics rápidos */
+        .no-select {
+            user-select: none;
+            -webkit-user-select: none;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-4 text-slate-800 no-select">
+
+    <header class="text-center mb-6 w-full max-w-2xl">
+        <h1 class="text-4xl md:text-5xl font-extrabold text-white mb-2 drop-shadow-lg">
+            🛡️ Seguridad en Internet
+        </h1>
+        <p class="text-white text-lg font-bold opacity-90 drop-shadow-md">Repaso interactivo para 4º de ESO</p>
+        
+        <!-- Barra de progreso -->
+        <div class="mt-6 flex items-center justify-between text-white font-bold bg-white/20 px-4 py-2 rounded-full backdrop-blur-sm">
+            <span id="progress-text">Tarjeta 1 de 50</span>
+            <div class="w-1/2 bg-white/30 rounded-full h-2.5 ml-4">
+                <div id="progress-bar" class="bg-yellow-400 h-2.5 rounded-full transition-all duration-300" style="width: 2%"></div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Contenedor de la Tarjeta -->
+    <main class="w-full max-w-2xl perspective-1000 cursor-pointer mb-8" onclick="flipCard()">
+        <div id="card-inner" class="relative w-full h-80 sm:h-96 transform-style-3d shadow-2xl rounded-3xl">
+            
+            <!-- Cara Frontal (Pregunta) -->
+            <div class="absolute w-full h-full bg-white rounded-3xl backface-hidden flex flex-col items-center justify-center p-8 text-center border-4 border-indigo-100 shadow-[inset_0_0_20px_rgba(0,0,0,0.05)]">
+                <span class="absolute top-4 left-6 text-indigo-400 font-bold uppercase tracking-wider text-sm">🤔 Pregunta</span>
+                <div id="question-text" class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-indigo-900 mt-4">
+                    <!-- La pregunta se inserta aquí -->
+                </div>
+                <div class="absolute bottom-4 text-slate-400 text-sm flex items-center gap-2 animate-pulse">
+                    <span>Toca la tarjeta para ver la respuesta</span>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"></path></svg>
+                </div>
+            </div>
+
+            <!-- Cara Trasera (Respuesta) -->
+            <div class="absolute w-full h-full bg-gradient-to-br from-yellow-300 to-amber-400 rounded-3xl backface-hidden rotate-y-180 flex flex-col items-center justify-center p-8 text-center border-4 border-yellow-500 shadow-lg">
+                <span class="absolute top-4 left-6 text-yellow-800 font-bold uppercase tracking-wider text-sm">💡 Respuesta</span>
+                <div id="answer-text" class="text-xl sm:text-2xl md:text-3xl font-bold text-slate-900 mt-4">
+                    <!-- La respuesta se inserta aquí -->
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Controles -->
+    <nav class="flex flex-wrap justify-center gap-3 md:gap-6 w-full max-w-2xl">
+        <button onclick="prevCard()" class="bg-white/90 hover:bg-white text-indigo-600 font-bold py-3 px-6 rounded-full shadow-lg transition-transform hover:scale-105 active:scale-95 flex items-center gap-2">
+            <span>◀️</span> Anterior
+        </button>
+        
+        <button onclick="shuffleCards()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-6 rounded-full shadow-lg transition-transform hover:scale-105 active:scale-95 flex items-center gap-2">
+            <span>🔀</span> Mezclar
+        </button>
+
+        <button onclick="nextCard()" class="bg-white/90 hover:bg-white text-pink-600 font-bold py-3 px-6 rounded-full shadow-lg transition-transform hover:scale-105 active:scale-95 flex items-center gap-2">
+            Siguiente <span>▶️</span>
+        </button>
+    </nav>
+    
+    <footer class="mt-8 text-white/70 text-sm text-center">
+        <p>Departamento de Tecnología e Informática - 4º ESO</p>
+        <p class="mt-1 text-xs">Usa las flechas ⬅️ ➡️ y la barra espaciadora ␣</p>
+    </footer>
+
+    <script>
+        // Array con las 50 flashcards extraídas de los apuntes
+        const originalFlashcards = [
+            { q: "¿Qué disciplina protege los sistemas informáticos y su información? 🛡️", a: "La Seguridad Informática." },
+            { q: "¿Cuál suele ser el \"eslabón más débil\" en la seguridad informática? 🔗", a: "Las personas (los usuarios)." },
+            { q: "¿Qué principio garantiza que solo las personas autorizadas accedan a la información? 🤫", a: "La Confidencialidad." },
+            { q: "¿Qué principio asegura que la información no sea modificada sin permiso? 🧱", a: "La Integridad." },
+            { q: "¿Qué principio verifica la identidad de un usuario para evitar suplantaciones? 🆔", a: "La Autenticación." },
+            { q: "¿Qué principio mantiene el sistema funcionando eficientemente tras un fallo? ✅", a: "La Disponibilidad." },
+            { q: "El antivirus y las contraseñas son ejemplos de seguridad... 🛑", a: "Seguridad Activa (intentan prevenir el daño)." },
+            { q: "Las copias de seguridad son un ejemplo de seguridad... ⏪", a: "Seguridad Pasiva (actúan tras el incidente)." },
+            { q: "¿Qué es un Hacker? 💻", a: "Experto que verifica la seguridad de los sistemas; no suele buscar causar daño." },
+            { q: "¿Qué es un Pirata Informático o Cracker? 🏴‍☠️", a: "Persona que accede ilegalmente a sistemas para causar daños o robar datos." },
+            { q: "¿Qué término genérico agrupa a los programas que ejecutan acciones no deseadas? 👾", a: "Software malicioso o Malware." },
+            { q: "Malware que altera el funcionamiento y necesita que el usuario lo ejecute para propagarse. 🦠", a: "Virus." },
+            { q: "Malware que crea copias de sí mismo para colapsar una red sin ayuda del usuario. 🪱", a: "Gusano (Worm)." },
+            { q: "Malware oculto en un archivo inofensivo que realiza acciones ocultas. 🐴", a: "Troyano." },
+            { q: "Ataque que secuestra los datos cifrándolos y pide un rescate económico. 💰", a: "Ransomware." },
+            { q: "Programa que recopila información de nuestra navegación sin permiso. 🕵️‍♂️", a: "Spyware (Programa espía)." },
+            { q: "Software que muestra publicidad no deseada, a menudo en ventanas emergentes. 📢", a: "Adware." },
+            { q: "Falso antivirus que simula detectar infecciones para que pagues por la solución. 🎭", a: "Rogue." },
+            { q: "Mensaje de información falsa (bulo) que se difunde para engañar o asustar. 🤥", a: "Hoax." },
+            { q: "Envío masivo de correos no solicitados, normalmente con fines publicitarios. 🗑️", a: "Spam." },
+            { q: "¿Qué programa previene, detecta y elimina el malware? 🩺", a: "El Antivirus." },
+            { q: "Sistema de defensa que controla y filtra las conexiones de red entrantes y salientes. 🧱🔥", a: "Cortafuegos (Firewall)." },
+            { q: "¿Qué medida nos permite recuperar los datos si el disco duro se rompe? 💾", a: "Copia de seguridad (Backup)." },
+            { q: "¿Cuál es el número mínimo de caracteres recomendado para una contraseña segura? 🔑", a: "Ocho (8) caracteres." },
+            { q: "¿Qué técnica matemática oculta datos para que solo autorizados los entiendan? 🔣", a: "Criptografía (Encriptación)." },
+            { q: "¿Qué protocolo seguro debemos buscar en la URL al hacer compras online? 🔒", a: "HTTPS." },
+            { q: "¿Qué icono en el navegador indica que la web tiene un certificado digital válido? 🔐", a: "Un candado cerrado." },
+            { q: "Delito donde alguien se hace pasar por otra persona para fines ilegales. 👤🎭", a: "Suplantación de identidad." },
+            { q: "Técnica basada en engaños para obtener información confidencial de las víctimas. 🎣", a: "Ingeniería social." },
+            { q: "Fraude por email o SMS haciéndose pasar por tu banco para robar claves. 📧🎣", a: "Phishing." },
+            { q: "Fraude telefónico (voz) donde suplantan identidad para obtener datos financieros. 📞", a: "Vishing." },
+            { q: "Técnica que usa pendrives (USB) infectados abandonados como cebo. 💽", a: "Baiting." },
+            { q: "Redes de intercambio de archivos con alto riesgo de descargar malware y violar derechos. 🔄", a: "Redes P2P." },
+            { q: "¿Qué se genera si NO mantenemos actualizado el sistema operativo? ⚠️", a: "Vulnerabilidades que los atacantes aprovechan." },
+            { q: "¿Es seguro usar la misma contraseña para todas las aplicaciones? 🚫", a: "No, si descubren una, accederán a todas." },
+            { q: "¿Qué debes hacer si te avisan de que has ganado un sorteo en el que no participaste? 🎁", a: "Ignorarlo, suele ser una estafa para robar datos." },
+            { q: "Dispositivo que da energía al ordenador durante un corte de luz. 🔋", a: "SAI (Sistema de Alimentación Ininterrumpida)." },
+            { q: "Un incendio o una inundación se consideran amenazas de tipo... 🔥🌊", a: "Amenazas Físicas (Catástrofes naturales)." },
+            { q: "¿Qué tipo de permisos de usuario es más seguro usar habitualmente? 📉", a: "Permisos de usuario estándar (NO administrador)." },
+            { q: "Archivos que guardan info sobre tu navegación y pueden afectar a la privacidad. 🍪", a: "Las Cookies." },
+            { q: "Antes de abrir un archivo descargado, debemos fijarnos en su extensión y... 📎", a: "Analizarlo con el antivirus." },
+            { q: "Noticia falsa diseñada para desinformar o manipular. 📰❌", a: "Fake news." },
+            { q: "Borrar datos por error o derramar líquido sobre el PC son amenazas por... 🤦‍♂️", a: "Accidentes (Amenazas físicas)." },
+            { q: "Equipo lento, ventanas emergentes repentinas o navegador cambiado son indicios de... 🤒", a: "Una infección por malware." },
+            { q: "Técnica que investiga equipos informáticos tras un ataque para descubrir causas y pruebas. 🕵️‍♀️💻", a: "Análisis forense digital." },
+            { q: "En redes WiFi públicas, tu información no encriptada puede ser... 📡👂", a: "Interceptada por terceros." },
+            { q: "Un email con faltas de ortografía, urgencia y un enlace sospechoso suele ser... 🚨", a: "Un ataque de Phishing o fraude." },
+            { q: "Huellas dactilares o reconocimiento facial son ejemplos de... 👁️", a: "Autenticación biométrica." },
+            { q: "Al crear una contraseña segura, además de mayúsculas y minúsculas, debemos usar... 🔡", a: "Números y símbolos." },
+            { q: "¿Cuál es la herramienta más imprescindible frente a los fraudes en Internet? 🧠", a: "El sentido común." }
+        ];
+
+        let flashcards = [...originalFlashcards];
+        let currentIndex = 0;
+        let isFlipped = false;
+
+        const cardInner = document.getElementById('card-inner');
+        const questionText = document.getElementById('question-text');
+        const answerText = document.getElementById('answer-text');
+        const progressText = document.getElementById('progress-text');
+        const progressBar = document.getElementById('progress-bar');
+
+        // Inicializar la primera tarjeta
+        function init() {
+            updateCard();
+        }
+
+        // Voltear la tarjeta
+        function flipCard() {
+            isFlipped = !isFlipped;
+            if (isFlipped) {
+                cardInner.classList.add('rotate-y-180');
+            } else {
+                cardInner.classList.remove('rotate-y-180');
+            }
+        }
+
+        // Actualizar el contenido de la tarjeta en pantalla
+        function updateCard() {
+            // Si está volteada, la volvemos a poner de frente antes de cambiar el texto
+            if (isFlipped) {
+                isFlipped = false;
+                cardInner.classList.remove('rotate-y-180');
+                // Pequeño retraso para que no se vea el cambio de texto durante la animación
+                setTimeout(() => {
+                    renderText();
+                }, 300);
+            } else {
+                renderText();
+            }
+        }
+
+        function renderText() {
+            questionText.innerText = flashcards[currentIndex].q;
+            answerText.innerText = flashcards[currentIndex].a;
+            
+            // Actualizar progreso
+            const currentNum = currentIndex + 1;
+            const total = flashcards.length;
+            progressText.innerText = `Tarjeta ${currentNum} de ${total}`;
+            progressBar.style.width = `${(currentNum / total) * 100}%`;
+        }
+
+        // Siguiente tarjeta
+        function nextCard() {
+            currentIndex++;
+            if (currentIndex >= flashcards.length) {
+                currentIndex = 0; // Volver al principio
+            }
+            updateCard();
+        }
+
+        // Tarjeta anterior
+        function prevCard() {
+            currentIndex--;
+            if (currentIndex < 0) {
+                currentIndex = flashcards.length - 1; // Ir al final
+            }
+            updateCard();
+        }
+
+        // Función para barajar (mezclar) el array de tarjetas
+        function shuffleCards() {
+            // Algoritmo de Fisher-Yates
+            for (let i = flashcards.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [flashcards[i], flashcards[j]] = [flashcards[j], flashcards[i]];
+            }
+            currentIndex = 0; // Reiniciar al mezclar
+            updateCard();
+            
+            // Efecto visual de mezcla (animación rápida)
+            cardInner.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                cardInner.style.transform = isFlipped ? 'rotateY(180deg) scale(1)' : 'rotateY(0deg) scale(1)';
+            }, 150);
+        }
+
+        // Controles de teclado
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'ArrowRight') {
+                nextCard();
+            } else if (event.key === 'ArrowLeft') {
+                prevCard();
+            } else if (event.key === ' ' || event.key === 'Spacebar') {
+                event.preventDefault(); // Evitar scroll de la página
+                flipCard();
+            }
+        });
+
+        // Iniciar
+        init();
+    </script>
+</body>
+</html>
