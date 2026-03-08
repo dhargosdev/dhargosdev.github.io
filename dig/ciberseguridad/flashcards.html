@@ -109,7 +109,7 @@
     </nav>
     
     <footer class="mt-8 text-white/70 text-sm text-center">
-        <p>Departamento de Tecnología e Informática - 4º ESO</p>
+        <p>Digitalización - 4º ESO</p>
         <p class="mt-1 text-xs">Usa las flechas ⬅️ ➡️ y la barra espaciadora ␣</p>
     </footer>
 
@@ -245,12 +245,14 @@
                 [flashcards[i], flashcards[j]] = [flashcards[j], flashcards[i]];
             }
             currentIndex = 0; // Reiniciar al mezclar
-            updateCard();
             
             // Efecto visual de mezcla (animación rápida)
             cardInner.style.transform = 'scale(0.95)';
+            
             setTimeout(() => {
-                cardInner.style.transform = isFlipped ? 'rotateY(180deg) scale(1)' : 'rotateY(0deg) scale(1)';
+                // ¡IMPORTANTE! Limpiamos el estilo en línea para no romper el giro (rotateY)
+                cardInner.style.transform = ''; 
+                updateCard();
             }, 150);
         }
 
