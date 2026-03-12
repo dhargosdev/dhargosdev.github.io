@@ -1,0 +1,480 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flashcards: Seguridad en Internet - 4º ESO</title>
+    <!-- Google Fonts (con fallbacks seguros en el CSS por si el instituto también lo bloquea) -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* CSS PURO - Sin dependencias externas */
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --secondary: #ec4899;
+            --text-dark: #1e293b;
+            --text-light: #f8fafc;
+            --card-front-bg: #ffffff;
+            --card-back-bg1: #fde047;
+            --card-back-bg2: #fbbf24;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Nunito', system-ui, -apple-system, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            color: var(--text-dark);
+            /* Fondo con degradado animado */
+            background: linear-gradient(-45deg, #4f46e5, #ec4899, #8b5cf6, #3b82f6);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            /* Evitar selección de texto */
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .container {
+            width: 100%;
+            max-width: 42rem; /* 672px */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* --- HEADER --- */
+        header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            width: 100%;
+        }
+
+        h1 {
+            font-size: 2.25rem;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .subtitle {
+            color: white;
+            font-size: 1.125rem;
+            font-weight: 700;
+            opacity: 0.9;
+        }
+
+        .progress-container {
+            margin-top: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            color: white;
+            font-weight: bold;
+            backdrop-filter: blur(4px);
+        }
+
+        .progress-track {
+            flex-grow: 1;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 9999px;
+            height: 0.625rem; /* 10px */
+            margin-left: 1rem;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            background: #facc15; /* yellow-400 */
+            height: 100%;
+            border-radius: 9999px;
+            transition: width 0.3s ease;
+            width: 2%;
+        }
+
+        /* --- TARJETA 3D --- */
+        .card-scene {
+            perspective: 1000px;
+            width: 100%;
+            margin-bottom: 2rem;
+            cursor: pointer;
+        }
+
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 20rem;
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+            border-radius: 1.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        .card-inner.is-flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            border-radius: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            text-align: center;
+            border: 4px solid;
+        }
+
+        .card-front {
+            background: var(--card-front-bg);
+            border-color: #e0e7ff; /* indigo-100 */
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.05);
+        }
+
+        .card-back {
+            background: linear-gradient(135deg, var(--card-back-bg1), var(--card-back-bg2));
+            border-color: #eab308; /* yellow-500 */
+            transform: rotateY(180deg);
+        }
+
+        .badge {
+            position: absolute;
+            top: 1rem;
+            left: 1.5rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-size: 0.875rem;
+        }
+
+        .badge-front { color: #818cf8; /* indigo-400 */ }
+        .badge-back { color: #854d0e; /* yellow-800 */ }
+
+        .card-text {
+            font-weight: 800;
+            margin-top: 1rem;
+        }
+
+        .text-front {
+            color: #312e81; /* indigo-900 */
+            font-size: 1.5rem;
+        }
+
+        .text-back {
+            color: #0f172a; /* slate-900 */
+            font-size: 1.25rem;
+        }
+
+        .hint {
+            position: absolute;
+            bottom: 1rem;
+            color: #94a3b8; /* slate-400 */
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        .hint svg {
+            width: 1rem;
+            height: 1rem;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: .5; }
+        }
+
+        /* --- CONTROLES --- */
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+            width: 100%;
+        }
+
+        .btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: bold;
+            padding: 0.75rem 1.5rem;
+            border-radius: 9999px;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            transition: transform 0.15s, background-color 0.2s;
+            font-size: 1rem;
+            font-family: inherit;
+        }
+
+        .btn:hover { transform: scale(1.05); }
+        .btn:active { transform: scale(0.95); }
+
+        .btn-nav {
+            background: rgba(255, 255, 255, 0.9);
+            color: var(--primary);
+        }
+        .btn-nav:hover { background: #ffffff; }
+        
+        .btn-nav.next { color: var(--secondary); }
+
+        .btn-shuffle {
+            background: var(--primary);
+            color: white;
+        }
+        .btn-shuffle:hover { background: var(--primary-hover); }
+
+        /* --- FOOTER --- */
+        footer {
+            margin-top: 2rem;
+            color: rgba(255, 255, 255, 0.7);
+            text-align: center;
+            font-size: 0.875rem;
+        }
+        footer .small-text {
+            margin-top: 0.25rem;
+            font-size: 0.75rem;
+        }
+
+        /* Responsive adjustments */
+        @media (min-width: 640px) {
+            h1 { font-size: 3rem; }
+            .card-inner { height: 24rem; }
+            .text-front { font-size: 2.25rem; }
+            .text-back { font-size: 1.875rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>🪫Electrónica Básica 💡</h1>
+            <p class="subtitle">Repaso interactivo para 3º de ESO</p>
+            
+            <div class="progress-container">
+                <span id="progress-text">Tarjeta 1 de 50</span>
+                <div class="progress-track">
+                    <div id="progress-bar" class="progress-bar"></div>
+                </div>
+            </div>
+        </header>
+
+        <main class="card-scene" onclick="flipCard()">
+            <div id="card-inner" class="card-inner">
+                
+                <!-- Cara Frontal (Pregunta) -->
+                <div class="card-face card-front">
+                    <span class="badge badge-front">🤔 Pregunta</span>
+                    <div id="question-text" class="card-text text-front">
+                        <!-- La pregunta se inserta aquí -->
+                    </div>
+                    <div class="hint">
+                        <span>Toca la tarjeta para ver la respuesta</span>
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"></path></svg>
+                    </div>
+                </div>
+
+                <!-- Cara Trasera (Respuesta) -->
+                <div class="card-face card-back">
+                    <span class="badge badge-back">💡 Respuesta</span>
+                    <div id="answer-text" class="card-text text-back">
+                        <!-- La respuesta se inserta aquí -->
+                    </div>
+                </div>
+
+            </div>
+        </main>
+
+        <nav class="controls">
+            <button onclick="prevCard()" class="btn btn-nav">
+                <span>◀️</span> Anterior
+            </button>
+            
+            <button onclick="shuffleCards()" class="btn btn-shuffle">
+                <span>🔀</span> Mezclar
+            </button>
+
+            <button onclick="nextCard()" class="btn btn-nav next">
+                Siguiente <span>▶️</span>
+            </button>
+        </nav>
+        
+        <footer>
+            <p>Departamento de Tecnología e Informática</p>
+            <p class="small-text">Usa las flechas ⬅️ ➡️ y la barra espaciadora ␣</p>
+        </footer>
+    </div>
+
+    <script>
+const originalFlashcards = [
+    { q: "¿Cuáles son los cuatro grupos de elementos fundamentales de un circuito?", a: "Generadores, receptores, conductores y elementos de control y protección." },
+    { q: "¿Cuál es la función de los generadores?", a: "Proporcionar la energía eléctrica necesaria para que los electrones se desplacen." },
+    { q: "¿Qué función tienen los receptores?", a: "Recibir la energía eléctrica de los generadores y transformarla en otro tipo de energía." },
+    { q: "Nombra tres ejemplos de receptores comunes.", a: "Motor, bombilla y zumbador." },
+    { q: "¿De qué se encargan los elementos de control y protección?", a: "Gobernar el circuito, permitiendo o interrumpiendo el paso de la corriente." },
+    { q: "Nombra tres elementos de control y uno de protección.", a: "Control: pulsador, interruptor, conmutador. Protección: fusible." },
+    { q: "¿Cuál es la principal diferencia entre componentes activos y pasivos?", a: "Los activos pueden amplificar o modificar la corriente (comportamiento no lineal), mientras que los pasivos no (comportamiento lineal)." },
+    { q: "Ejemplos de componentes electrónicos activos.", a: "Diodo y transistor." },
+    { q: "Ejemplos de componentes electrónicos pasivos.", a: "Resistencia, condensador, LDR y termistor." },
+    { q: "¿Cuál es la misión de una resistencia fija?", a: "Limitar el paso de la corriente por un circuito." },
+    { q: "¿En qué unidad se mide la resistencia eléctrica?", a: "En ohmios (Ω)." },
+    { q: "¿Qué valor en ohmios tiene una resistencia marcada como 2k2?", a: "2.200 Ω." },
+    { q: "¿Qué indica la cuarta banda de color en una resistencia común?", a: "La tolerancia o margen de error del valor indicado." },
+    { q: "Para leer el código de colores, ¿cómo debemos colocar la resistencia?", a: "Con las tres bandas juntas a la izquierda y la banda de tolerancia (oro/plata) a la derecha." },
+    { q: "¿Qué es un potenciómetro?", a: "Una resistencia variable cuyo valor máximo está indicado en el propio componente." },
+    { q: "¿Qué significan las siglas LDR?", a: "Light-Dependent Resistor (resistencia dependiente de la luz)." },
+    { q: "¿Cómo varía la resistencia de un LDR con la luz?", a: "A más luz, menos resistencia; en la oscuridad, la resistencia es muy alta." },
+    { q: "¿Qué es un termistor?", a: "Una resistencia que varía en función de la temperatura." },
+    { q: "¿Cuál es la diferencia entre un termistor NTC y uno PTC?", a: "En el NTC la resistencia baja al subir la temperatura; en el PTC la resistencia sube al subir la temperatura." },
+    { q: "¿Qué es un relé?", a: "Un dispositivo electromagnético que funciona como un interruptor controlado por un electroimán." },
+    { q: "¿Qué dos circuitos independientes forman un relé?", a: "El circuito de activación (control) y el circuito de conmutación (potencia)." },
+    { q: "¿Qué sucede cuando la corriente atraviesa la bobina de un relé?", a: "Crea un campo magnético que atrae una pieza metálica y hace que los contactos conmuten." },
+    { q: "¿Cuál es la ventaja principal de usar un relé?", a: "Permite controlar circuitos de corrientes muy altas mediante una corriente muy pequeña." },
+    { q: "¿Qué propiedad fundamental tiene un diodo?", a: "Permite el paso de la corriente en un sentido (ánodo a cátodo) pero no en el inverso." },
+    { q: "¿Cómo se llaman los dos terminales de un diodo?", a: "Ánodo (+) y Cátodo (-)." },
+    { q: "¿Qué es un diodo LED?", a: "Un diodo que emite luz cuando es atravesado por la corriente en sentido directo." },
+    { q: "Físicamente, ¿cómo distinguimos el ánodo del cátodo en un LED?", a: "La patilla más larga es el ánodo y la más corta es el cátodo." },
+    { q: "¿Por qué siempre debemos poner una resistencia en serie con un LED?", a: "Para protegerlo, ya que una corriente elevada lo destruiría." },
+    { q: "¿Cuál es la función principal de un transistor?", a: "Se emplea para amplificar señales eléctricas o como interruptor." },
+    { q: "¿Cómo se llaman las tres patillas de un transistor?", a: "Emisor (E), Base (B) y Colector (C)." },
+    { q: "¿Cuándo decimos que un transistor está 'en corte'?", a: "Cuando no circula corriente por su base (IB = 0) y no deja pasar corriente entre colector y emisor." },
+    { q: "En estado de corte, ¿cómo se comporta el transistor?", a: "Como un interruptor abierto." },
+    { q: "¿Cómo funciona un transistor en modo amplificador?", a: "Una pequeña corriente en la base controla una corriente mucho mayor entre colector y emisor." },
+    { q: "¿Qué es la ganancia (β) de un transistor?", a: "Es una característica propia que indica cuánto se amplifica la corriente de la base en el colector." },
+    { q: "¿Qué fórmula relaciona la corriente de colector con la de base?", a: "IC = β · IB." },
+    { q: "¿Para qué suele usarse un transistor asociado a un LDR?", a: "Para que la pequeña variación de corriente del LDR sea suficiente para activar un receptor (como un LED)." },
+    { q: "¿Qué es un condensador?", a: "Un componente que permite almacenar y descargar energía eléctrica." },
+    { q: "¿En qué unidad se mide la capacidad de un condensador?", a: "En faradios (F), aunque se suelen usar microfaradios (µF), nanofaradios (nF) o picofaradios (pF)." },
+    { q: "¿Qué diferencia hay entre un condensador electrolítico y uno no polarizado?", a: "El electrolítico tiene polaridad (+/-) y más capacidad; el no polarizado puede conectarse en cualquier posición." },
+    { q: "En un condensador electrolítico, ¿cuál es la patilla positiva?", a: "La patilla más larga." },
+    { q: "¿Cómo se comporta un condensador una vez que está totalmente cargado?", a: "Como un interruptor abierto." },
+    { q: "¿Qué sucede si conectamos un condensador cargado a una bombilla?", a: "La bombilla luce mientras el condensador se descarga y se apaga al agotarse la carga." },
+    { q: "¿Cuál es el uso habitual de los condensadores en corriente continua?", a: "Se suelen usar para temporizar." },
+    { q: "¿Qué material compone habitualmente el núcleo de un relé?", a: "Material ferromagnético." },
+    { q: "Si polarizamos un diodo en sentido inverso, ¿cómo se comporta?", a: "Como un interruptor abierto, no deja pasar la corriente." },
+    { q: "Dibuja o describe el símbolo de una resistencia NTC.", a: "Un rectángulo con una línea diagonal que tiene una pequeña línea horizontal en la base y el texto '-t°' o 'NTC'." },
+    { q: "¿Qué ocurre con la resistencia de un LDR en total oscuridad?", a: "Aumenta mucho, impidiendo prácticamente el paso de la corriente." },
+    { q: "En el código de colores, ¿qué valor numérico representa el color naranja?", a: "El número 3." },
+    { q: "En el código de colores, ¿qué valor numérico representa el color rojo?", a: "El número 2." },
+    { q: "¿Qué elemento de control permite el paso de corriente solo mientras lo mantenemos pulsado?", a: "El pulsador." }
+];
+
+        let flashcards = [...originalFlashcards];
+        let currentIndex = 0;
+        let isFlipped = false;
+
+        const cardInner = document.getElementById('card-inner');
+        const questionText = document.getElementById('question-text');
+        const answerText = document.getElementById('answer-text');
+        const progressText = document.getElementById('progress-text');
+        const progressBar = document.getElementById('progress-bar');
+
+        function init() {
+            updateCard();
+        }
+
+        function flipCard() {
+            isFlipped = !isFlipped;
+            if (isFlipped) {
+                cardInner.classList.add('is-flipped');
+            } else {
+                cardInner.classList.remove('is-flipped');
+            }
+        }
+
+        function updateCard() {
+            if (isFlipped) {
+                isFlipped = false;
+                cardInner.classList.remove('is-flipped');
+                setTimeout(() => {
+                    renderText();
+                }, 300);
+            } else {
+                renderText();
+            }
+        }
+
+        function renderText() {
+            questionText.innerText = flashcards[currentIndex].q;
+            answerText.innerText = flashcards[currentIndex].a;
+            
+            const currentNum = currentIndex + 1;
+            const total = flashcards.length;
+            progressText.innerText = `Tarjeta ${currentNum} de ${total}`;
+            progressBar.style.width = `${(currentNum / total) * 100}%`;
+        }
+
+        function nextCard() {
+            currentIndex++;
+            if (currentIndex >= flashcards.length) {
+                currentIndex = 0;
+            }
+            updateCard();
+        }
+
+        function prevCard() {
+            currentIndex--;
+            if (currentIndex < 0) {
+                currentIndex = flashcards.length - 1;
+            }
+            updateCard();
+        }
+
+        function shuffleCards() {
+            for (let i = flashcards.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [flashcards[i], flashcards[j]] = [flashcards[j], flashcards[i]];
+            }
+            currentIndex = 0;
+            
+            cardInner.style.transform = 'scale(0.95)';
+            
+            setTimeout(() => {
+                cardInner.style.transform = ''; 
+                updateCard();
+            }, 150);
+        }
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'ArrowRight') {
+                nextCard();
+            } else if (event.key === 'ArrowLeft') {
+                prevCard();
+            } else if (event.key === ' ' || event.key === 'Spacebar') {
+                event.preventDefault();
+                flipCard();
+            }
+        });
+
+        init();
+    </script>
+</body>
+</html>
