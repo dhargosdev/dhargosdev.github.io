@@ -1,0 +1,540 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flashcards</title>
+    <!-- Google Fonts (con fallbacks seguros en el CSS por si el instituto también lo bloquea) -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* CSS PURO - Sin dependencias externas */
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --secondary: #ec4899;
+            --text-dark: #1e293b;
+            --text-light: #f8fafc;
+            --card-front-bg: #ffffff;
+            --card-back-bg1: #fde047;
+            --card-back-bg2: #fbbf24;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Nunito', system-ui, -apple-system, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            color: var(--text-dark);
+            /* Fondo con degradado animado */
+            background: linear-gradient(-45deg, #4f46e5, #ec4899, #8b5cf6, #3b82f6);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            /* Evitar selección de texto */
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .container {
+            width: 100%;
+            max-width: 42rem; /* 672px */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* --- HEADER --- */
+        header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            width: 100%;
+        }
+
+        h1 {
+            font-size: 2.25rem;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .subtitle {
+            color: white;
+            font-size: 1.125rem;
+            font-weight: 700;
+            opacity: 0.9;
+        }
+
+        .progress-container {
+            margin-top: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            color: white;
+            font-weight: bold;
+            backdrop-filter: blur(4px);
+        }
+
+        .progress-track {
+            flex-grow: 1;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 9999px;
+            height: 0.625rem; /* 10px */
+            margin-left: 1rem;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            background: #facc15; /* yellow-400 */
+            height: 100%;
+            border-radius: 9999px;
+            transition: width 0.3s ease;
+            width: 2%;
+        }
+
+        /* --- TARJETA 3D --- */
+        .card-scene {
+            perspective: 1000px;
+            width: 100%;
+            margin-bottom: 2rem;
+            cursor: pointer;
+        }
+
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 20rem;
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+            border-radius: 1.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        .card-inner.is-flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            border-radius: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            text-align: center;
+            border: 4px solid;
+        }
+
+        .card-front {
+            background: var(--card-front-bg);
+            border-color: #e0e7ff; /* indigo-100 */
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.05);
+        }
+
+        .card-back {
+            background: linear-gradient(135deg, var(--card-back-bg1), var(--card-back-bg2));
+            border-color: #eab308; /* yellow-500 */
+            transform: rotateY(180deg);
+        }
+
+        .badge {
+            position: absolute;
+            top: 1rem;
+            left: 1.5rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-size: 0.875rem;
+        }
+
+        .badge-front { color: #818cf8; /* indigo-400 */ }
+        .badge-back { color: #854d0e; /* yellow-800 */ }
+
+        .card-text {
+            font-weight: 800;
+            margin-top: 1rem;
+        }
+
+        .text-front {
+            color: #312e81; /* indigo-900 */
+            font-size: 1.5rem;
+        }
+
+        .text-back {
+            color: #0f172a; /* slate-900 */
+            font-size: 1.25rem;
+        }
+
+        .hint {
+            position: absolute;
+            bottom: 1rem;
+            color: #94a3b8; /* slate-400 */
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        .hint svg {
+            width: 1rem;
+            height: 1rem;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: .5; }
+        }
+
+        /* --- CONTROLES --- */
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+            width: 100%;
+        }
+
+        .btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: bold;
+            padding: 0.75rem 1.5rem;
+            border-radius: 9999px;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            transition: transform 0.15s, background-color 0.2s;
+            font-size: 1rem;
+            font-family: inherit;
+        }
+
+        .btn:hover { transform: scale(1.05); }
+        .btn:active { transform: scale(0.95); }
+
+        .btn-nav {
+            background: rgba(255, 255, 255, 0.9);
+            color: var(--primary);
+        }
+        .btn-nav:hover { background: #ffffff; }
+        
+        .btn-nav.next { color: var(--secondary); }
+
+        .btn-shuffle {
+            background: var(--primary);
+            color: white;
+        }
+        .btn-shuffle:hover { background: var(--primary-hover); }
+
+        /* --- FOOTER --- */
+        footer {
+            margin-top: 2rem;
+            color: rgba(255, 255, 255, 0.7);
+            text-align: center;
+            font-size: 0.875rem;
+        }
+        footer .small-text {
+            margin-top: 0.25rem;
+            font-size: 0.75rem;
+        }
+
+        /* Responsive adjustments */
+        @media (min-width: 640px) {
+            h1 { font-size: 3rem; }
+            .card-inner { height: 24rem; }
+            .text-front { font-size: 2.25rem; }
+            .text-back { font-size: 1.875rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>🛡️ Ciberseguridad 👾</h1>
+            <p class="subtitle">Repaso interactivo</p>
+            
+            <div class="progress-container">
+                <span id="progress-text">Tarjeta 1 de 80</span>
+                <div class="progress-track">
+                    <div id="progress-bar" class="progress-bar"></div>
+                </div>
+            </div>
+        </header>
+
+        <main class="card-scene" onclick="flipCard()">
+            <div id="card-inner" class="card-inner">
+                
+                <!-- Cara Frontal (Pregunta) -->
+                <div class="card-face card-front">
+                    <span class="badge badge-front">🤔 Pregunta</span>
+                    <div id="question-text" class="card-text text-front">
+                        <!-- La pregunta se inserta aquí -->
+                    </div>
+                    <div class="hint">
+                        <span>Toca la tarjeta para ver la respuesta</span>
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"></path></svg>
+                    </div>
+                </div>
+
+                <!-- Cara Trasera (Respuesta) -->
+                <div class="card-face card-back">
+                    <span class="badge badge-back">💡 Respuesta</span>
+                    <div id="answer-text" class="card-text text-back">
+                        <!-- La respuesta se inserta aquí -->
+                    </div>
+                </div>
+
+            </div>
+        </main>
+
+        <nav class="controls">
+            <button onclick="prevCard()" class="btn btn-nav">
+                <span>◀️</span> Anterior
+            </button>
+            
+            <button onclick="shuffleCards()" class="btn btn-shuffle">
+                <span>🔀</span> Mezclar
+            </button>
+
+            <button onclick="nextCard()" class="btn btn-nav next">
+                Siguiente <span>▶️</span>
+            </button>
+        </nav>
+        
+        <footer>
+            <p>Departamento de Tecnología e Informática</p>
+            <p class="small-text">Usa las flechas ⬅️ ➡️ y la barra espaciadora ␣</p>
+        </footer>
+    </div>
+
+    <script>
+const originalFlashcards = [
+{ q: "¿Qué es la seguridad en general? 🛡️", a: "La ausencia de peligro, daño o riesgo."},
+{ q: "¿Qué es la seguridad de la información? 📂", a: "Conjunto de medidas para proteger la información, independientemente de su formato."},
+{ q: "¿Qué es la seguridad informática o ciberseguridad? 💻", a: "Protección de sistemas y datos digitales mediante prevención, detección y corrección."},
+{ q: "¿Qué cuatro principios básicos tiene la seguridad de la información? 🔐", a: "Integridad, disponibilidad, confidencialidad y autenticación."},
+{ q: "¿Qué es la integridad? 📊", a: "Que la información sea exacta, completa y no modificada sin autorización."},
+{ q: "¿Qué es la disponibilidad? ⏱️", a: "Que la información esté accesible cuando se necesite."},
+{ q: "¿Qué es la confidencialidad? 🤫", a: "Que solo accedan a la información las personas autorizadas."},
+{ q: "¿Qué es la autenticación? 👤", a: "Verificación de la identidad de usuarios o sistemas."},
+
+{ q: "¿Qué se protege en seguridad informática? 🧩", a: "Información, hardware y software."},
+{ q: "¿Qué es el big data? 📈", a: "Análisis de grandes volúmenes de datos."},
+{ q: "¿Qué riesgo tiene el big data? ⚠️", a: "La pérdida de privacidad."},
+{ q: "¿Qué es el Internet de las cosas (IoT)? 🌐", a: "Conexión de objetos cotidianos a Internet."},
+{ q: "¿Qué implica el IoT en seguridad? ⚡", a: "Aumenta los riesgos informáticos."},
+
+{ q: "¿Qué es la seguridad activa? 🔒", a: "Medidas para prevenir ataques."},
+{ q: "¿Qué es la seguridad pasiva? 🧯", a: "Medidas para minimizar daños."},
+{ q: "Pon un ejemplo de seguridad activa 🛡️", a: "Antivirus o contraseñas."},
+{ q: "Pon un ejemplo de seguridad pasiva 💾", a: "Copias de seguridad."},
+
+{ q: "¿Qué es la biometría? 🧬", a: "Uso de características físicas para identificar usuarios."},
+{ q: "¿Qué es la autenticación en dos factores? 🔑", a: "Uso de dos métodos para verificar identidad."},
+
+{ q: "¿Qué es la seguridad física? 🏢", a: "Protección del hardware frente a daños físicos."},
+{ q: "¿Qué es la seguridad lógica? 🖥️", a: "Protección del software y los datos."},
+
+{ q: "¿Qué es la seguridad en la persona? 🧑", a: "Protección frente a fraudes y amenazas personales."},
+{ q: "¿Qué protege la seguridad en sistemas? 💻", a: "El ordenador frente a ataques."},
+
+{ q: "¿Qué ley protege los datos personales en España? ⚖️", a: "Ley Orgánica 3/2018."},
+{ q: "¿Qué reglamento europeo regula la protección de datos? 🇪🇺", a: "Reglamento UE 2016/679."},
+
+{ q: "¿Qué es un antivirus? 🦠", a: "Programa que detecta y elimina malware."},
+{ q: "¿Qué es un firewall? 🔥", a: "Sistema que controla el tráfico de red."},
+{ q: "¿Qué es un proxy? 🌍", a: "Intermediario entre el usuario e Internet."},
+{ q: "¿Qué es una VPN? 🔐", a: "Red privada que cifra la conexión."},
+{ q: "¿Qué es un IDS? 🚨", a: "Sistema que detecta intrusiones."},
+
+{ q: "¿Qué es la criptografía? 🔑", a: "Técnica para cifrar información."},
+
+{ q: "¿Qué es un certificado digital? 📜", a: "Documento que identifica a una persona en Internet."},
+{ q: "¿Para qué sirve un certificado digital? 🧾", a: "Autenticar, firmar y cifrar datos."},
+{ q: "¿Qué es la firma electrónica? ✍️", a: "Firma digital con validez legal."},
+
+{ q: "¿Qué es la seguridad pasiva? 🧯", a: "Medidas para reducir el impacto de fallos."},
+{ q: "¿Qué es un SAI? 🔌", a: "Sistema que protege frente a apagones."},
+{ q: "¿Qué es un NAS? 💽", a: "Sistema de almacenamiento en red."},
+{ q: "¿Qué es un backup? 💾", a: "Copia de seguridad de datos."},
+
+{ q: "Indica un síntoma de PC infectado 🐌", a: "Va muy lento."},
+{ q: "Otro síntoma de malware en un PC 💾", a: "Falta espacio en disco."},
+{ q: "Otro síntoma de PC infectado 🧩", a: "Aparecen programas desconocidos."},
+{ q: "Otro síntoma de malware 🖱️", a: "Ratón o teclado actúan raro."},
+
+{ q: "¿Qué es malware? ☠️", a: "Software malicioso."},
+{ q: "¿Qué es un virus? 🦠", a: "Programa que se replica y daña sistemas."},
+{ q: "¿Qué es un gusano? 🐛", a: "Malware que se reproduce rápidamente."},
+{ q: "¿Qué es un troyano? 🐴", a: "Malware oculto en programas aparentemente seguros."},
+{ q: "¿Qué es spyware? 👁️", a: "Software que espía al usuario."},
+{ q: "¿Qué es adware? 📢", a: "Software que muestra publicidad."},
+{ q: "¿Qué es ransomware? 💰", a: "Secuestra datos y pide rescate."},
+{ q: "¿Qué es un keylogger? ⌨️", a: "Registra pulsaciones del teclado."},
+
+{ q: "¿Qué es un hacker? 🧠", a: "Experto que analiza sistemas."},
+{ q: "¿Qué es un cracker? 💥", a: "Persona que rompe sistemas ilegalmente."},
+
+{ q: "¿Qué es el phishing? 🎣", a: "Fraude para robar datos mediante engaño."},
+{ q: "¿Qué es pharming? 🌐", a: "Redirigir a webs falsas."},
+{ q: "¿Qué es un ataque Man in the Middle? 👥", a: "Intercepción de comunicaciones."},
+
+{ q: "¿Qué son las cookies? 🍪", a: "Archivos que guardan información del usuario."},
+
+{ q: "¿Qué es el spam? 📧", a: "Correo no deseado."},
+{ q: "¿Qué son las fake news? 📰", a: "Noticias falsas."},
+
+{ q: "¿Qué es una vulnerabilidad? ⚠️", a: "Debilidad de un sistema."},
+{ q: "¿Qué vulnerabilidad es crítica? 🔥", a: "Permite ataques graves sin intervención."},
+{ q: "¿Qué vulnerabilidad es baja? 🟢", a: "Impacto mínimo."},
+
+{ q: "¿Qué es la privacidad? 🔐", a: "Derecho a proteger nuestros datos."},
+{ q: "¿Por qué nuestros datos tienen valor? 💰", a: "Porque permiten publicidad personalizada."},
+
+{ q: "¿Qué es la huella digital? 👣", a: "Rastro que dejamos en Internet."},
+{ q: "¿Qué es la identidad digital? 🧑‍💻", a: "Información sobre nosotros en la red."},
+
+{ q: "¿Qué es el control parental? 👨‍👩‍👧", a: "Software para supervisar el uso de Internet."},
+
+{ q: "Indica una buena práctica digital ✔️", a: "No compartir datos personales."},
+{ q: "Otra buena práctica ✔️", a: "No hablar con desconocidos."},
+{ q: "Otra ✔️", a: "Usar contraseñas seguras."},
+{ q: "Otra ✔️", a: "No usar WiFi públicas inseguras."},
+
+{ q: "¿Qué es una red social? 🌍", a: "Plataforma para interactuar con otros."},
+{ q: "¿Qué es la netiqueta? 🤝", a: "Normas de comportamiento en Internet."},
+{ q: "¿Qué es un troll? 👹", a: "Usuario que provoca conflictos online."},
+
+{ q: "¿Qué es un CAPTCHA? 🤖", a: "Prueba para distinguir humanos de máquinas."},
+
+{ q: "¿Qué es HTTP? 🌐", a: "Protocolo de transferencia web."},
+{ q: "¿Qué es HTTPS? 🔐", a: "Versión segura de HTTP."},
+{ q: "¿Qué es TCP/IP? 📡", a: "Protocolo de comunicación en redes."},
+{ q: "¿Qué es IPv6? 🌍", a: "Versión avanzada de direcciones IP."},
+
+{ q: "¿Qué es la propiedad intelectual? 📚", a: "Derechos sobre creaciones."},
+{ q: "¿Qué es software comercial? 💰", a: "Software de pago."},
+{ q: "¿Qué es freeware? 🎁", a: "Software gratuito pero no libre."},
+{ q: "¿Qué es software libre? 🆓", a: "Software que se puede modificar y compartir."},
+
+{ q: "¿Qué es una red P2P? 🔄", a: "Red donde los usuarios comparten archivos directamente."},
+{ q: "¿Qué riesgo tienen las redes P2P? ⚠️", a: "Descarga de contenido ilegal o malware."}
+];
+
+        let flashcards = [...originalFlashcards];
+        let currentIndex = 0;
+        let isFlipped = false;
+
+        const cardInner = document.getElementById('card-inner');
+        const questionText = document.getElementById('question-text');
+        const answerText = document.getElementById('answer-text');
+        const progressText = document.getElementById('progress-text');
+        const progressBar = document.getElementById('progress-bar');
+
+        function init() {
+            updateCard();
+        }
+
+        function flipCard() {
+            isFlipped = !isFlipped;
+            if (isFlipped) {
+                cardInner.classList.add('is-flipped');
+            } else {
+                cardInner.classList.remove('is-flipped');
+            }
+        }
+
+        function updateCard() {
+            if (isFlipped) {
+                isFlipped = false;
+                cardInner.classList.remove('is-flipped');
+                setTimeout(() => {
+                    renderText();
+                }, 300);
+            } else {
+                renderText();
+            }
+        }
+
+        function renderText() {
+            questionText.innerText = flashcards[currentIndex].q;
+            answerText.innerText = flashcards[currentIndex].a;
+            
+            const currentNum = currentIndex + 1;
+            const total = flashcards.length;
+            progressText.innerText = `Tarjeta ${currentNum} de ${total}`;
+            progressBar.style.width = `${(currentNum / total) * 100}%`;
+        }
+
+        function nextCard() {
+            currentIndex++;
+            if (currentIndex >= flashcards.length) {
+                currentIndex = 0;
+            }
+            updateCard();
+        }
+
+        function prevCard() {
+            currentIndex--;
+            if (currentIndex < 0) {
+                currentIndex = flashcards.length - 1;
+            }
+            updateCard();
+        }
+
+        function shuffleCards() {
+            for (let i = flashcards.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [flashcards[i], flashcards[j]] = [flashcards[j], flashcards[i]];
+            }
+            currentIndex = 0;
+            
+            cardInner.style.transform = 'scale(0.95)';
+            
+            setTimeout(() => {
+                cardInner.style.transform = ''; 
+                updateCard();
+            }, 150);
+        }
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'ArrowRight') {
+                nextCard();
+            } else if (event.key === 'ArrowLeft') {
+                prevCard();
+            } else if (event.key === ' ' || event.key === 'Spacebar') {
+                event.preventDefault();
+                flipCard();
+            }
+        });
+
+        init();
+    </script>
+</body>
+</html>
