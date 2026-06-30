@@ -4,17 +4,17 @@
 <userPreferences>
   <userPreference>
     <key>theme</key>
-    <value>zen</value>
+    <value>neo</value>
   </userPreference>
 </userPreferences>
 <odeResources>
   <odeResource>
     <key>odeId</key>
-    <value>20260629183214Q3PQP9</value>
+    <value>20260629183142OMKIWE</value>
   </odeResource>
   <odeResource>
     <key>odeVersionId</key>
-    <value>20260629183214SQQBL1</value>
+    <value>202606291831428TOODM</value>
   </odeResource>
   <odeResource>
     <key>exe_version</key>
@@ -44,7 +44,7 @@
   </odeProperty>
   <odeProperty>
     <key>pp_theme</key>
-    <value>zen</value>
+    <value>neo</value>
   </odeProperty>
   <odeProperty>
     <key>pp_exelearning_version</key>
@@ -52,7 +52,7 @@
   </odeProperty>
   <odeProperty>
     <key>pp_modified</key>
-    <value>1782750726805</value>
+    <value>1782835243026</value>
   </odeProperty>
   <odeProperty>
     <key>pp_addExeLink</key>
@@ -91,24 +91,44 @@
 <odeNavStructure>
   <odePageId>4c3007dd-e977-4e78-a9a6-820288550daa</odePageId>
   <odeParentPageId></odeParentPageId>
-  <pageName>Portada</pageName>
+  <pageName>1. Las páginas web y la WWW</pageName>
   <odeNavStructureOrder>0</odeNavStructureOrder>
   <odeNavStructureProperties>
+    <odeNavStructureProperty>
+      <key>titlePage</key>
+      <value>1. Las páginas web y la WWW</value>
+    </odeNavStructureProperty>
+    <odeNavStructureProperty>
+      <key>visibility</key>
+      <value>true</value>
+    </odeNavStructureProperty>
+    <odeNavStructureProperty>
+      <key>highlight</key>
+      <value>false</value>
+    </odeNavStructureProperty>
+    <odeNavStructureProperty>
+      <key>hidePageTitle</key>
+      <value>false</value>
+    </odeNavStructureProperty>
+    <odeNavStructureProperty>
+      <key>editableInPage</key>
+      <value>false</value>
+    </odeNavStructureProperty>
     <odeNavStructureProperty>
       <key>titlePage</key>
       <value>Portada</value>
     </odeNavStructureProperty>
     <odeNavStructureProperty>
       <key>titleNode</key>
-      <value>Portada</value>
+      <value>1. Las páginas web y la WWW</value>
     </odeNavStructureProperty>
   </odeNavStructureProperties>
   <odePagStructures>
     <odePagStructure>
       <odePageId>4c3007dd-e977-4e78-a9a6-820288550daa</odePageId>
       <odeBlockId>block-mqzews2h-zq8xfddaa</odeBlockId>
-      <blockName>Introducción a las páginas web</blockName>
-      <iconName>think_alt</iconName>
+      <blockName>Páginas web</blockName>
+      <iconName>book</iconName>
       <odePagStructureOrder>1</odePagStructureOrder>
       <odePagStructureProperties>
         <odePagStructureProperty>
@@ -139,13 +159,84 @@
           <odeIdeviceId>idevice-1782749310992-51rtthbp8</odeIdeviceId>
           <odeIdeviceTypeName>text</odeIdeviceTypeName>
           <htmlView><![CDATA[<div class="exe-text-template">
-    <p>Todos los días usamos páginas web para estudiar, buscar información, comunicarnos, comprar, jugar o consultar servicios. Pero, ¿qué es exactamente una página web? ¿Dónde está almacenada? ¿Qué hace el navegador cuando escribimos una dirección? ¿Qué papel tiene HTML?</p>
-<p>En esta unidad vamos a descubrir cómo funciona la Web desde dentro, sin entrar todavía en la creación práctica de una página. Primero entenderemos los conceptos; después, en otra unidad, podremos empezar a construir nuestras propias páginas.</p>
-<p><img src="{{context_path}}/content/resources/mceclip0.png" /></p>
+    <p>Las páginas web, también llamadas simplemente "webs", son documentos que se utilizan para publicar información en internet. Están diseñadas para ser visualizadas en un navegador, como Chrome, Firefox, Edge o Safari. Fueron inventadas por el británico Tim Berners-Lee y el belga Robert Cailliau mientras trabajaban en el CERN ("Conseil Européen pour la Recherche Nucléaire", Consejo Europeo para la Investigación Nuclear). La primera página web fue publicada en 1990. Era bastante rudimentaria para los estándares actuales, pero fue un avance fundamental. Puedes verla en este enlace:</p>
+<p><a href="https://www.w3.org/History/19921103-hypertext/hypertext/WWW/TheProject.html">https://www.w3.org/History/19921103-hypertext/hypertext/WWW/TheProject.html</a></p>
+<p>Las páginas web se empezaron a hacer populares hacia 1995 y actualmente son una herramienta importante en la vida cotidiana de millones de personas.</p>
+<p><img src="{{context_path}}/content/resources/mceclip1_1.png" /></p>
 </div>]]></htmlView>
-          <jsonProperties><![CDATA[{"ideviceId":"idevice-1782749310992-51rtthbp8","textInfoDurationInput":"","textInfoDurationTextInput":"Duración","textInfoParticipantsInput":"","textInfoParticipantsTextInput":"Agrupamiento","textTextarea":"<p>Todos los días usamos páginas web para estudiar, buscar información, comunicarnos, comprar, jugar o consultar servicios. Pero, ¿qué es exactamente una página web? ¿Dónde está almacenada? ¿Qué hace el navegador cuando escribimos una dirección? ¿Qué papel tiene HTML?</p>\n<p>En esta unidad vamos a descubrir cómo funciona la Web desde dentro, sin entrar todavía en la creación práctica de una página. Primero entenderemos los conceptos; después, en otra unidad, podremos empezar a construir nuestras propias páginas.</p>\n<p><img src=\"{{context_path}}/content/resources/mceclip0.png\" /></p>","textFeedbackInput":"Mostrar retroalimentación","textFeedbackTextarea":""}]]></jsonProperties>
+          <jsonProperties><![CDATA[{"ideviceId":"idevice-1782749310992-51rtthbp8","textInfoDurationInput":"","textInfoDurationTextInput":"Duración","textInfoParticipantsInput":"","textInfoParticipantsTextInput":"Agrupamiento","textTextarea":"<p>Las páginas web, también llamadas simplemente \"webs\", son documentos que se utilizan para publicar información en internet. Están diseñadas para ser visualizadas en un navegador, como Chrome, Firefox, Edge o Safari. Fueron inventadas por el británico Tim Berners-Lee y el belga Robert Cailliau mientras trabajaban en el CERN (\"Conseil Européen pour la Recherche Nucléaire\", Consejo Europeo para la Investigación Nuclear). La primera página web fue publicada en 1990. Era bastante rudimentaria para los estándares actuales, pero fue un avance fundamental. Puedes verla en este enlace:</p>\n<p><a href=\"https://www.w3.org/History/19921103-hypertext/hypertext/WWW/TheProject.html\">https://www.w3.org/History/19921103-hypertext/hypertext/WWW/TheProject.html</a></p>\n<p>Las páginas web se empezaron a hacer populares hacia 1995 y actualmente son una herramienta importante en la vida cotidiana de millones de personas.</p>\n<p><img src=\"{{context_path}}/content/resources/mceclip1_1.png\" /></p>","textFeedbackInput":"Mostrar retroalimentación","textFeedbackTextarea":""}]]></jsonProperties>
           <odeComponentsOrder>0</odeComponentsOrder>
           <odeComponentsProperties>
+            <odeComponentsProperty>
+              <key>visibility</key>
+              <value>true</value>
+            </odeComponentsProperty>
+            <odeComponentsProperty>
+              <key>teacherOnly</key>
+              <value>false</value>
+            </odeComponentsProperty>
+            <odeComponentsProperty>
+              <key>cssClass</key>
+              <value></value>
+            </odeComponentsProperty>
+          </odeComponentsProperties>
+        </odeComponent>
+      </odeComponents>
+    </odePagStructure>
+    <odePagStructure>
+      <odePageId>4c3007dd-e977-4e78-a9a6-820288550daa</odePageId>
+      <odeBlockId>block-mr0td5nf-j1k3khc6m</odeBlockId>
+      <blockName>La World Wide Web</blockName>
+      <iconName>book</iconName>
+      <odePagStructureOrder>1</odePagStructureOrder>
+      <odePagStructureProperties>
+        <odePagStructureProperty>
+          <key>visibility</key>
+          <value>true</value>
+        </odePagStructureProperty>
+        <odePagStructureProperty>
+          <key>teacherOnly</key>
+          <value>false</value>
+        </odePagStructureProperty>
+        <odePagStructureProperty>
+          <key>allowToggle</key>
+          <value>true</value>
+        </odePagStructureProperty>
+        <odePagStructureProperty>
+          <key>minimized</key>
+          <value>false</value>
+        </odePagStructureProperty>
+        <odePagStructureProperty>
+          <key>cssClass</key>
+          <value></value>
+        </odePagStructureProperty>
+      </odePagStructureProperties>
+      <odeComponents>
+        <odeComponent>
+          <odePageId>4c3007dd-e977-4e78-a9a6-820288550daa</odePageId>
+          <odeBlockId>block-mr0td5nf-j1k3khc6m</odeBlockId>
+          <odeIdeviceId>idevice-1782834055896-30320izzw</odeIdeviceId>
+          <odeIdeviceTypeName>text</odeIdeviceTypeName>
+          <htmlView><![CDATA[<div class="exe-text-template">
+    <p>Al conjunto de todos las páginas web que hay en el mundo se le llama la "World Wide Web", que podría traducirse como "la red mundial". De forma coloquial se conoce como "la web".</p>
+<p>Cada página web tiene una dirección en la World Wide Web. Esta dirección web es única, no puede haber otra página con la misma dirección. A la dirección web también se le llama URL (de "Uniform Resource Locator", Localizador Uniforme de Recursos). La línea azul de arriba es un ejemplo de dirección web o URL.</p>
+<p>Un sitio web ("website", en inglés) es una publicación formada por una página web, o un conjunto de páginas web interrelacionadas, que forma una unidad diferenciada. Ejemplos: un diario online, una página personal, etc.</p>
+</div>]]></htmlView>
+          <jsonProperties><![CDATA[{"ideviceId":"idevice-1782834055896-30320izzw","textInfoDurationInput":"","textInfoDurationTextInput":"Duración","textInfoParticipantsInput":"","textInfoParticipantsTextInput":"Agrupamiento","textTextarea":"<p>Al conjunto de todos las páginas web que hay en el mundo se le llama la \"World Wide Web\", que podría traducirse como \"la red mundial\". De forma coloquial se conoce como \"la web\".</p>\n<p>Cada página web tiene una dirección en la World Wide Web. Esta dirección web es única, no puede haber otra página con la misma dirección. A la dirección web también se le llama URL (de \"Uniform Resource Locator\", Localizador Uniforme de Recursos). La línea azul de arriba es un ejemplo de dirección web o URL.</p>\n<p>Un sitio web (\"website\", en inglés) es una publicación formada por una página web, o un conjunto de páginas web interrelacionadas, que forma una unidad diferenciada. Ejemplos: un diario online, una página personal, etc.</p>","textFeedbackInput":"Mostrar retroalimentación","textFeedbackTextarea":""}]]></jsonProperties>
+          <odeComponentsOrder>0</odeComponentsOrder>
+          <odeComponentsProperties>
+            <odeComponentsProperty>
+              <key>visibility</key>
+              <value>true</value>
+            </odeComponentsProperty>
+            <odeComponentsProperty>
+              <key>teacherOnly</key>
+              <value>false</value>
+            </odeComponentsProperty>
+            <odeComponentsProperty>
+              <key>cssClass</key>
+              <value></value>
+            </odeComponentsProperty>
           </odeComponentsProperties>
         </odeComponent>
       </odeComponents>
@@ -153,22 +244,46 @@
   </odePagStructures>
 </odeNavStructure>
 <odeNavStructure>
-  <odePageId>page-mqzeytkn-b5xzs69le</odePageId>
+  <odePageId>page-mr0th6rp-cenkomz4b</odePageId>
   <odeParentPageId></odeParentPageId>
-  <pageName>Antes de empezar</pageName>
+  <pageName>2. ¿Por qué han tenido tanto éxito las páginas web?</pageName>
   <odeNavStructureOrder>1</odeNavStructureOrder>
   <odeNavStructureProperties>
     <odeNavStructureProperty>
       <key>titlePage</key>
-      <value>Antes de empezar</value>
+      <value>2. ¿Por qué han tenido tanto éxito las páginas web?</value>
+    </odeNavStructureProperty>
+    <odeNavStructureProperty>
+      <key>visibility</key>
+      <value>true</value>
+    </odeNavStructureProperty>
+    <odeNavStructureProperty>
+      <key>highlight</key>
+      <value>false</value>
+    </odeNavStructureProperty>
+    <odeNavStructureProperty>
+      <key>hidePageTitle</key>
+      <value>false</value>
+    </odeNavStructureProperty>
+    <odeNavStructureProperty>
+      <key>editableInPage</key>
+      <value>false</value>
+    </odeNavStructureProperty>
+    <odeNavStructureProperty>
+      <key>titlePage</key>
+      <value>2. ¿Por qué han tenido tanto éxito las páginas web?</value>
+    </odeNavStructureProperty>
+    <odeNavStructureProperty>
+      <key>titleNode</key>
+      <value></value>
     </odeNavStructureProperty>
   </odeNavStructureProperties>
   <odePagStructures>
     <odePagStructure>
-      <odePageId>page-mqzeytkn-b5xzs69le</odePageId>
-      <odeBlockId>block-mqzezs5i-2w8xjcmlr</odeBlockId>
-      <blockName>¿Qué sabes ya sobre la Web?</blockName>
-      <iconName>think_alt</iconName>
+      <odePageId>page-mr0th6rp-cenkomz4b</odePageId>
+      <odeBlockId>block-mr0thfm6-mz8us2nj3</odeBlockId>
+      <blockName></blockName>
+      <iconName></iconName>
       <odePagStructureOrder>1</odePagStructureOrder>
       <odePagStructureProperties>
         <odePagStructureProperty>
@@ -194,24 +309,31 @@
       </odePagStructureProperties>
       <odeComponents>
         <odeComponent>
-          <odePageId>page-mqzeytkn-b5xzs69le</odePageId>
-          <odeBlockId>block-mqzezs5i-2w8xjcmlr</odeBlockId>
-          <odeIdeviceId>idevice-1782749451076-5u9n8sge7</odeIdeviceId>
+          <odePageId>page-mr0th6rp-cenkomz4b</odePageId>
+          <odeBlockId>block-mr0thfm6-mz8us2nj3</odeBlockId>
+          <odeIdeviceId>idevice-1782834255434-tol47713k</odeIdeviceId>
           <odeIdeviceTypeName>text</odeIdeviceTypeName>
           <htmlView><![CDATA[<div class="exe-text-template">
-    <p>Responde mentalmente o en tu cuaderno:</p>
-<ol>
-<li>¿Qué páginas web utilizas con más frecuencia?</li>
-<li>¿Qué diferencia crees que hay entre Internet y la Web?</li>
-<li> ¿Qué es para ti un servidor?</li>
-<li>¿Has visto alguna vez código HTML?</li>
-<li>¿Crees que una página web siempre está hecha por una persona escribiendo código?</li>
-</ol>
-<p>No importa si no sabes responder todavía. Al final de la unidad volveremos sobre estas preguntas.</p>
+    <p>El gran éxito de las páginas web se debe a que son una manera muy potente y económica de publicar información. Solo es necesario diseñar las páginas que queremos dar a conocer y colocarlas en un servidor web, algo que se puede hacer con pocos medios y a bajo coste. A partir de ese momento, cualquier persona que se conecte al servidor, desde cualquier lugar del mundo, podrá consultar la información.</p>
+<p>Un servidor web no es más que un ordenador, parecido a los que tenemos en casa, que está especializado en suministrar las páginas web que tiene almacenadas.</p>
+<p>Antes de las páginas web transmitir información a un público numeroso era algo muy caro y lento, básicamente se hacía a través de medios impresos (diarios, revistas, libros, etc.) o mediante radio y televisión. Gracias a las páginas web, cualquier persona o empresa puede publicar información y darla a conocer a todo el mundo en cuestión de minutos.</p>
+<p><img src="{{context_path}}/content/resources/mceclip2.png" /></p>
 </div>]]></htmlView>
-          <jsonProperties><![CDATA[{"ideviceId":"idevice-1782749451076-5u9n8sge7","textInfoDurationInput":"","textInfoDurationTextInput":"Duración","textInfoParticipantsInput":"","textInfoParticipantsTextInput":"Agrupamiento","textTextarea":"<p>Responde mentalmente o en tu cuaderno:</p>\n<ol>\n<li>¿Qué páginas web utilizas con más frecuencia?</li>\n<li>¿Qué diferencia crees que hay entre Internet y la Web?</li>\n<li> ¿Qué es para ti un servidor?</li>\n<li>¿Has visto alguna vez código HTML?</li>\n<li>¿Crees que una página web siempre está hecha por una persona escribiendo código?</li>\n</ol>\n<p>No importa si no sabes responder todavía. Al final de la unidad volveremos sobre estas preguntas.</p>","textFeedbackInput":"Mostrar retroalimentación","textFeedbackTextarea":""}]]></jsonProperties>
+          <jsonProperties><![CDATA[{"ideviceId":"idevice-1782834255434-tol47713k","textInfoDurationInput":"","textInfoDurationTextInput":"Duración","textInfoParticipantsInput":"","textInfoParticipantsTextInput":"Agrupamiento","textTextarea":"<p>El gran éxito de las páginas web se debe a que son una manera muy potente y económica de publicar información. Solo es necesario diseñar las páginas que queremos dar a conocer y colocarlas en un servidor web, algo que se puede hacer con pocos medios y a bajo coste. A partir de ese momento, cualquier persona que se conecte al servidor, desde cualquier lugar del mundo, podrá consultar la información.</p>\n<p>Un servidor web no es más que un ordenador, parecido a los que tenemos en casa, que está especializado en suministrar las páginas web que tiene almacenadas.</p>\n<p>Antes de las páginas web transmitir información a un público numeroso era algo muy caro y lento, básicamente se hacía a través de medios impresos (diarios, revistas, libros, etc.) o mediante radio y televisión. Gracias a las páginas web, cualquier persona o empresa puede publicar información y darla a conocer a todo el mundo en cuestión de minutos.</p>\n<p><img src=\"{{context_path}}/content/resources/mceclip2.png\" /></p>","textFeedbackInput":"Mostrar retroalimentación","textFeedbackTextarea":""}]]></jsonProperties>
           <odeComponentsOrder>0</odeComponentsOrder>
           <odeComponentsProperties>
+            <odeComponentsProperty>
+              <key>visibility</key>
+              <value>true</value>
+            </odeComponentsProperty>
+            <odeComponentsProperty>
+              <key>teacherOnly</key>
+              <value>false</value>
+            </odeComponentsProperty>
+            <odeComponentsProperty>
+              <key>cssClass</key>
+              <value></value>
+            </odeComponentsProperty>
           </odeComponentsProperties>
         </odeComponent>
       </odeComponents>
@@ -219,22 +341,46 @@
   </odePagStructures>
 </odeNavStructure>
 <odeNavStructure>
-  <odePageId>page-mqzf0ocx-tx71rxgxv</odePageId>
+  <odePageId>page-mr0tk49i-oi6sr2jd3</odePageId>
   <odeParentPageId></odeParentPageId>
-  <pageName>Internet y la Web</pageName>
+  <pageName>3. ¿Cómo es un servidor web?</pageName>
   <odeNavStructureOrder>2</odeNavStructureOrder>
   <odeNavStructureProperties>
     <odeNavStructureProperty>
       <key>titlePage</key>
-      <value>Internet y la Web</value>
+      <value>3. ¿Cómo es un servidor web?</value>
+    </odeNavStructureProperty>
+    <odeNavStructureProperty>
+      <key>visibility</key>
+      <value>true</value>
+    </odeNavStructureProperty>
+    <odeNavStructureProperty>
+      <key>highlight</key>
+      <value>false</value>
+    </odeNavStructureProperty>
+    <odeNavStructureProperty>
+      <key>hidePageTitle</key>
+      <value>false</value>
+    </odeNavStructureProperty>
+    <odeNavStructureProperty>
+      <key>editableInPage</key>
+      <value>false</value>
+    </odeNavStructureProperty>
+    <odeNavStructureProperty>
+      <key>titlePage</key>
+      <value>3. ¿Cómo es un servidor web?</value>
+    </odeNavStructureProperty>
+    <odeNavStructureProperty>
+      <key>titleNode</key>
+      <value></value>
     </odeNavStructureProperty>
   </odeNavStructureProperties>
   <odePagStructures>
     <odePagStructure>
-      <odePageId>page-mqzf0ocx-tx71rxgxv</odePageId>
-      <odeBlockId>block-mqzf0rgn-ic03gjv4o</odeBlockId>
-      <blockName>Internet no es lo mismo que la Web</blockName>
-      <iconName>book</iconName>
+      <odePageId>page-mr0tk49i-oi6sr2jd3</odePageId>
+      <odeBlockId>block-mr0tkh8r-51js0um4l</odeBlockId>
+      <blockName></blockName>
+      <iconName></iconName>
       <odePagStructureOrder>1</odePagStructureOrder>
       <odePagStructureProperties>
         <odePagStructureProperty>
@@ -260,37 +406,29 @@
       </odePagStructureProperties>
       <odeComponents>
         <odeComponent>
-          <odePageId>page-mqzf0ocx-tx71rxgxv</odePageId>
-          <odeBlockId>block-mqzf0rgn-ic03gjv4o</odeBlockId>
-          <odeIdeviceId>idevice-1782749496832-wj2qg5oy8</odeIdeviceId>
+          <odePageId>page-mr0tk49i-oi6sr2jd3</odePageId>
+          <odeBlockId>block-mr0tkh8r-51js0um4l</odeBlockId>
+          <odeIdeviceId>idevice-1782834397508-f31kpgw96</odeIdeviceId>
           <odeIdeviceTypeName>text</odeIdeviceTypeName>
           <htmlView><![CDATA[<div class="exe-text-template">
-    <p>Internet es la red mundial que conecta dispositivos y servidores. La Web es un servicio que funciona sobre Internet y que nos permite consultar páginas enlazadas entre sí.</p>
-<p>Una forma sencilla de entenderlo:</p>
-<table border="1" style="width: 100%;">
-<tbody>
-<tr>
-<td style="width: 33.255%;">Concepto</td>
-<td style="width: 33.255%;">Qué es</td>
-<td style="width: 33.2569%;">Ejemplos</td>
-</tr>
-<tr>
-<td style="width: 33.255%;">Internet</td>
-<td style="width: 33.255%;">Infraestructura de comunicación</td>
-<td style="width: 33.2569%;">Redes, routers, servidores, cables, Wi-Fi, fibra óptica.</td>
-</tr>
-<tr>
-<td style="width: 33.255%;">Web</td>
-<td style="width: 33.255%;">Servicio que usa Internet</td>
-<td style="width: 33.2569%;">Sitios web, páginas web, enlaces, navegadores.</td>
-</tr>
-</tbody>
-</table>
-<p>Usamos Internet para muchas cosas: correo electrónico, mensajería, videollamadas, juegos online y también para navegar por la Web.</p>
+    <p>Los servidores web suelen estar instalados en centros de datos ("datacenter", en inglés), como el que puedes ver en la foto de la izquierda. Son locales llenos de armarios metálicos que contienen en su interior servidores apilados uno encima del otro. Los servidores son ordenadores diseñados para estar siempre encendidos, deben tener componentes robustos. En función de los programas que tengan instalados podrán funcionar como servidor web, de correo electrónico, de vídeo, etc. Lo más frecuente es que sean propiedad de una empresa que los alquila a los usuarios o empresas interesados en tener una web, es lo que se llama "hosting" de páginas web.</p>
+<p><img src="{{context_path}}/content/resources/mceclip3.png" /></p>
 </div>]]></htmlView>
-          <jsonProperties><![CDATA[{"ideviceId":"idevice-1782749496832-wj2qg5oy8","textInfoDurationInput":"","textInfoDurationTextInput":"Duración","textInfoParticipantsInput":"","textInfoParticipantsTextInput":"Agrupamiento","textTextarea":"<p>Internet es la red mundial que conecta dispositivos y servidores. La Web es un servicio que funciona sobre Internet y que nos permite consultar páginas enlazadas entre sí.</p>\n<p>Una forma sencilla de entenderlo:</p>\n<table border=\"1\" style=\"width: 100%;\">\n<tbody>\n<tr>\n<td style=\"width: 33.255%;\">Concepto</td>\n<td style=\"width: 33.255%;\">Qué es</td>\n<td style=\"width: 33.2569%;\">Ejemplos</td>\n</tr>\n<tr>\n<td style=\"width: 33.255%;\">Internet</td>\n<td style=\"width: 33.255%;\">Infraestructura de comunicación</td>\n<td style=\"width: 33.2569%;\">Redes, routers, servidores, cables, Wi-Fi, fibra óptica.</td>\n</tr>\n<tr>\n<td style=\"width: 33.255%;\">Web</td>\n<td style=\"width: 33.255%;\">Servicio que usa Internet</td>\n<td style=\"width: 33.2569%;\">Sitios web, páginas web, enlaces, navegadores.</td>\n</tr>\n</tbody>\n</table>\n<p>Usamos Internet para muchas cosas: correo electrónico, mensajería, videollamadas, juegos online y también para navegar por la Web.</p>","textFeedbackInput":"Mostrar retroalimentación","textFeedbackTextarea":""}]]></jsonProperties>
+          <jsonProperties><![CDATA[{"ideviceId":"idevice-1782834397508-f31kpgw96","textInfoDurationInput":"","textInfoDurationTextInput":"Duración","textInfoParticipantsInput":"","textInfoParticipantsTextInput":"Agrupamiento","textTextarea":"<p>Los servidores web suelen estar instalados en centros de datos (\"datacenter\", en inglés), como el que puedes ver en la foto de la izquierda. Son locales llenos de armarios metálicos que contienen en su interior servidores apilados uno encima del otro. Los servidores son ordenadores diseñados para estar siempre encendidos, deben tener componentes robustos. En función de los programas que tengan instalados podrán funcionar como servidor web, de correo electrónico, de vídeo, etc. Lo más frecuente es que sean propiedad de una empresa que los alquila a los usuarios o empresas interesados en tener una web, es lo que se llama \"hosting\" de páginas web.</p>\n<p><img src=\"{{context_path}}/content/resources/mceclip3.png\" /></p>","textFeedbackInput":"Mostrar retroalimentación","textFeedbackTextarea":""}]]></jsonProperties>
           <odeComponentsOrder>0</odeComponentsOrder>
           <odeComponentsProperties>
+            <odeComponentsProperty>
+              <key>visibility</key>
+              <value>true</value>
+            </odeComponentsProperty>
+            <odeComponentsProperty>
+              <key>teacherOnly</key>
+              <value>false</value>
+            </odeComponentsProperty>
+            <odeComponentsProperty>
+              <key>cssClass</key>
+              <value></value>
+            </odeComponentsProperty>
           </odeComponentsProperties>
         </odeComponent>
       </odeComponents>
@@ -298,21 +436,45 @@
   </odePagStructures>
 </odeNavStructure>
 <odeNavStructure>
-  <odePageId>page-mqzf6o65-jdz62bgfo</odePageId>
+  <odePageId>page-mr0tllq4-mrhnzzet2</odePageId>
   <odeParentPageId></odeParentPageId>
-  <pageName>Páginas, sitios y URLs</pageName>
+  <pageName>4. La base de las páginas web es el código HTML</pageName>
   <odeNavStructureOrder>3</odeNavStructureOrder>
   <odeNavStructureProperties>
     <odeNavStructureProperty>
       <key>titlePage</key>
-      <value>Páginas, sitios y URLs</value>
+      <value>4. La base de las páginas web es el código HTML</value>
+    </odeNavStructureProperty>
+    <odeNavStructureProperty>
+      <key>visibility</key>
+      <value>true</value>
+    </odeNavStructureProperty>
+    <odeNavStructureProperty>
+      <key>highlight</key>
+      <value>false</value>
+    </odeNavStructureProperty>
+    <odeNavStructureProperty>
+      <key>hidePageTitle</key>
+      <value>false</value>
+    </odeNavStructureProperty>
+    <odeNavStructureProperty>
+      <key>editableInPage</key>
+      <value>false</value>
+    </odeNavStructureProperty>
+    <odeNavStructureProperty>
+      <key>titlePage</key>
+      <value>4. La base de las páginas web es el código HTML</value>
+    </odeNavStructureProperty>
+    <odeNavStructureProperty>
+      <key>titleNode</key>
+      <value></value>
     </odeNavStructureProperty>
   </odeNavStructureProperties>
   <odePagStructures>
     <odePagStructure>
-      <odePageId>page-mqzf6o65-jdz62bgfo</odePageId>
-      <odeBlockId>block-mqzf6qap-nx5agyanz</odeBlockId>
-      <blockName>Texto</blockName>
+      <odePageId>page-mr0tllq4-mrhnzzet2</odePageId>
+      <odeBlockId>block-mr0tlnyb-j9swbiwhd</odeBlockId>
+      <blockName></blockName>
       <iconName></iconName>
       <odePagStructureOrder>1</odePagStructureOrder>
       <odePagStructureProperties>
@@ -339,26 +501,85 @@
       </odePagStructureProperties>
       <odeComponents>
         <odeComponent>
-          <odePageId>page-mqzf6o65-jdz62bgfo</odePageId>
-          <odeBlockId>block-mqzf6qap-nx5agyanz</odeBlockId>
-          <odeIdeviceId>idevice-1782749775262-rv7zhuse9</odeIdeviceId>
+          <odePageId>page-mr0tllq4-mrhnzzet2</odePageId>
+          <odeBlockId>block-mr0tlnyb-j9swbiwhd</odeBlockId>
+          <odeIdeviceId>idevice-1782834452860-jeabox53m</odeIdeviceId>
           <odeIdeviceTypeName>text</odeIdeviceTypeName>
           <htmlView><![CDATA[<div class="exe-text-template">
-    <p>Una página web es un recurso que puede mostrarse en un navegador. Puede contener texto, imágenes, vídeos, enlaces, formularios y otros elementos.</p>
-<p>Un sitio web es un conjunto organizado de páginas relacionadas. Por ejemplo, la web de un instituto puede tener una página de inicio, una página de noticias, una página de contacto y varias páginas para departamentos.</p>
-<p>Una URL es la dirección que usamos para localizar un recurso en Internet.</p>
-<p>Ejemplo:</p>
-<p><code>https://www.ejemplo.com/recursos/tema1.html</code></p>
-<p><code></code>Partes básicas:</p>
-<ul>
-<li><code>https://</code> : protocolo seguro.</li>
-<li><code>www.ejemplo.com</code> : dominio.</li>
-<li><code>/recursos/tema1.html</code> : ruta del recurso.</li>
-</ul>
+    <p>Las páginas web se escriben utilizando un lenguaje denominado HTML ("HyperText Markup Language" o Lenguaje de Marcado de Hipertexto). Se dice que es un lenguaje de marcado porque utiliza marcas (también llamadas etiquetas o "tags") para describir las características del contenido. Por ejemplo, si ponemos: `&lt;title&gt;Éste es el título&lt;/title&gt;` indicamos al navegador que el texto situado entre dos marcas "title" es el título de la web. Se le llama "de hipertexto" porque tiene enlaces que, al ser clicados, llevan al usuario a la información que hay en otra web. Debajo puedes ver el ejemplo de una web muy básica. El texto de la izquierda es su código HTML (lo que nos da el servidor web). A la derecha puedes ver cómo lo formatea el navegador: interpreta las marcas que hay en el código y, siguiendo sus indicaciones, "dibuja" la web que muestra al usuario.</p>
+<p><img src="{{context_path}}/content/resources/mceclip4.png" /></p>
 </div>]]></htmlView>
-          <jsonProperties><![CDATA[{"ideviceId":"idevice-1782749775262-rv7zhuse9","textInfoDurationInput":"","textInfoDurationTextInput":"Duración","textInfoParticipantsInput":"","textInfoParticipantsTextInput":"Agrupamiento","textTextarea":"<p>Una página web es un recurso que puede mostrarse en un navegador. Puede contener texto, imágenes, vídeos, enlaces, formularios y otros elementos.</p>\n<p>Un sitio web es un conjunto organizado de páginas relacionadas. Por ejemplo, la web de un instituto puede tener una página de inicio, una página de noticias, una página de contacto y varias páginas para departamentos.</p>\n<p>Una URL es la dirección que usamos para localizar un recurso en Internet.</p>\n<p>Ejemplo:</p>\n<p><code>https://www.ejemplo.com/recursos/tema1.html</code></p>\n<p><code></code>Partes básicas:</p>\n<ul>\n<li><code>https://</code> : protocolo seguro.</li>\n<li><code>www.ejemplo.com</code> : dominio.</li>\n<li><code>/recursos/tema1.html</code> : ruta del recurso.</li>\n</ul>","textFeedbackInput":"Mostrar retroalimentación","textFeedbackTextarea":""}]]></jsonProperties>
+          <jsonProperties><![CDATA[{"ideviceId":"idevice-1782834452860-jeabox53m","textInfoDurationInput":"","textInfoDurationTextInput":"Duración","textInfoParticipantsInput":"","textInfoParticipantsTextInput":"Agrupamiento","textTextarea":"<p>Las páginas web se escriben utilizando un lenguaje denominado HTML (\"HyperText Markup Language\" o Lenguaje de Marcado de Hipertexto). Se dice que es un lenguaje de marcado porque utiliza marcas (también llamadas etiquetas o \"tags\") para describir las características del contenido. Por ejemplo, si ponemos: `&lt;title&gt;Éste es el título&lt;/title&gt;` indicamos al navegador que el texto situado entre dos marcas \"title\" es el título de la web. Se le llama \"de hipertexto\" porque tiene enlaces que, al ser clicados, llevan al usuario a la información que hay en otra web. Debajo puedes ver el ejemplo de una web muy básica. El texto de la izquierda es su código HTML (lo que nos da el servidor web). A la derecha puedes ver cómo lo formatea el navegador: interpreta las marcas que hay en el código y, siguiendo sus indicaciones, \"dibuja\" la web que muestra al usuario.</p>\n<p><img src=\"{{context_path}}/content/resources/mceclip4.png\" /></p>","textFeedbackInput":"Mostrar retroalimentación","textFeedbackTextarea":""}]]></jsonProperties>
           <odeComponentsOrder>0</odeComponentsOrder>
           <odeComponentsProperties>
+            <odeComponentsProperty>
+              <key>visibility</key>
+              <value>true</value>
+            </odeComponentsProperty>
+            <odeComponentsProperty>
+              <key>teacherOnly</key>
+              <value>false</value>
+            </odeComponentsProperty>
+            <odeComponentsProperty>
+              <key>cssClass</key>
+              <value></value>
+            </odeComponentsProperty>
+          </odeComponentsProperties>
+        </odeComponent>
+      </odeComponents>
+    </odePagStructure>
+    <odePagStructure>
+      <odePageId>page-mr0tllq4-mrhnzzet2</odePageId>
+      <odeBlockId>block-mr0tnt4h-zkd9fg25q</odeBlockId>
+      <blockName></blockName>
+      <iconName></iconName>
+      <odePagStructureOrder>1</odePagStructureOrder>
+      <odePagStructureProperties>
+        <odePagStructureProperty>
+          <key>visibility</key>
+          <value>true</value>
+        </odePagStructureProperty>
+        <odePagStructureProperty>
+          <key>teacherOnly</key>
+          <value>false</value>
+        </odePagStructureProperty>
+        <odePagStructureProperty>
+          <key>allowToggle</key>
+          <value>true</value>
+        </odePagStructureProperty>
+        <odePagStructureProperty>
+          <key>minimized</key>
+          <value>false</value>
+        </odePagStructureProperty>
+        <odePagStructureProperty>
+          <key>cssClass</key>
+          <value></value>
+        </odePagStructureProperty>
+      </odePagStructureProperties>
+      <odeComponents>
+        <odeComponent>
+          <odePageId>page-mr0tllq4-mrhnzzet2</odePageId>
+          <odeBlockId>block-mr0tnt4h-zkd9fg25q</odeBlockId>
+          <odeIdeviceId>idevice-1782834552879-769dwvdxh</odeIdeviceId>
+          <odeIdeviceTypeName>text</odeIdeviceTypeName>
+          <htmlView><![CDATA[<div class="exe-text-template">
+    <p><img src="{{context_path}}/content/resources/mceclip5.png" /></p>
+</div>]]></htmlView>
+          <jsonProperties><![CDATA[{"ideviceId":"idevice-1782834552879-769dwvdxh","textInfoDurationInput":"","textInfoDurationTextInput":"Duración","textInfoParticipantsInput":"","textInfoParticipantsTextInput":"Agrupamiento","textTextarea":"<p><img src=\"{{context_path}}/content/resources/mceclip5.png\" /></p>","textFeedbackInput":"Mostrar retroalimentación","textFeedbackTextarea":""}]]></jsonProperties>
+          <odeComponentsOrder>0</odeComponentsOrder>
+          <odeComponentsProperties>
+            <odeComponentsProperty>
+              <key>visibility</key>
+              <value>true</value>
+            </odeComponentsProperty>
+            <odeComponentsProperty>
+              <key>teacherOnly</key>
+              <value>false</value>
+            </odeComponentsProperty>
+            <odeComponentsProperty>
+              <key>cssClass</key>
+              <value></value>
+            </odeComponentsProperty>
           </odeComponentsProperties>
         </odeComponent>
       </odeComponents>
@@ -366,113 +587,45 @@
   </odePagStructures>
 </odeNavStructure>
 <odeNavStructure>
-  <odePageId>page-mqzfb06l-h3wduh720</odePageId>
+  <odePageId>page-mr0totrz-64u0w1j43</odePageId>
   <odeParentPageId></odeParentPageId>
-  <pageName>Navegadores y servidores</pageName>
+  <pageName>5. Editores HTML</pageName>
   <odeNavStructureOrder>4</odeNavStructureOrder>
   <odeNavStructureProperties>
     <odeNavStructureProperty>
       <key>titlePage</key>
-      <value>Navegadores y servidores</value>
+      <value>5. Editores HTML</value>
     </odeNavStructureProperty>
-  </odeNavStructureProperties>
-  <odePagStructures>
-    <odePagStructure>
-      <odePageId>page-mqzfb06l-h3wduh720</odePageId>
-      <odeBlockId>block-mqzfb3xc-6rby3zzv7</odeBlockId>
-      <blockName>¿Qué ocurre cuando abrimos una web?</blockName>
-      <iconName>arts</iconName>
-      <odePagStructureOrder>1</odePagStructureOrder>
-      <odePagStructureProperties>
-        <odePagStructureProperty>
-          <key>visibility</key>
-          <value>true</value>
-        </odePagStructureProperty>
-        <odePagStructureProperty>
-          <key>teacherOnly</key>
-          <value>false</value>
-        </odePagStructureProperty>
-        <odePagStructureProperty>
-          <key>allowToggle</key>
-          <value>true</value>
-        </odePagStructureProperty>
-        <odePagStructureProperty>
-          <key>minimized</key>
-          <value>false</value>
-        </odePagStructureProperty>
-        <odePagStructureProperty>
-          <key>cssClass</key>
-          <value></value>
-        </odePagStructureProperty>
-      </odePagStructureProperties>
-      <odeComponents>
-        <odeComponent>
-          <odePageId>page-mqzfb06l-h3wduh720</odePageId>
-          <odeBlockId>block-mqzfb3xc-6rby3zzv7</odeBlockId>
-          <odeIdeviceId>idevice-1782749979548-e2mrxciv5</odeIdeviceId>
-          <odeIdeviceTypeName>casestudy</odeIdeviceTypeName>
-          <htmlView><![CDATA[<div class="exe-casestudy-container">
-  
-        <div class="caseStudyContent">            
-            <div class="CSP-Info mb-3">
-                
-            <dl>
-                <div class="inline"><dt><span title=""></span></dt><dd></dd></div>
-                <div class="inline"><dt><span title=""></span></dt><dd></dd></div>
-            </dl>
-            </div>
-            <div class="CSP-History mb-3" >
-                <p>Imagina que Ana escribe en el navegador la dirección de la web de su instituto.</p>
-<ol>
-<li>El navegador interpreta la URL.</li>
-<li>Busca dónde está el servidor  correspondiente.</li>
-<li>Solicita la página.</li>
-<li>El servidor responde enviando los recursos necesarios.</li>
-<li>El navegador interpreta esos recursos y muestra la página.<br /></li>
-</ol>
-            </div>
-            <div class="CSP-Activities mb-3">
-                
-                <div class="CSP-ActivityDiv ">
-                    <div class="CSP-Activity mb-3">
-                        <p>En este proceso, el navegador actúa como cliente y el servidor entrega la información solicitada.</p>
-                    </div>
-                    
-                    <div class="CSP-FeedbackText feedback js-feedback js-hidden" style="display: none;">
-                        
-                    </div>
-                </div>
-            
-            </div>
-        </div>
-    
-</div>
-]]></htmlView>
-          <jsonProperties><![CDATA[{"id":"idevice-1782749979548-e2mrxciv5","typeGame":"Case study","history":"<p>Imagina que Ana escribe en el navegador la dirección de la web de su instituto.</p>\n<ol>\n<li>El navegador interpreta la URL.</li>\n<li>Busca dónde está el servidor  correspondiente.</li>\n<li>Solicita la página.</li>\n<li>El servidor responde enviando los recursos necesarios.</li>\n<li>El navegador interpreta esos recursos y muestra la página.<br /></li>\n</ol>","textInfoDurationInput":"","textInfoDurationTextInput":"Duración","textInfoParticipantsInput":"","textInfoParticipantsTextInput":"Agrupamiento","activities":[{"activity":"<p>En este proceso, el navegador actúa como cliente y el servidor entrega la información solicitada.</p>","feedback":"","buttonCaption":"Mostrar retroalimentación"}]}]]></jsonProperties>
-          <odeComponentsOrder>0</odeComponentsOrder>
-          <odeComponentsProperties>
-          </odeComponentsProperties>
-        </odeComponent>
-      </odeComponents>
-    </odePagStructure>
-  </odePagStructures>
-</odeNavStructure>
-<odeNavStructure>
-  <odePageId>page-mqzff19p-jh5rtikj1</odePageId>
-  <odeParentPageId></odeParentPageId>
-  <pageName>Servidores, hosting y centros de datos</pageName>
-  <odeNavStructureOrder>5</odeNavStructureOrder>
-  <odeNavStructureProperties>
+    <odeNavStructureProperty>
+      <key>visibility</key>
+      <value>true</value>
+    </odeNavStructureProperty>
+    <odeNavStructureProperty>
+      <key>highlight</key>
+      <value>false</value>
+    </odeNavStructureProperty>
+    <odeNavStructureProperty>
+      <key>hidePageTitle</key>
+      <value>false</value>
+    </odeNavStructureProperty>
+    <odeNavStructureProperty>
+      <key>editableInPage</key>
+      <value>false</value>
+    </odeNavStructureProperty>
     <odeNavStructureProperty>
       <key>titlePage</key>
-      <value>Servidores, hosting y centros de datos</value>
+      <value>5. Editores HTML</value>
+    </odeNavStructureProperty>
+    <odeNavStructureProperty>
+      <key>titleNode</key>
+      <value></value>
     </odeNavStructureProperty>
   </odeNavStructureProperties>
   <odePagStructures>
     <odePagStructure>
-      <odePageId>page-mqzff19p-jh5rtikj1</odePageId>
-      <odeBlockId>block-mqzff2yl-3z3n1ux9o</odeBlockId>
-      <blockName>Texto</blockName>
+      <odePageId>page-mr0totrz-64u0w1j43</odePageId>
+      <odeBlockId>block-mr0tovte-wo0bdcfkq</odeBlockId>
+      <blockName></blockName>
       <iconName></iconName>
       <odePagStructureOrder>1</odePagStructureOrder>
       <odePagStructureProperties>
@@ -499,20 +652,39 @@
       </odePagStructureProperties>
       <odeComponents>
         <odeComponent>
-          <odePageId>page-mqzff19p-jh5rtikj1</odePageId>
-          <odeBlockId>block-mqzff2yl-3z3n1ux9o</odeBlockId>
-          <odeIdeviceId>idevice-1782750164920-t01umfeyb</odeIdeviceId>
+          <odePageId>page-mr0totrz-64u0w1j43</odePageId>
+          <odeBlockId>block-mr0tovte-wo0bdcfkq</odeBlockId>
+          <odeIdeviceId>idevice-1782834603023-cq5igvke5</odeIdeviceId>
           <odeIdeviceTypeName>text</odeIdeviceTypeName>
           <htmlView><![CDATA[<div class="exe-text-template">
-    <p>Las páginas web y sus datos se alojan en servidores. Un servidor puede ser un ordenador físico, una máquina virtual o un servicio en la nube.</p>
-<p>Muchos servidores están en centros de datos: edificios preparados para mantener equipos funcionando todo el tiempo, con buena conexión, seguridad, refrigeración y sistemas eléctricos de respaldo.</p>
-<p>Cuando contratamos un lugar para guardar y publicar una web hablamos de <strong>hosting</strong> o alojamiento web.</p>
-<p><strong>Nota importante:</strong> una web moderna no siempre está formada por archivos simples guardados en una carpeta. También puede usar bases de datos, servicios externos, almacenamiento distribuido o redes CDN.</p>
-<p><img src="{{context_path}}/content/resources/mceclip1.png" /></p>
+    <p>Una página web básica es un archivo que tiene texto en su interior, el código HTML. Para indicar al sistema operativo y a los navegadores que este archivo es una página web, debe tener la extensión ".html", como en el ejemplo de la derecha.</p>
+<p>Se puede crear una página web escribiendo el código HTML en cualquier editor de texto. En las prácticas 1, 2 y 3 veremos cómo hacer una web utilizando el editor de texto más sencillo que hay: el bloc de notas del sistema operativo.</p>
+<p>Los diseñadores profesionales de páginas web utilizan programas especializados para escribir el código HTML llamados "editores HTML". Son programas que facilitan la escritura del código HTML, por ejemplo destacando con colores las etiquetas del código, recordando el nombre de algunas etiquetas, avisando si hay errores, etc. Abajo puedes ver un ejemplo.</p>
+<p><img src="{{context_path}}/content/resources/mceclip6.png" /></p>
+<p>Existen muchos editores HTML, aquí se muestran algunos de los más usados.</p>
+<ul>
+<li>Dreamweaver</li>
+<li>Visual Studio Code</li>
+<li>Sublime Text</li>
+<li>Brackets</li>
+<li>Atom</li>
+</ul>
 </div>]]></htmlView>
-          <jsonProperties><![CDATA[{"ideviceId":"idevice-1782750164920-t01umfeyb","textInfoDurationInput":"","textInfoDurationTextInput":"Duración","textInfoParticipantsInput":"","textInfoParticipantsTextInput":"Agrupamiento","textTextarea":"<p>Las páginas web y sus datos se alojan en servidores. Un servidor puede ser un ordenador físico, una máquina virtual o un servicio en la nube.</p>\n<p>Muchos servidores están en centros de datos: edificios preparados para mantener equipos funcionando todo el tiempo, con buena conexión, seguridad, refrigeración y sistemas eléctricos de respaldo.</p>\n<p>Cuando contratamos un lugar para guardar y publicar una web hablamos de <strong>hosting</strong> o alojamiento web.</p>\n<p><strong>Nota importante:</strong> una web moderna no siempre está formada por archivos simples guardados en una carpeta. También puede usar bases de datos, servicios externos, almacenamiento distribuido o redes CDN.</p>\n<p><img src=\"{{context_path}}/content/resources/mceclip1.png\" /></p>","textFeedbackInput":"Mostrar retroalimentación","textFeedbackTextarea":""}]]></jsonProperties>
+          <jsonProperties><![CDATA[{"ideviceId":"idevice-1782834603023-cq5igvke5","textInfoDurationInput":"","textInfoDurationTextInput":"Duración","textInfoParticipantsInput":"","textInfoParticipantsTextInput":"Agrupamiento","textTextarea":"<p>Una página web básica es un archivo que tiene texto en su interior, el código HTML. Para indicar al sistema operativo y a los navegadores que este archivo es una página web, debe tener la extensión \".html\", como en el ejemplo de la derecha.</p>\n<p>Se puede crear una página web escribiendo el código HTML en cualquier editor de texto. En las prácticas 1, 2 y 3 veremos cómo hacer una web utilizando el editor de texto más sencillo que hay: el bloc de notas del sistema operativo.</p>\n<p>Los diseñadores profesionales de páginas web utilizan programas especializados para escribir el código HTML llamados \"editores HTML\". Son programas que facilitan la escritura del código HTML, por ejemplo destacando con colores las etiquetas del código, recordando el nombre de algunas etiquetas, avisando si hay errores, etc. Abajo puedes ver un ejemplo.</p>\n<p><img src=\"{{context_path}}/content/resources/mceclip6.png\" /></p>\n<p>Existen muchos editores HTML, aquí se muestran algunos de los más usados.</p>\n<ul>\n<li>Dreamweaver</li>\n<li>Visual Studio Code</li>\n<li>Sublime Text</li>\n<li>Brackets</li>\n<li>Atom</li>\n</ul>","textFeedbackInput":"Mostrar retroalimentación","textFeedbackTextarea":""}]]></jsonProperties>
           <odeComponentsOrder>0</odeComponentsOrder>
           <odeComponentsProperties>
+            <odeComponentsProperty>
+              <key>visibility</key>
+              <value>true</value>
+            </odeComponentsProperty>
+            <odeComponentsProperty>
+              <key>teacherOnly</key>
+              <value>false</value>
+            </odeComponentsProperty>
+            <odeComponentsProperty>
+              <key>cssClass</key>
+              <value></value>
+            </odeComponentsProperty>
           </odeComponentsProperties>
         </odeComponent>
       </odeComponents>
@@ -520,22 +692,241 @@
   </odePagStructures>
 </odeNavStructure>
 <odeNavStructure>
-  <odePageId>page-mqzfh903-yspln1wib</odePageId>
+  <odePageId>page-mr0trvcw-ot5b7a70w</odePageId>
   <odeParentPageId></odeParentPageId>
-  <pageName>HTML: la base de la Web</pageName>
-  <odeNavStructureOrder>6</odeNavStructureOrder>
+  <pageName>6. ¿Cómo se coloca una página web en el servidor?</pageName>
+  <odeNavStructureOrder>5</odeNavStructureOrder>
   <odeNavStructureProperties>
     <odeNavStructureProperty>
       <key>titlePage</key>
-      <value>HTML: la base de la Web</value>
+      <value>6. ¿Cómo se coloca una página web en el servidor?</value>
+    </odeNavStructureProperty>
+    <odeNavStructureProperty>
+      <key>visibility</key>
+      <value>true</value>
+    </odeNavStructureProperty>
+    <odeNavStructureProperty>
+      <key>highlight</key>
+      <value>false</value>
+    </odeNavStructureProperty>
+    <odeNavStructureProperty>
+      <key>hidePageTitle</key>
+      <value>false</value>
+    </odeNavStructureProperty>
+    <odeNavStructureProperty>
+      <key>editableInPage</key>
+      <value>false</value>
+    </odeNavStructureProperty>
+    <odeNavStructureProperty>
+      <key>titlePage</key>
+      <value>6. ¿Cómo se coloca una página web en el servidor?</value>
+    </odeNavStructureProperty>
+    <odeNavStructureProperty>
+      <key>titleNode</key>
+      <value></value>
     </odeNavStructureProperty>
   </odeNavStructureProperties>
   <odePagStructures>
     <odePagStructure>
-      <odePageId>page-mqzfh903-yspln1wib</odePageId>
-      <odeBlockId>block-mqzfhrlx-sagcayevn</odeBlockId>
-      <blockName>HTML estructura el contenido</blockName>
-      <iconName>book</iconName>
+      <odePageId>page-mr0trvcw-ot5b7a70w</odePageId>
+      <odeBlockId>block-mr0trx4x-4p7291mbe</odeBlockId>
+      <blockName></blockName>
+      <iconName></iconName>
+      <odePagStructureOrder>1</odePagStructureOrder>
+      <odePagStructureProperties>
+        <odePagStructureProperty>
+          <key>visibility</key>
+          <value>true</value>
+        </odePagStructureProperty>
+        <odePagStructureProperty>
+          <key>teacherOnly</key>
+          <value>false</value>
+        </odePagStructureProperty>
+        <odePagStructureProperty>
+          <key>allowToggle</key>
+          <value>true</value>
+        </odePagStructureProperty>
+        <odePagStructureProperty>
+          <key>minimized</key>
+          <value>false</value>
+        </odePagStructureProperty>
+        <odePagStructureProperty>
+          <key>cssClass</key>
+          <value></value>
+        </odePagStructureProperty>
+      </odePagStructureProperties>
+      <odeComponents>
+        <odeComponent>
+          <odePageId>page-mr0trvcw-ot5b7a70w</odePageId>
+          <odeBlockId>block-mr0trx4x-4p7291mbe</odeBlockId>
+          <odeIdeviceId>idevice-1782834744699-axjvkz3uz</odeIdeviceId>
+          <odeIdeviceTypeName>text</odeIdeviceTypeName>
+          <htmlView><![CDATA[<div class="exe-text-template">
+    <p>Para colocar en un servidor web una página que hemos hecho en nuestro ordenador y permitir así que pueda verla todo el mundo, debemos utilizar un programa de FTP (de "File Transfer Protocol", Protocolo de Transferencia de Archivos). Un programa de FTP conecta nuestro ordenador con el servidor a través de internet y nos permite transferir archivos entre ambos. En este caso lo utilizamos para "subir" al servidor las páginas web que hemos creado. Se puede utilizar un programa de FTP especializado, como FileZilla, aunque la mayoría de editores HTML, como Dreamweaver, tienen incorporado un programa de FTP.</p>
+<p><img src="{{context_path}}/content/resources/mceclip7.png" /></p>
+</div>]]></htmlView>
+          <jsonProperties><![CDATA[{"ideviceId":"idevice-1782834744699-axjvkz3uz","textInfoDurationInput":"","textInfoDurationTextInput":"Duración","textInfoParticipantsInput":"","textInfoParticipantsTextInput":"Agrupamiento","textTextarea":"<p>Para colocar en un servidor web una página que hemos hecho en nuestro ordenador y permitir así que pueda verla todo el mundo, debemos utilizar un programa de FTP (de \"File Transfer Protocol\", Protocolo de Transferencia de Archivos). Un programa de FTP conecta nuestro ordenador con el servidor a través de internet y nos permite transferir archivos entre ambos. En este caso lo utilizamos para \"subir\" al servidor las páginas web que hemos creado. Se puede utilizar un programa de FTP especializado, como FileZilla, aunque la mayoría de editores HTML, como Dreamweaver, tienen incorporado un programa de FTP.</p>\n<p><img src=\"{{context_path}}/content/resources/mceclip7.png\" /></p>","textFeedbackInput":"Mostrar retroalimentación","textFeedbackTextarea":""}]]></jsonProperties>
+          <odeComponentsOrder>0</odeComponentsOrder>
+          <odeComponentsProperties>
+            <odeComponentsProperty>
+              <key>visibility</key>
+              <value>true</value>
+            </odeComponentsProperty>
+            <odeComponentsProperty>
+              <key>teacherOnly</key>
+              <value>false</value>
+            </odeComponentsProperty>
+            <odeComponentsProperty>
+              <key>cssClass</key>
+              <value></value>
+            </odeComponentsProperty>
+          </odeComponentsProperties>
+        </odeComponent>
+      </odeComponents>
+    </odePagStructure>
+  </odePagStructures>
+</odeNavStructure>
+<odeNavStructure>
+  <odePageId>page-mr0ttdms-afz2cagx8</odePageId>
+  <odeParentPageId></odeParentPageId>
+  <pageName>7. Aplicaciones para crear páginas web fácilmente</pageName>
+  <odeNavStructureOrder>6</odeNavStructureOrder>
+  <odeNavStructureProperties>
+    <odeNavStructureProperty>
+      <key>titlePage</key>
+      <value>7. Aplicaciones para crear páginas web fácilmente</value>
+    </odeNavStructureProperty>
+    <odeNavStructureProperty>
+      <key>visibility</key>
+      <value>true</value>
+    </odeNavStructureProperty>
+    <odeNavStructureProperty>
+      <key>highlight</key>
+      <value>false</value>
+    </odeNavStructureProperty>
+    <odeNavStructureProperty>
+      <key>hidePageTitle</key>
+      <value>false</value>
+    </odeNavStructureProperty>
+    <odeNavStructureProperty>
+      <key>editableInPage</key>
+      <value>false</value>
+    </odeNavStructureProperty>
+    <odeNavStructureProperty>
+      <key>titlePage</key>
+      <value>7. Aplicaciones para crear páginas web fácilmente</value>
+    </odeNavStructureProperty>
+    <odeNavStructureProperty>
+      <key>titleNode</key>
+      <value></value>
+    </odeNavStructureProperty>
+  </odeNavStructureProperties>
+  <odePagStructures>
+    <odePagStructure>
+      <odePageId>page-mr0ttdms-afz2cagx8</odePageId>
+      <odeBlockId>block-mr0ttfnp-recdi8hib</odeBlockId>
+      <blockName></blockName>
+      <iconName></iconName>
+      <odePagStructureOrder>1</odePagStructureOrder>
+      <odePagStructureProperties>
+        <odePagStructureProperty>
+          <key>visibility</key>
+          <value>true</value>
+        </odePagStructureProperty>
+        <odePagStructureProperty>
+          <key>teacherOnly</key>
+          <value>false</value>
+        </odePagStructureProperty>
+        <odePagStructureProperty>
+          <key>allowToggle</key>
+          <value>true</value>
+        </odePagStructureProperty>
+        <odePagStructureProperty>
+          <key>minimized</key>
+          <value>false</value>
+        </odePagStructureProperty>
+        <odePagStructureProperty>
+          <key>cssClass</key>
+          <value></value>
+        </odePagStructureProperty>
+      </odePagStructureProperties>
+      <odeComponents>
+        <odeComponent>
+          <odePageId>page-mr0ttdms-afz2cagx8</odePageId>
+          <odeBlockId>block-mr0ttfnp-recdi8hib</odeBlockId>
+          <odeIdeviceId>idevice-1782834815361-79dvfygpi</odeIdeviceId>
+          <odeIdeviceTypeName>text</odeIdeviceTypeName>
+          <htmlView><![CDATA[<div class="exe-text-template">
+    <p>Hemos visto que una página web se crea siguiendo estos dos pasos:</p>
+<ol>
+<li>Se diseña la página o páginas que componen un sitio web utilizando un editor HTML.</li>
+<li>Mediante un programa de FTP se colocan las páginas en un servidor para que todo el mundo pueda verlas.</li>
+</ol>
+<p>Hay una segunda forma, que es la más usada para crear webs sencillas, que consiste en usar un creador de sitios web o "website builder", en inglés. Los creadores de sitios web son páginas web especializadas en crear otras páginas web. Permiten que cualquier persona, sin tener conocimientos avanzados, pueda publicar en la web de forma rápida y sencilla. Simplemente hay que elegir una plantilla (una página web prediseñada) y poner los textos y las fotografías. Hay muchas empresas que ofrecen este servicio: Wix.com (debajo puedes ver una imagen de su web), Wordpress.com, Weebly.com, etc. En las prácticas 4 y 5 de este capítulo utilizaremos una de estas herramientas: Google Sites.</p>
+<p><img src="{{context_path}}/content/resources/mceclip8.png" /></p>
+</div>]]></htmlView>
+          <jsonProperties><![CDATA[{"ideviceId":"idevice-1782834815361-79dvfygpi","textInfoDurationInput":"","textInfoDurationTextInput":"Duración","textInfoParticipantsInput":"","textInfoParticipantsTextInput":"Agrupamiento","textTextarea":"<p>Hemos visto que una página web se crea siguiendo estos dos pasos:</p>\n<ol>\n<li>Se diseña la página o páginas que componen un sitio web utilizando un editor HTML.</li>\n<li>Mediante un programa de FTP se colocan las páginas en un servidor para que todo el mundo pueda verlas.</li>\n</ol>\n<p>Hay una segunda forma, que es la más usada para crear webs sencillas, que consiste en usar un creador de sitios web o \"website builder\", en inglés. Los creadores de sitios web son páginas web especializadas en crear otras páginas web. Permiten que cualquier persona, sin tener conocimientos avanzados, pueda publicar en la web de forma rápida y sencilla. Simplemente hay que elegir una plantilla (una página web prediseñada) y poner los textos y las fotografías. Hay muchas empresas que ofrecen este servicio: Wix.com (debajo puedes ver una imagen de su web), Wordpress.com, Weebly.com, etc. En las prácticas 4 y 5 de este capítulo utilizaremos una de estas herramientas: Google Sites.</p>\n<p><img src=\"{{context_path}}/content/resources/mceclip8.png\" /></p>","textFeedbackInput":"Mostrar retroalimentación","textFeedbackTextarea":""}]]></jsonProperties>
+          <odeComponentsOrder>0</odeComponentsOrder>
+          <odeComponentsProperties>
+            <odeComponentsProperty>
+              <key>visibility</key>
+              <value>true</value>
+            </odeComponentsProperty>
+            <odeComponentsProperty>
+              <key>teacherOnly</key>
+              <value>false</value>
+            </odeComponentsProperty>
+            <odeComponentsProperty>
+              <key>cssClass</key>
+              <value></value>
+            </odeComponentsProperty>
+          </odeComponentsProperties>
+        </odeComponent>
+      </odeComponents>
+    </odePagStructure>
+  </odePagStructures>
+</odeNavStructure>
+<odeNavStructure>
+  <odePageId>page-mr0tuy86-j4r95ohk1</odePageId>
+  <odeParentPageId></odeParentPageId>
+  <pageName>Cuestionario</pageName>
+  <odeNavStructureOrder>7</odeNavStructureOrder>
+  <odeNavStructureProperties>
+    <odeNavStructureProperty>
+      <key>titlePage</key>
+      <value>Cuestionario</value>
+    </odeNavStructureProperty>
+    <odeNavStructureProperty>
+      <key>visibility</key>
+      <value>true</value>
+    </odeNavStructureProperty>
+    <odeNavStructureProperty>
+      <key>highlight</key>
+      <value>false</value>
+    </odeNavStructureProperty>
+    <odeNavStructureProperty>
+      <key>hidePageTitle</key>
+      <value>false</value>
+    </odeNavStructureProperty>
+    <odeNavStructureProperty>
+      <key>editableInPage</key>
+      <value>false</value>
+    </odeNavStructureProperty>
+    <odeNavStructureProperty>
+      <key>titlePage</key>
+      <value>Cuestionario</value>
+    </odeNavStructureProperty>
+    <odeNavStructureProperty>
+      <key>titleNode</key>
+      <value></value>
+    </odeNavStructureProperty>
+  </odeNavStructureProperties>
+  <odePagStructures>
+    <odePagStructure>
+      <odePageId>page-mr0tuy86-j4r95ohk1</odePageId>
+      <odeBlockId>block-mr0tuzsa-nvnho6dhb</odeBlockId>
+      <blockName></blockName>
+      <iconName></iconName>
       <odePagStructureOrder>0</odePagStructureOrder>
       <odePagStructureProperties>
         <odePagStructureProperty>
@@ -561,91 +952,36 @@
       </odePagStructureProperties>
       <odeComponents>
         <odeComponent>
-          <odePageId>page-mqzfh903-yspln1wib</odePageId>
-          <odeBlockId>block-mqzfhrlx-sagcayevn</odeBlockId>
-          <odeIdeviceId>idevice-1782750290177-txde5clt4</odeIdeviceId>
-          <odeIdeviceTypeName>markdown-text</odeIdeviceTypeName>
-          <htmlView><![CDATA[<div class="exe-markdown-template">
-    <div class="markdownTextIdeviceContent">
-            <div class="exe-markdown-activity">
-                <div class="markdown-body"><p>HTML es el lenguaje de marcado básico de la Web. Sirve para indicar la estructura del contenido: títulos, párrafos, enlaces, listas, imágenes, tablas, formularios, etc.</p>
-<p>Ejemplo:</p>
-<pre><code class="html language-html">&lt;!doctype html&gt;
-&lt;html lang="es"&gt;
-&lt;head&gt;
-  &lt;meta charset="utf-8"&gt;
-  &lt;title&gt;Mi primera página&lt;/title&gt;
-&lt;/head&gt;
-&lt;body&gt;
-  &lt;h1&gt;Mi primera página web&lt;/h1&gt;
-  &lt;p&gt;Hola, mundo.&lt;/p&gt;
-  &lt;p&gt;&lt;a href="otra-pagina.html"&gt;Ir a otra página&lt;/a&gt;&lt;/p&gt;
-&lt;/body&gt;
-&lt;/html&gt;
-</code></pre>
-<p>HTML indica qué es cada parte del contenido. El navegador interpreta ese código y muestra la página. Para controlar el aspecto visual se suele usar CSS, y para añadir interactividad se usa JavaScript.</p><p class="clearfix"></p></div>
-            </div></div>
-</div>
-]]></htmlView>
-          <jsonProperties><![CDATA[{"ideviceId":"idevice-1782750290177-txde5clt4","markdownInfoDurationInput":"","markdownInfoDurationTextInput":"Duración","markdownInfoParticipantsInput":"","markdownInfoParticipantsTextInput":"Agrupamiento","markdownTextarea":"HTML es el lenguaje de marcado básico de la Web. Sirve para indicar la estructura del contenido: títulos, párrafos, enlaces, listas, imágenes, tablas, formularios, etc.\n\nEjemplo:\n``` html\n<!doctype html>\n<html lang=\"es\">\n<head>\n  <meta charset=\"utf-8\">\n  <title>Mi primera página</title>\n</head>\n<body>\n  <h1>Mi primera página web</h1>\n  <p>Hola, mundo.</p>\n  <p><a href=\"otra-pagina.html\">Ir a otra página</a></p>\n</body>\n</html>\n```\nHTML indica qué es cada parte del contenido. El navegador interpreta ese código y muestra la página. Para controlar el aspecto visual se suele usar CSS, y para añadir interactividad se usa JavaScript.","markdownFeedbackInput":"Mostrar retroalimentación","markdownFeedbackTextarea":"","markdownTextareaHtml":"<p>HTML es el lenguaje de marcado básico de la Web. Sirve para indicar la estructura del contenido: títulos, párrafos, enlaces, listas, imágenes, tablas, formularios, etc.</p>\n<p>Ejemplo:</p>\n<pre><code class=\"html language-html\">&lt;!doctype html&gt;\n&lt;html lang=\"es\"&gt;\n&lt;head&gt;\n  &lt;meta charset=\"utf-8\"&gt;\n  &lt;title&gt;Mi primera página&lt;/title&gt;\n&lt;/head&gt;\n&lt;body&gt;\n  &lt;h1&gt;Mi primera página web&lt;/h1&gt;\n  &lt;p&gt;Hola, mundo.&lt;/p&gt;\n  &lt;p&gt;&lt;a href=\"otra-pagina.html\"&gt;Ir a otra página&lt;/a&gt;&lt;/p&gt;\n&lt;/body&gt;\n&lt;/html&gt;\n</code></pre>\n<p>HTML indica qué es cada parte del contenido. El navegador interpreta ese código y muestra la página. Para controlar el aspecto visual se suele usar CSS, y para añadir interactividad se usa JavaScript.</p>","markdownFeedbackTextareaHtml":""}]]></jsonProperties>
+          <odePageId>page-mr0tuy86-j4r95ohk1</odePageId>
+          <odeBlockId>block-mr0tuzsa-nvnho6dhb</odeBlockId>
+          <odeIdeviceId>idevice-1782834888102-4iwu7r8dx</odeIdeviceId>
+          <odeIdeviceTypeName>text</odeIdeviceTypeName>
+          <htmlView><![CDATA[<div class="exe-text-template">
+    <ol>
+<li>¿Qué es una página web? ¿Y la "World Wide Web"?</li>
+<li>¿Quién inventó las páginas web? ¿En qué año se publicó la primera web? ¿Cuándo se popularizaron?</li>
+<li>¿Por qué han tenido tanto éxito las páginas web?</li>
+<li>¿Qué es un servidor web? ¿Y un centro de datos?</li>
+<li>¿Qué es el código HTML? ¿Y un editor HTML?</li>
+<li>¿Para qué se utiliza un programa de FTP?</li>
+<li>¿Qué es un creador de sitios web?</li>
+</ol>
+</div>]]></htmlView>
+          <jsonProperties><![CDATA[{"ideviceId":"idevice-1782834888102-4iwu7r8dx","textInfoDurationInput":"","textInfoDurationTextInput":"Duración","textInfoParticipantsInput":"","textInfoParticipantsTextInput":"Agrupamiento","textTextarea":"<ol>\n<li>¿Qué es una página web? ¿Y la \"World Wide Web\"?</li>\n<li>¿Quién inventó las páginas web? ¿En qué año se publicó la primera web? ¿Cuándo se popularizaron?</li>\n<li>¿Por qué han tenido tanto éxito las páginas web?</li>\n<li>¿Qué es un servidor web? ¿Y un centro de datos?</li>\n<li>¿Qué es el código HTML? ¿Y un editor HTML?</li>\n<li>¿Para qué se utiliza un programa de FTP?</li>\n<li>¿Qué es un creador de sitios web?</li>\n</ol>","textFeedbackInput":"Mostrar retroalimentación","textFeedbackTextarea":""}]]></jsonProperties>
           <odeComponentsOrder>0</odeComponentsOrder>
           <odeComponentsProperties>
-          </odeComponentsProperties>
-        </odeComponent>
-      </odeComponents>
-    </odePagStructure>
-  </odePagStructures>
-</odeNavStructure>
-<odeNavStructure>
-  <odePageId>page-mqzfmy0s-q0y2igb8v</odePageId>
-  <odeParentPageId></odeParentPageId>
-  <pageName>Repaso interactivo</pageName>
-  <odeNavStructureOrder>7</odeNavStructureOrder>
-  <odeNavStructureProperties>
-    <odeNavStructureProperty>
-      <key>titlePage</key>
-      <value>Repaso interactivo</value>
-    </odeNavStructureProperty>
-  </odeNavStructureProperties>
-  <odePagStructures>
-    <odePagStructure>
-      <odePageId>page-mqzfmy0s-q0y2igb8v</odePageId>
-      <odeBlockId>block-mqzfn162-9yteiqosv</odeBlockId>
-      <blockName>Relaciona cada concepto con su definición</blockName>
-      <iconName>pieces</iconName>
-      <odePagStructureOrder>1</odePagStructureOrder>
-      <odePagStructureProperties>
-        <odePagStructureProperty>
-          <key>visibility</key>
-          <value>true</value>
-        </odePagStructureProperty>
-        <odePagStructureProperty>
-          <key>teacherOnly</key>
-          <value>false</value>
-        </odePagStructureProperty>
-        <odePagStructureProperty>
-          <key>allowToggle</key>
-          <value>true</value>
-        </odePagStructureProperty>
-        <odePagStructureProperty>
-          <key>minimized</key>
-          <value>false</value>
-        </odePagStructureProperty>
-        <odePagStructureProperty>
-          <key>cssClass</key>
-          <value></value>
-        </odePagStructureProperty>
-      </odePagStructureProperties>
-      <odeComponents>
-        <odeComponent>
-          <odePageId>page-mqzfmy0s-q0y2igb8v</odePageId>
-          <odeBlockId>block-mqzfn162-9yteiqosv</odeBlockId>
-          <odeIdeviceId>idevice-1782750535848-pyoncthi8</odeIdeviceId>
-          <odeIdeviceTypeName>relate</odeIdeviceTypeName>
-          <htmlView><![CDATA[<div class="relaciona-IDevice"><div class="relaciona-instructions gameQP-instructions"><p>Relaciona cada tarjeta con su pareja.</p></div><div class="relaciona-DataGame js-hidden">{"typeGame":"Relaciona","author":"","randomCards":true,"instructions":"<p>Relaciona cada tarjeta con su pareja.</p>","showMinimize":false,"itinerary":{"showClue":false,"clueGame":"","percentageClue":40,"showCodeAccess":false,"codeAccess":"","messageCodeAccess":""},"cardsGame":[{"url":"","x":0,"y":0,"author":"","alt":"","audio":"","color":"#000000","backcolor":"#ffffff","eText":"Navegador","urlBk":"","xBk":0,"yBk":0,"authorBk":"","altBk":"","audioBk":"","colorBk":"#000000","backcolorBk":"#ffffff","eTextBk":"Programa%20que%20permite%20consultar%20p%C3%A1ginas%20web."},{"url":"","x":0,"y":0,"author":"","alt":"","audio":"","color":"#000000","backcolor":"#ffffff","eText":"Servidor%20web","urlBk":"","xBk":0,"yBk":0,"authorBk":"","altBk":"","audioBk":"","colorBk":"#000000","backcolorBk":"#ffffff","eTextBk":"Sistema%20que%20entrega%20recursos%20web%20a%20los%20navegadores."},{"url":"","x":0,"y":0,"author":"","alt":"","audio":"","color":"#000000","backcolor":"#ffffff","eText":"URL","urlBk":"","xBk":0,"yBk":0,"authorBk":"","altBk":"","audioBk":"","colorBk":"#000000","backcolorBk":"#ffffff","eTextBk":"Direcci%C3%B3n%20de%20un%20recurso%20en%20Internet."},{"url":"","x":0,"y":0,"author":"","alt":"","audio":"","color":"#000000","backcolor":"#ffffff","eText":"HTML","urlBk":"","xBk":0,"yBk":0,"authorBk":"","altBk":"","audioBk":"","colorBk":"#000000","backcolorBk":"#ffffff","eTextBk":"Lenguaje%20que%20estructura%20el%20contenido%20de%20una%20p%C3%A1gina."},{"url":"","x":0,"y":0,"author":"","alt":"","audio":"","color":"#000000","backcolor":"#ffffff","eText":"Hosting","urlBk":"","xBk":0,"yBk":0,"authorBk":"","altBk":"","audioBk":"","colorBk":"#000000","backcolorBk":"#ffffff","eTextBk":"Servicio%20para%20alojar%20una%20web%20en%20Internet."},{"url":"","x":0,"y":0,"author":"","alt":"","audio":"","color":"#000000","backcolor":"#ffffff","eText":"Sitio%20web","urlBk":"","xBk":0,"yBk":0,"authorBk":"","altBk":"","audioBk":"","colorBk":"#000000","backcolorBk":"#ffffff","eTextBk":"Sitio%20web"}],"isScorm":0,"textButtonScorm":"Guardar la puntuación","repeatActivity":true,"weighted":100,"textAfter":"","version":2,"percentajeCards":100,"type":0,"showSolution":true,"timeShowSolution":3,"time":3,"evaluation":false,"evaluationID":"1a490be4-bf4f-49ef-b662-9cc7a37f7a53","id":"idevice-1782750535848-pyoncthi8","msgs":{"msgSubmit":"Enviar","msgClue":"¡Genial! La pista es:","msgCodeAccess":"Código de acceso","msgPlayStart":"Pulsa aquí para jugar","msgScore":"Puntuación","msgErrors":"Errores","msgHits":"Aciertos","msgMinimize":"Minimizar","msgMaximize":"Maximizar","msgFullScreen":"Pantalla Completa","msgExitFullScreen":"Salir del modo pantalla completa","msgNoImage":"Pregunta sin imágenes","msgEndGameScore":"Comience la partida antes de guardar la puntuación.","msgScoreScorm":"La puntuación no se puede guardar porque esta página no forma parte  de un paquete SCORM.","msgOnlySaveScore":"¡Solo puede guardar la puntuación una vez!","msgOnlySave":"Solo puede guardar una vez","msgInformation":"Información","msgYouScore":"Su puntuación","msgAuthor":"Autoría","msgOnlySaveAuto":"Su puntuación se guardará después de cada pregunta. Solo puede jugar una vez.","msgSaveAuto":"Su puntuación se guardará automáticamente después de cada pregunta.","msgSeveralScore":"Puede guardar la puntuación tantas veces como quiera","msgYouLastScore":"La última puntuación guardada es","msgActityComply":"Ya ha realizado esta actividad.","msgPlaySeveralTimes":"Puede realizar esta actividad cuantas veces quiera","msgClose":"Cerrar","msgAudio":"Audio","msgNumQuestions":"Número de tarjetas","msgTryAgain":"Necesitas al menos %s% de respuestas correctas para obtener la información. Inténtalo de nuevo.","msgEndGameM":"Has completado el juego. Tu puntuación es %s.","msgUncompletedActivity":"Actividad no completada","msgSuccessfulActivity":"Actividad superada. Puntuación: %s","msgUnsuccessfulActivity":"Actividad no superada. Puntuación: %s","msgTypeGame":"Relaciona","msgCheck":"Comprobar","msgRestart":"Reiniciar"}}</div><div class="game-evaluation-ids js-hidden" data-id="idevice-1782750535848-pyoncthi8" data-evaluationb="false" data-evaluationid="1a490be4-bf4f-49ef-b662-9cc7a37f7a53"></div><div class="relaciona-bns js-hidden">Su navegador no es compatible con esta herramienta.</div></div>]]></htmlView>
-          <jsonProperties></jsonProperties>
-          <odeComponentsOrder>0</odeComponentsOrder>
-          <odeComponentsProperties>
+            <odeComponentsProperty>
+              <key>visibility</key>
+              <value>true</value>
+            </odeComponentsProperty>
+            <odeComponentsProperty>
+              <key>teacherOnly</key>
+              <value>false</value>
+            </odeComponentsProperty>
+            <odeComponentsProperty>
+              <key>cssClass</key>
+              <value></value>
+            </odeComponentsProperty>
           </odeComponentsProperties>
         </odeComponent>
       </odeComponents>
